@@ -9,7 +9,7 @@
 ############################################
 ############################################
 # How to Use this script
-# The script must be provided 3 things to retrieve an WildFire log from the cloud:
+# The script must be provided 2 things to retrieve an WildFire log from the cloud:
 #   1.  An API Key. This is found at https://wildfire.paloaltonetworks.com
 #       under 'My Account'.
 #   2.  The file digest (MD5, SHA-1, or SHA256) of the file that produced the alert. This is in the syslog.
