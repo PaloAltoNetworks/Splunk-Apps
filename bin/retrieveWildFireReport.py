@@ -98,12 +98,12 @@ if len(results) > 0:
 # get each row of result
 for result in results:
   # check to see if the result has in ip field
-  if result.has_key('file_digest'):
+  if result.has_key('file_digest') and result.has_key('report_id'):
     try:
       # get the report
       wfReportXml = retrieveWildFireData(PAN_WF_APIKEY, result['file_digest']).read().strip()
       # Add the file_digest to the XML for correlation to the original WildFire log from the firewall
-      wfReportXml = wfReportXml.replace("</version>", "</version>\n<file_digest>"+result['file_digest']+"</file_digest>", 1)
+      wfReportXml = wfReportXml.replace("</version>", "</version>\n<id>"+result['report_id']+"</id>", 1)
       result['wildfire_report'] = wfReportXml
     except:
       logger.warn("Error retrieving WildFire report for file digest: %s" % result['file_digest'])
