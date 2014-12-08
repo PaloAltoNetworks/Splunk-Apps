@@ -12,18 +12,15 @@
 # The script must be provided 3 things to retrieve an WildFire log from the cloud:
 #   1.  An API Key. This is found at https://wildfire.paloaltonetworks.com
 #       under 'My Account'.
-#   2.  The Serial Number of the device that produced the alert. This is in the syslog.
-#   3.  The ID of the report. This is in the syslog.
+#   2.  The file digest (MD5, SHA-1, or SHA256) of the file that produced the alert. This is in the syslog.
 ###########################################
 ###########################################
 # These are the default values.  You can modify these on the CLI using arguments.
 # (except for the HTTP_PROXY)
 # Your API Key. Found at https://wildfire.paloaltonetworks.com under 'My Account'
 APIKEY = ''
-# Serial number of the device that produced the syslog
-SERIAL = ''
-# Report ID from the WildFire cloud
-REPORTID = ''
+# File Digest of the file in MD5, SHA-1, or SHA256
+HASH = ''
 # if you DO want to go through a proxy, e.g., HTTP_PROXY={squid:'2.2.2.2'}
 HTTP_PROXY = {}
 #########################################################
@@ -50,16 +47,16 @@ def createOpener():
   urllib2.install_opener(opener)  
   return opener
 
-def retrieveWildFireData(apikey, serial, reportid):
+def retrieveWildFireData(apikey, hash):
   # Create a urllib2 opener
   opener = createOpener()
   # URL for WildFire cloud API
-  wfUrl = 'https://wildfire.paloaltonetworks.com/publicapi/report'
+  # https://www.paloaltonetworks.com/documentation/61/wildfire/wf_admin/section_6/chapter_4.html
+  wfUrl = 'https://wildfire.paloaltonetworks.com/publicapi/get/report'
   # Prepare the variables as POST data
   post_data = urllib.urlencode({
     'apikey' : apikey,
-    'device_id' : serial,
-    'report_id' : reportid,
+    'hash' : hash,
   })
   # Create a request object
   wfReq = urllib2.Request(wfUrl)
@@ -78,13 +75,12 @@ def main(argv = sys.argv):
   # setup the option parser
   parser = optparse.OptionParser()
   parser.add_option('-K', '--apikey', dest="APIKEY", default=APIKEY, help="API Key from https://wildfire.paloaltonetworks.com")
-  parser.add_option('-s', '--serial', dest="SERIAL", default=SERIAL, help="Serial number of the device which produced the WildFire syslog")
-  parser.add_option('-i', '--id', dest="REPORTID", default=REPORTID, help="ID of the report in the WildFire cloud")
+  parser.add_option('-H', '--hash', dest="HASH", default=HASH, help="File Digest of the file in MD5, SHA-1, or SHA256")
 
   options, remainder = parser.parse_args()
 
   # Grab WildFire data
-  data = retrieveWildFireData(options.APIKEY, options.SERIAL, options.REPORTID)
+  data = retrieveWildFireData(options.APIKEY, options.HASH)
 
   # Parse XML for fields
   print data.read()
