@@ -12,18 +12,15 @@
 # The script must be provided 3 things to retrieve an WildFire log from the cloud:
 # 1.  An API Key. This is found at https://wildfire.paloaltonetworks.com
 #   under 'My Account'.
-# 2.  The Serial Number of the device that produced the alert. This is in the syslog.
-# 3.  The ID of the report. This is in the syslog.
+# 2.  The file digest (MD5, SHA-1, or SHA256) of the file that produced the alert. This is in the syslog.
 ###########################################
 ###########################################
 # These are the default values.  You can modify these on the CLI using arguments.
 # (except for the HTTP_PROXY)
 # Your API Key. Found at https://wildfire.paloaltonetworks.com under 'My Account'
 APIKEY = ''
-# Serial number of the device that produced the syslog
-SERIAL = ''
-# Report ID from the WildFire cloud
-REPORTID = ''
+# File Digest of the file in MD5, SHA-1, or SHA256
+HASH = ''
 # if you DO want to go through a proxy, e.g., HTTP_PROXY={squid:'2.2.2.2'}
 HTTP_PROXY = {}
 #########################################################
@@ -67,16 +64,16 @@ def getWildFireAPIKey(sessionKey):
   logger.warn("There are Palo Alto Networks WildFire malware events, but no WildFire API Key found, please set the API key in the SplunkforPaloAltoNetworks App set up page")
   raise Exception("No credentials have been found")
 
-def retrieveWildFireData(apikey, serial, reportid):
+def retrieveWildFireData(apikey, hash):
   # Create a urllib2 opener
   opener = createOpener()
   # URL for WildFire cloud API
-  wfUrl = 'https://wildfire.paloaltonetworks.com/publicapi/report'
+  # https://www.paloaltonetworks.com/documentation/61/wildfire/wf_admin/section_6/chapter_4.html
+  wfUrl = 'https://wildfire.paloaltonetworks.com/publicapi/get/report'
   # Prepare the variables as POST data
   post_data = urllib.urlencode({
       'apikey' : apikey,
-      'device_id' : serial,
-      'report_id' : reportid,
+      'hash' : hash,
   })
   # Create a request object
   wfReq = urllib2.Request(wfUrl)
@@ -101,21 +98,21 @@ if len(results) > 0:
 # get each row of result
 for result in results:
   # check to see if the result has in ip field
-  if result.has_key('serial_number') and result.has_key('report_id'):
+  if result.has_key('file_digest'):
     try:
       # get the report
-      wfReportXml = retrieveWildFireData(PAN_WF_APIKEY, result['serial_number'], result['report_id']).read().strip()
-      # Add the report id to the XML for correlation to the original WildFire log from the firewall
-      wfReportXml = wfReportXml.replace("</version>", "</version>\n<id>"+result['report_id']+"</id>", 1)
+      wfReportXml = retrieveWildFireData(PAN_WF_APIKEY, result['file_digest']).read().strip()
+      # Add the file_digest to the XML for correlation to the original WildFire log from the firewall
+      wfReportXml = wfReportXml.replace("</version>", "</version>\n<file_digest>"+result['file_digest']+"</file_digest>", 1)
       result['wildfire_report'] = wfReportXml
     except:
-      logger.warn("Error retrieving WildFire report for report id: %s" % result['report_id'])
+      logger.warn("Error retrieving WildFire report for file digest: %s" % result['file_digest'])
       #log the result row in case of an exception
       logger.info(result)
       stack = traceback.format_exc()
       # log the stack information
       logger.warn(stack)
   else:
-    logger.info("Required fields missing from command. Expected the following fields: serial_number, report_id")
+    logger.info("Required fields missing from command. Expected the following fields: file_digest")
 # output the complete results sent back to splunk
 splunk.Intersplunk.outputResults(results)
