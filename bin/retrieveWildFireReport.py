@@ -13,6 +13,7 @@
 # 1.  An API Key. This is found at https://wildfire.paloaltonetworks.com
 #   under 'My Account'.
 # 2.  The file digest (MD5, SHA-1, or SHA256) of the file that produced the alert. This is in the syslog.
+# 3.  The ID of the report. This is in the syslog.
 ###########################################
 ###########################################
 # These are the default values.  You can modify these on the CLI using arguments.
