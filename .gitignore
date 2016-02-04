@@ -71,6 +71,8 @@ target/
 local.meta
 local/*
 !local/inputs.conf.sample
+!local/macros.conf.custom
+!local/savedsearches.conf.custom
 
 # Git repositories folder
 git-repositories/

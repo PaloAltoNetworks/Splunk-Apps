@@ -1,0 +1,36 @@
+########################
+# This search checks for new WildFire events and retrieves
+# the corresponding report from the WildFire cloud and indexes it.
+########################
+
+### index=main should not be used. Rarely do customers use this index for production data because many roles are provided access by default. 
+### wildfire reports should be stored in a $CUSTOMINDEX$ in order to ensure RBACs are enforced.
+### Default/Main indexes are sometimes left with the default settings and not configured to use volume or size based settings because there is no expectation to use these indexes.
+## This can cause a problem with a customer's retention strategy as valueable data is not aged out or volume managed apropriately.
+
+[WildFire Reports - Retrieve Report]
+cron_schedule = */1 * * * *
+dispatch.earliest_time = -1m@m
+displayview = flashtimeline
+enableSched = 1
+realtime_schedule = 0
+request.ui_dispatch_view = flashtimeline
+search = `pan_wildfire` category="malicious" | panwildfirereport | table wildfire_report | rename wildfire_report AS _raw | collect index=$CUSTOMINDEX$ sourcetype=pan:wildfire_report
+disabled = 0
+
+########################
+# This search checks for new applications and indexes the list of new apps
+# and their properties.  Note that this doesn't add this information to the
+# app lookup table, it just provides a way for administrators to see new
+# applications and if any of their traffic matches these new apps.
+########################
+
+[Applications - Retrieve New Apps]
+cron_schedule = * */12 * * *
+dispatch.earliest_time = -1mon
+displayview = flashtimeline
+enableSched = 1
+realtime_schedule = 0
+request.ui_dispatch_view = flashtimeline
+search = `pan_newapps` | table app{@name} | pannewapps | collect index=$CUSTOMINDEX$ sourcetype=pan:newapps
+disabled = 0
