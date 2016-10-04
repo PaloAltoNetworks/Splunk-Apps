@@ -30,4 +30,4 @@ Optionally, you can clone the github repository to install the app.
 
 From the directory `$SPLUNK_HOME/etc/apps/`, type the following command:
 
-    git clone https://github.com/PaloAltoNetworks-BD/SplunkforPaloAltoNetworks.git SplunkforPaloAltoNetworks
+    git clone https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks.git SplunkforPaloAltoNetworks
