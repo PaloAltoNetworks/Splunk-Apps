@@ -22,8 +22,8 @@
     <input type="text" token="user">
       <label>Source User</label>
       <default></default>
-      <prefix>log.user="</prefix>
-      <suffix>"</suffix>
+      <prefix>log.user=</prefix>
+      <suffix></suffix>
     </input>
     <input type="dropdown" token="vsys">
       <label>Virtual System</label>
