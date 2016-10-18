@@ -29,7 +29,6 @@
       <label>User</label>
       <default/>
       <prefix>log.user=</prefix>
-      <suffix></suffix>
     </input>
     <input type="dropdown" token="app">
       <label>Application</label>
