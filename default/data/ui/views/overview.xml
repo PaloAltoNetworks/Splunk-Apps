@@ -3,7 +3,7 @@
   <description/>
   <search id="baseSearch">
     <query>
-      `pan_logs` | fillnull value="" | stats count by host sourcetype log_subtype action category
+      `pan_logs` | fillnull value="" | stats count by serial_number sourcetype log_subtype action category
     </query>
     <earliest>rt-5m</earliest>
     <latest>rt</latest>
@@ -12,7 +12,7 @@
     <single>
       <search base="baseSearch">
         <query>
-          stats dc(host)
+          stats dc(serial_number)
         </query>
       </search>
       <option name="underLabel">PAN Reporting</option>
