@@ -1,0 +1,236 @@
+<form>
+  <label>Config Dashboard</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true">
+      <default>
+        <earliestTime>-60m</earliestTime>
+        <latestTime>now</latestTime>
+      </default>
+    </input>
+    <input type="dropdown" token="admin">
+      <label>Admin</label>
+      <default/>
+      <prefix>log.admin="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.config, log.admin)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="host">
+      <label>Host</label>
+      <default/>
+      <prefix>host="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.config, host)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="host_name">
+      <label>Admin IP</label>
+      <default/>
+      <prefix>log.host_name="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.config, log.host_name)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="client">
+      <label>Admin Type</label>
+      <default/>
+      <prefix>log.client="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.config, log.client)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="cmd">
+      <label>Command</label>
+      <default/>
+      <prefix>log.cmd="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.config, log.cmd)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="result">
+      <label>Result</label>
+      <default/>
+      <prefix>log.result="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.config, log.result)`</populatingSearch>
+    </input>
+  </fieldset>
+  <row>
+    <table>
+      <title>Latest Events</title>
+      <searchString>| `pan_tstats` count FROM `node(log.config)` $admin$ $host$ $host_name$ $client$ $cmd$ $result$ `table(_time host log.serial_number log.admin log.host_name log.client log.result log.cmd log.configuration_path)` | sort -_time</searchString>
+      <earliestTime>$earliest$</earliestTime>
+      <latestTime>$latest$</latestTime>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">area</option>
+      <option name="charting.chart.nullValueMode">connect</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">bottom</option>
+      <option name="wrap">false</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">cell</option>
+      <option name="count">10</option>
+      <drilldown>
+        <link field="_time">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` _time=$row._time|s$
+        ]]>
+        </link>
+        <link field="result">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` result=$row.result|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+        </link>
+        <link field="serial_number">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` serial_number=$row.serial_number|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+        </link>
+        <link field="host">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` host=$row.host|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+        </link>
+        <link field="admin">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` admin=$row.admin|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+        </link>
+        <link field="host_name">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` host_name=$row.host_name|s$&earliest=$earliest$&latest=$latest$
+	  ]]>
+        </link>
+        <link field="client">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` client=$row.client|s$&earliest=$earliest$&latest=$latest$
+	  ]]>
+        </link>
+        <link field="configuration_path">
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_config` configuration_path=$row.configuration_path|s$
+	  ]]>
+        </link>
+      </drilldown>
+      <option name="rowNumbers">false</option>
+    </table>
+  </row>
+  <row>
+    <chart>
+      <title>Config Events</title>
+      <searchString>| `pan_tstats` count FROM `node(log.config)` $admin$ $host$ $host_name$ $client$ $cmd$ $result$ groupby _time log.cmd | timechart values(count) by log.cmd</searchString>
+      <earliestTime>$earliest$</earliestTime>
+      <latestTime>$latest$</latestTime>
+      <option name="charting.axisTitleX.visibility">collapsed</option>
+      <option name="charting.axisTitleY.visibility">collapsed</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">column</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">bottom</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` cmd=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
+	  ]]>
+        </link>
+      </drilldown>
+    </chart>
+    <chart>
+      <title>Configuration Administrators</title>
+      <searchString>| `pan_tstats` count FROM `node(log.config)` $admin$ $host$ $host_name$ $client$ $cmd$ $result$ groupby _time log.admin | timechart values(count) by log.admin</searchString>
+      <earliestTime>$earliest$</earliestTime>
+      <latestTime>$latest$</latestTime>
+      <option name="charting.axisTitleX.visibility">collapsed</option>
+      <option name="charting.axisTitleY.visibility">collapsed</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">column</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">bottom</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` admin=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
+	  ]]>
+        </link>
+      </drilldown>
+    </chart>
+  </row>
+  <row>
+    <chart>
+      <title>Clients Used</title>
+      <searchString>| `pan_tstats` count FROM `node(log.config)` $admin$ $host$ $host_name$ $client$ $cmd$ $result$ groupby log.host_name</searchString>
+      <earliestTime>$earliest$</earliestTime>
+      <latestTime>$latest$</latestTime>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
+	  ]]>
+        </link>
+      </drilldown>
+    </chart>
+    <chart>
+      <title>Results</title>
+      <searchString>| `pan_tstats` count FROM `node(log.config)` $admin$ $host$ $host_name$ $client$ $cmd$ $result$ groupby log.result</searchString>
+      <earliestTime>$earliest$</earliestTime>
+      <latestTime>$latest$</latestTime>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
+	  ]]>
+        </link>
+      </drilldown>
+    </chart>
+  </row>
+</form>

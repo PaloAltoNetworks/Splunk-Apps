@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?><dashboard>
+  <label>Overview</label>
+  <description/>
+  <search id="baseSearch">
+    <query>
+      `pan_logs` | fillnull value="" | stats count by host sourcetype log_subtype action category
+    </query>
+    <earliest>rt-5m</earliest>
+    <latest>rt</latest>
+  </search>
+  <row>
+    <single>
+      <search base="baseSearch">
+        <query>
+          stats dc(host)
+        </query>
+      </search>
+      <option name="underLabel">PAN Reporting</option>
+    </single>
+    <single>
+      <search base="baseSearch">
+        <query>
+          stats sum(count) as sum count(count) | eval sum=if(isnull(sum),0,sum)
+        </query>
+      </search>
+      <option name="underLabel">Total Events</option>
+    </single>
+    <single>
+      <search base="baseSearch">
+        <query>
+          search action=block* OR action=deny | stats sum(count) as sum count(count) | eval sum=if(isnull(sum),0,sum)
+        </query>
+      </search>
+      <option name="underLabel">Total Blocks</option>
+    </single>
+    <single>
+      <search>
+        <query>
+          search sourcetype="pan:traffic" category!="any" category!="private-ip-addresses" category!="not-resolved"  | sort -count | head 1 | stats values(category) as category count(category) | eval category=if(isnull(category),"---",category)
+        </query
+        >
+        <earliest>rt-5m</earliest>
+        <latest>rt</latest>
+      </search>
+      <option name="underLabel">Top URL Category</option>
+    </single>
+  </row>
+  <row>
+    <chart>
+      <title>Event Types</title>
+      <search>
+        <query>
+          `pan_logs` sourcetype="pan:*" log_subtype="*" | timechart span=10s count by log_subtype
+        </query>
+        <earliest>rt-5m</earliest>
+        <latest>rt</latest>
+      </search>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">area</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.gaugeAutoRanges">1</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="displayRowNumbers">false</option>
+      <option name="drilldown">cell</option>
+      <option name="histogram">0</option>
+      <option name="list.drilldown">full</option>
+      <option name="list.wrap">1</option>
+      <option name="maxLines">5</option>
+      <option name="raw.drilldown">full</option>
+      <option name="rowNumbers">0</option>
+      <option name="table.drilldown">0</option>
+      <option name="table.sortDirection">asc</option>
+      <option name="table.wrap">1</option>
+      <option name="type">list</option>
+      <option name="wrap">true</option>
+      <option name="count">10</option>
+      <option name="charting.axisTitleX.visibility">collapsed</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.axisTitleY.text">Events</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` sourcetype="pan:*" log_subtype=$click.name2|s$&earliest=-5m&latest=now
+              ]]>
+        </link>
+      </drilldown>
+    </chart>
+    <table>
+      <title>Top Applications</title>
+      <search>
+        <query>`pan_traffic` | stats sparkline sum(bytes) AS sbytes by app vsys src_zone | sort -sbytes | head 8 | eval Application=upper(app) | eval "Vol in MB"=round(sbytes/1024/1024) |rename sparkline AS Distribution | rename vsys AS VSYS| rename src_zone AS "Src Zone" | table Application VSYS "Src Zone" "Vol in MB" Distribution
+        </query>
+        <earliest>rt-5m</earliest>
+        <latest>rt</latest>
+      </search>
+      <option name="dataOverlayMode">none</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="drilldown">cell</option>
+      <option name="wrap">false</option>
+      <option name="count">10</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` sourcetype="pan:traffic" app=$click.value|s$&earliest=-5m&latest=now
+              ]]>
+        </link>
+      </drilldown>
+    </table>
+  </row>
+  <row>
+    <table>
+      <title>Recently Added to Applipedia</title>
+      <search>
+        <query>
+          eventtype="pan_newapps" | dedup app{@name} sortby +_time | sort -_time | table _time app{@name} app.technology app.category app.subcategory app.risk | convert timeformat="%m/%d/%y" ctime(_time) | rename _time AS "Date added" | rename app{@name} AS Name | rename app.technology AS Technology | rename app.category AS Category | rename app.subcategory AS Subcategory | rename app.risk AS Risk
+        </query>
+        <earliest>-2w@w</earliest>
+        <latest>now</latest>
+      </search>
+      <option name="list.drilldown">full</option>
+      <option name="list.wrap">1</option>
+      <option name="maxLines">5</option>
+      <option name="raw.drilldown">full</option>
+      <option name="rowNumbers">false</option>
+      <option name="table.drilldown">1</option>
+      <option name="table.wrap">1</option>
+      <option name="type">list</option>
+      <option name="wrap">false</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">10</option>
+    </table>
+  </row>
+  <row>
+    <map>
+      <title>Applications by Destination IP Location</title>
+      <search>
+        <query>
+          `pan_traffic` | iplocation "dest_ip" | geostats count by app
+        </query>
+        <earliest>rt-5m</earliest>
+        <latest>rt</latest>
+      </search>
+    </map>
+  </row>
+</dashboard>

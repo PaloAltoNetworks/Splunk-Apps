@@ -1,0 +1,172 @@
+<form>
+  <label>Threat Details</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true">
+      <default>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="threat_name">
+      <label>Threat</label>
+      <default/>
+      <prefix>log.threat_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>User</label>
+      <default/>
+      <prefix>log.user=</prefix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default/>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="location">
+      <label>Location</label>
+      <default/>
+      <prefix>log.server_location="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <search id="baseSearch">
+    <query>
+      | `pan_tstats` values(log.user) as user values(log.server_ip) as server_ip values(log.app) as app values(log.server_location) as server_location values(sourcetype) as sourcetype values(log.threat_name) as threat_name sum(log.bytes) as bytes sum(log.duration) as duration FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR (nodename="log.threat" $threat_name$)) "$user|s$" $app$ $location$ `groupby(log.session_id)` | search sourcetype="pan:threat" | eval KB=bytes/1024
+    </query>
+  </search>
+    <row>
+    <chart>
+      <title>Locations by Kilobytes</title>
+      <search base="baseSearch">
+        <query>
+          stats sum(KB) as "Total Bytes (KB)" by server_location | rename server_location AS "Server Location" | sort -"Total Bytes (KB)"
+        </query>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">connect</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+      <option name="charting.legend.placement">bottom</option>
+      <option name="wrap">true</option>
+      <option name="displayRowNumbers">false</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">cell</option>
+      <option name="count">10</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/threat_detail?form.location=$click.value$
+    ]]>
+        </link>
+      </drilldown>
+    </chart>
+    <chart>
+      <title>Users by Kilobytes</title>
+      <search base="baseSearch">
+        <query>
+          stats sum(KB) as "Transferred (KB)" by user | sort -"Transferred (KB)"
+        </query>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/threat_detail?form.$click.name$=$click.value$
+    ]]>
+        </link>
+      </drilldown>
+      <option name="wrap">true</option>
+      <option name="rowNumbers">false</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">10</option>
+    </chart>
+  </row>
+  <row>
+    <table>
+      <title>Bytes Transferred Duration by Users</title>
+      <search base="baseSearch">
+        <query>
+          stats sum(KB) as "Transfer (KB)" sum(duration) as "Total Duration" by user app server_location
+        </query>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <option name="wrap">true</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">10</option>
+      <option name="rowNumbers">true</option>
+    </table>
+  </row>
+  <row>
+    <table>
+      <title>Threats by Bytes Transferred and Sessions</title>
+      <search base="baseSearch">
+        <query>
+          stats sum(KB) as "Transfer (KB)" count(session_id) as "Total Sessions" by threat_name
+        </query>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <option name="wrap">true</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">10</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/threat_detail?form.threat_name=$click.value$
+    ]]>
+        </link>
+      </drilldown>
+      <option name="rowNumbers">true</option>
+    </table>
+  </row>
+</form>

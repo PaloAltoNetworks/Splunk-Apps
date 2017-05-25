@@ -1,26 +1,24 @@
-.. complexity documentation master file, created by
-   sphinx-quickstart on Tue Jul  9 22:26:36 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Splunk for Palo Alto Networks
+=============================
 
-Palo Alto Networks Device Framework
-===================================
+.. image:: _static/logos.png
 
-Contents:
+The latest documentation is available at http://pansplunk.readthedocs.io
 
+.. #:titlesonly: # Commented out for now
 .. toctree::
+   :caption: Table of Contents
    :maxdepth: 2
 
-   readme
-   usage
-   examples
-   contributing
-   history
-   reference
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   overview
+   getting_started
+   upgrade
+   advanced
+   userid
+   commands
+   universal_forwarder
+   faq
+   troubleshoot
+   trial_demo
+   support
+   release_notes

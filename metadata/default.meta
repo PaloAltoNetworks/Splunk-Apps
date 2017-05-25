@@ -1,0 +1,11 @@
+# This is an app, so export nothing except commands
+[]
+access = read : [ * ], write : [ admin, power ]
+export = none
+
+# Export commands so you can interact w/ the firewall with non-PAN logs
+[commands]
+export = system
+
+[searchbnf]
+export = system

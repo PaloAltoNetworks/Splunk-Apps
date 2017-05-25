@@ -1,0 +1,196 @@
+<form>
+  <label>Data Filtering Dashboard</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true">
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default/>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
+      <default/>
+      <prefix>log.dest_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>Source User</label>
+      <default/>
+      <prefix>log.user=</prefix>
+    </input>
+    <input type="dropdown" token="app">
+      <label>Application</label>
+      <default/>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.data, log.app)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="action">
+      <label>Action</label>
+      <default/>
+      <prefix>log.action="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.data, log.action)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="vsys">
+      <label>Virtual System</label>
+      <default/>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.data, log.vsys)`</populatingSearch>
+    </input>
+  </fieldset>
+  <row>
+    <chart>
+      <title>Data Events</title>
+      <search>
+        <query>
+          | `pan_tstats` count FROM `node(log.data)` "$user|s$" $src_ip$ $dest_ip$ $app$ $action$ $vsys$ groupby _time log.action | timechart values(count) by log.action
+        </query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
+      </search>
+      <option name="charting.axisTitleX.visibility">collapsed</option>
+      <option name="charting.axisTitleY.visibility">collapsed</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">column</option>
+      <option name="charting.chart.nullValueMode">connect</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">bottom</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+          /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` action=$click.name2|s$  earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
+      ]]>
+        </link>
+      </drilldown>
+    </chart>
+    <chart>
+      <title>Application</title>
+      <search>
+        <query>
+          | `pan_tstats` count FROM `node(log.data)` "$user|s$" $src_ip$ $dest_ip$ $app$ $action$ $vsys$ groupby _time log.app | timechart values(count) by log.app
+        </query>
+         <earliest>$earliest$</earliest>
+         <latest>$latest$</latest>
+      </search>
+      <option name="charting.axisTitleX.visibility">collapsed</option>
+      <option name="charting.axisTitleY.visibility">collapsed</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">column</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">stacked</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">bottom</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$click.name2|s$  earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
+    ]]>
+        </link>
+      </drilldown>
+    </chart>
+  </row>
+  <row>
+    <table>
+      <title>Data Filter Events by Application</title>
+      <search>
+        <query>
+          | `pan_tstats` count FROM `node(log.data)` "$user|s$" $src_ip$ $dest_ip$ $app$ $action$ $vsys$ `table(log.threat_name log.action log.src_ip log.app, count)`
+        </query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <option name="list.drilldown">full</option>
+      <option name="list.wrap">1</option>
+      <option name="maxLines">5</option>
+      <option name="raw.drilldown">full</option>
+      <option name="rowNumbers">false</option>
+      <option name="table.drilldown">1</option>
+      <option name="table.sortDirection">asc</option>
+      <option name="table.wrap">1</option>
+      <option name="type">list</option>
+      <option name="wrap">false</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">10</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` threat_name=$row.threat_name|s$ action=$row.action|s$ src_ip=$row.src_ip|s$ app=$row.app|s$&earliest=$earliest$&latest=$latest$
+    ]]>
+        </link>
+      </drilldown>
+    </table>
+    <table>
+      <title>Data Filter Events by Destination</title>
+      <search>
+        <query>
+          | `pan_tstats` count FROM `node(log.data)` "$user|s$" $src_ip$ $dest_ip$ $app$ $action$ $vsys$ `table(log.action log.src_ip log.dest_ip log.dest_location, count)`
+        </query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">pie</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <option name="wrap">false</option>
+      <option name="displayRowNumbers">false</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">10</option>
+      <drilldown>
+        <link>
+          <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` dest_ip=$row.Destination|s$ dest_location=$row.Location|s$ src_ip=$row.Source|s$&earliest=$earliest$&latest=$latest$
+    ]]>
+        </link>
+      </drilldown>
+      <option name="rowNumbers">false</option>
+    </table>
+  </row>
+</form>
