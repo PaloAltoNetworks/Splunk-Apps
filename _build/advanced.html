@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Advanced Features &mdash; Palo Alto Networks App for Splunk v5.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Palo Alto Networks App for Splunk v5.0.0 documentation" href="index.html"/>
+        <link rel="next" title="User-ID with Splunk" href="userid.html"/>
+        <link rel="prev" title="Upgrade" href="upgrade.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Palo Alto Networks App for Splunk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v5.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#wildfire">WildFire</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sync-user-login-events-with-user-id">Sync user login events with User-ID</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#share-context-with-dynamic-address-groups">Share context with Dynamic Address Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ip-classification">IP Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#un-sanctioned-saas-detection">Un/Sanctioned SaaS Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#automated-remediation">Automated Remediation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update-metadata-from-content-packs">Update metadata from content packs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#external-search-for-autofocus">External Search for AutoFocus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#external-search-for-log-link">External Search for Log Link</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#autofocus-export-list">AutoFocus Export List</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userid.html">User-ID with Splunk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Searchbar Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="universal_forwarder.html">Syslog-ng and Universal Forwarder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshoot.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trial_demo.html">Trail and Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Get Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Palo Alto Networks App for Splunk</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Advanced Features</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/advanced.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="advanced-features">
+<span id="advancedfeatures"></span><h1>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="wildfire">
+<span id="id1"></span><h2>WildFire<a class="headerlink" href="#wildfire" title="Permalink to this headline">¶</a></h2>
+<p>The Palo Alto Networks App can download a behavioral fingerprint of any
+malware seen by WildFire on your network in the form of a <a class="reference external" href="https://www.paloaltonetworks.com/documentation/70/wildfire/wf_admin/monitor-wildfire-activity/wildfire-analysis-reports-close-up.html">WildFire report</a>.
+This report is indexed by Splunk and can be used for advanced correlations
+to detect malicious behavior and indicators of compromise.</p>
+<p>Two steps are needed to enable WildFire report indexing:</p>
+<p><strong>Step 1: Add the Wildfire API key to the Palo Alto Networks App configuration</strong></p>
+<p>During the <a class="reference internal" href="getting_started.html#initialsetup"><span class="std std-ref">initial setup</span></a>, provide the WildFire API key.
+The WildFire API key is found in the WildFire portal on the <strong>Account</strong> tab:
+<a class="reference external" href="https://wildfire.paloaltonetworks.com">https://wildfire.paloaltonetworks.com</a></p>
+<p>To access the configuration screen after initial setup, navigate to the <strong>Palo
+Alto Networks</strong> menu and click <strong>Configuration</strong>.</p>
+<a class="reference internal image-reference" href="_images/configuration.png"><img alt="_images/configuration.png" src="_images/configuration.png" style="width: 70%;" /></a>
+<p><strong>Step 2: Send WildFire logs to Splunk from a Firewall or Panorama</strong></p>
+<p>To send WildFire logs to Splunk, you must configure the firewall (or
+Panorama) with a syslog server, a log forwarding profile that includes
+WildFire logs, and a security rule with a the log forwarding profile and a
+WildFire profile attached. Use the following links to configure WildFire
+logging:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://www.paloaltonetworks.com/documentation/70/pan-os/pan-os/monitoring/configure-syslog-monitoring.html">Configure syslog and log forwarding profiles</a></li>
+<li><a class="reference external" href="https://www.paloaltonetworks.com/documentation/70/wildfire/wf_admin/submit-files-for-wildfire-analysis/forward-files-for-wildfire-analysis.html">Configure WildFire (PAN-OS 7.0)</a></li>
+<li><a class="reference external" href="https://www.paloaltonetworks.com/documentation/61/wildfire/wf_admin/wildfire-cloud-file-analysis/forward-samples-to-the-wildfire-cloud.html">Configure WildFire (PAN-OS 6.1 and earlier)</a></li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The WildFire API key won&#8217;t be used unless there are WildFire logs
+coming from the Firewall or Panorama. The WildFire API key is leveraged to
+get more context around the syslogs from the firewall.</p>
+</div>
+<p>After you&#8217;ve completed both steps, you should see the WildFire dashboard
+start to populate with data. If not, verify the WildFire and logging
+configuration on the firewall.</p>
+<div class="figure" id="id5">
+<img alt="_images/wildfire_dashboard.png" src="_images/wildfire_dashboard.png" />
+<p class="caption"><span class="caption-text">WildFire dashboard with data</span></p>
+</div>
+</div>
+<div class="section" id="sync-user-login-events-with-user-id">
+<span id="syncuserid"></span><h2>Sync user login events with User-ID<a class="headerlink" href="#sync-user-login-events-with-user-id" title="Permalink to this headline">¶</a></h2>
+<p>The Palo Alto Networks firewall will inform Splunk of the user generating
+each connection or event via the syslogs it sends to Splunk.  This assumes
+that the firewall is getting the login information from AD or some other
+authentication system, to know what user is logged into the device
+generating the traffic.</p>
+<p>If authentication logs are being indexed by Splunk, then Splunk can synchronize
+knowledge of where users are logged in with the firewall. For example, if
+Splunk is receiving a radius authentication log where &#8216;user&#8217; is the field
+containing the user who authenticated, and &#8216;ip&#8217; is the field containing the
+IP address where the user logged in, then you can map the user to the ip on
+the firewall.</p>
+<p>In this situation, it is often preferred to use Splunk syslog forwarding to
+a User-ID agent or firewall because it is more efficient.  But there are
+some cases where the user and IP are not in the same log.  For example, if
+an authentication log contains the user and MAC address, and the DHCP log
+contains the MAC address and IP.  A correlation must be done on the MAC
+address to know which IP the user logged in from. In this situation, the
+panuserupdate command is the preferred solution.</p>
+<dl class="docutils">
+<dt>See also:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference internal" href="userid.html#userid"><span class="std std-ref">User-ID with Splunk</span></a></li>
+<li>Searchbar Command: <a class="reference internal" href="commands.html#panuserupdate"><span class="std std-ref">panuserupdate</span></a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="share-context-with-dynamic-address-groups">
+<span id="dag"></span><h2>Share context with Dynamic Address Groups<a class="headerlink" href="#share-context-with-dynamic-address-groups" title="Permalink to this headline">¶</a></h2>
+<p>Tagging an IP address means setting metadata or context on the firewall for
+that IP, which causes it to be added to corresponding Dynamic Address
+Groups in the firewall security policy.  For example, you could create a
+rule in the security policy that blocks any IP address with the tag
+&#8216;bad-actor&#8217;. Initially, no IP addresses would be blocked, but you can
+create a search in Splunk for criteria that represents a problem device,
+and trigger a tagging of that IP address with the &#8216;bad-actor&#8217; tag.  The
+firewall would add the IP address to the Dynamic Address Group in the
+policy automatically and begin blocking the IP.</p>
+<p>Blocking a bad actor is just the beginning, and you aren&#8217;t limited to allow
+or deny as your options.  You could tag an IP address for additional
+scrutiny by the Threat Prevention engine, or as a known trusted server to
+be given additional permissions.  The behaviors are defined by your
+security policy, and how you treat IP addresses with specific tags.</p>
+<p><strong>See also:</strong></p>
+<blockquote>
+<div>Command reference: <a class="reference internal" href="commands.html#pantag"><span class="std std-ref">pantag</span></a></div></blockquote>
+<p>Webinar that explains the concept of automated remediation and demonstrates
+a case study of a real customer using this technique with Splunk and Palo
+Alto Networks today:</p>
+<blockquote>
+<div>Webinar: <a class="reference external" href="https://www.paloaltonetworks.com/resources/webcasts/defeat-apts-improve-security-posture-real-time.html">Defeat APT with Automated Remediation in Splunk</a></div></blockquote>
+<p>Video from a session at Ignite 2015 explains Dynamic Address Groups in more
+detail with several use cases including asset management:</p>
+<blockquote>
+<div>Video: <a class="reference external" href="https://www.youtube.com/watch?v=Kv0SR9KLDj4">Applying Order to Computing Chaos</a></div></blockquote>
+</div>
+<div class="section" id="ip-classification">
+<span id="ipclassification"></span><h2>IP Classification<a class="headerlink" href="#ip-classification" title="Permalink to this headline">¶</a></h2>
+<p>Classify IP addresses in Splunk by any criteria relevant to your environment.
+IP ranges can be designated as <cite>DMZ</cite>, <cite>datacenter</cite>, <cite>VMware</cite>, <cite>serverfarm</cite>,
+<cite>webtier</cite>, or any other relevant keyword to help distinguish and classify a
+group of IP addresses during a search.</p>
+<p>Classifications will show up in the <code class="docutils literal"><span class="pre">src_class</span></code> and <code class="docutils literal"><span class="pre">dest_class</span></code> <a class="footnote-reference" href="#f1" id="id2">[1]</a> fields.</p>
+<p>Classifications are set in the lookup file <code class="docutils literal"><span class="pre">ip_classifictions.csv</span></code> <a class="footnote-reference" href="#f2" id="id3">[2]</a>.
+Add subnets and their classification to the <code class="docutils literal"><span class="pre">ip_classifications.csv</span></code> file, one
+per line.</p>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cidr</span><span class="p">,</span><span class="n">classification</span>
+<span class="mf">10.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span><span class="n">private</span>
+<span class="mf">172.16</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">12</span><span class="p">,</span><span class="n">private</span>
+<span class="mf">192.168</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">16</span><span class="p">,</span><span class="n">private</span>
+<span class="mf">10.5</span><span class="o">.</span><span class="mf">5.0</span><span class="o">/</span><span class="mi">24</span><span class="p">,</span><span class="n">dmz</span>
+<span class="mf">10.240</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">16</span><span class="p">,</span><span class="n">datacenter1</span>
+<span class="mf">192.168</span><span class="o">.</span><span class="mf">5.0</span><span class="o">/</span><span class="mi">24</span><span class="p">,</span><span class="n">partner</span><span class="o">-</span><span class="n">mpls</span>
+</pre></div>
+</div>
+<p>More specific entries take precedence.</p>
+<p>Now look for the classifications in the <code class="docutils literal"><span class="pre">src_class</span></code> and <code class="docutils literal"><span class="pre">dest_class</span></code>
+fields during a search that includes these IP address ranges.</p>
+</div>
+<div class="section" id="un-sanctioned-saas-detection">
+<span id="sanctioned-saas"></span><h2>Un/Sanctioned SaaS Detection<a class="headerlink" href="#un-sanctioned-saas-detection" title="Permalink to this headline">¶</a></h2>
+<p><em>Added in App version 5.0</em></p>
+<p>Classify SaaS applications as sanctioned or unsanctioned for your
+organization. This designation is used in searches using the Splunk searchbar
+and to separate information in the App&#8217;s SaaS Dashboard.</p>
+<p>SaaS applications are designated as sanctioned in the lookup file
+<code class="docutils literal"><span class="pre">sanctioned_saas.csv</span></code> in the Splunk_TA_paloalto Add-on.</p>
+<p>Add each sanctioned SaaS app in the lookup file, one per line.  For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">app</span><span class="p">,</span><span class="n">sanctioned_saas</span>
+<span class="n">paloalto</span><span class="o">-</span><span class="n">wildfire</span><span class="o">-</span><span class="n">cloud</span><span class="p">,</span><span class="n">yes</span>
+<span class="n">boxnet</span><span class="p">,</span><span class="n">yes</span>
+<span class="n">dropbox</span><span class="p">,</span><span class="n">yes</span>
+<span class="n">gmail</span><span class="o">-</span><span class="n">enterprise</span><span class="p">,</span><span class="n">yes</span>
+<span class="n">skype</span><span class="p">,</span><span class="n">yes</span>
+<span class="n">facebook</span><span class="o">-</span><span class="n">base</span><span class="p">,</span><span class="n">yes</span>
+<span class="n">gmail</span><span class="o">-</span><span class="n">chat</span><span class="p">,</span><span class="n">yes</span>
+</pre></div>
+</div>
+<p>Sanctioned designation is found in the field <code class="docutils literal"><span class="pre">app:is_sanctioned_saas</span></code>.</p>
+<p>For a list of all SaaS applications, visit <a class="reference external" href="https://applipedia.paloaltonetworks.com/">Applipedia</a> and under the
+<cite>Characteristics</cite> header, click <cite>SaaS</cite>.</p>
+</div>
+<div class="section" id="automated-remediation">
+<span id="remediation"></span><h2>Automated Remediation<a class="headerlink" href="#automated-remediation" title="Permalink to this headline">¶</a></h2>
+<p>Use the <a class="reference internal" href="commands.html#pantag"><span class="std std-ref">pantag</span></a> command to share context from Splunk to the firewall
+for automated remediation.</p>
+<p>This webinar explains the concept of automated remediation and demonstrates
+a case study of a real customer using this technique with Splunk and Palo
+Alto Networks today:</p>
+<p>Webinar: <a class="reference external" href="https://www.paloaltonetworks.com/resources/webcasts/defeat-apts-improve-security-posture-real-time.html">Defeat APT with Automated Remediation in Splunk</a></p>
+</div>
+<div class="section" id="update-metadata-from-content-packs">
+<span id="contentpack"></span><h2>Update metadata from content packs<a class="headerlink" href="#update-metadata-from-content-packs" title="Permalink to this headline">¶</a></h2>
+<p><em>Added in App version 5.0</em></p>
+<p>The Palo Alto Networks Add-on (TA) comes with two lookup files with metadata
+about applications and threat signatures called <code class="docutils literal"><span class="pre">app_list.csv</span></code> and
+<code class="docutils literal"><span class="pre">threat_list.csv</span></code>, respectively. These lookup tables are responsible for
+populating the app:xyz and threat:xyz fields used in the dashboards and
+displayed during a search.</p>
+<p>The lookup table files are updated with each TA release, but can get out of
+date between releases. To keep the files up to date, they can be updated
+dynamically from the content pack metadata in your firewall or Panorama.
+This is done by creating a saved search inside the TA to periodically pull
+the metadata from the firewall or Panorama and update the lookup tables.</p>
+<p>Create the following saved searches in the TA, by creating the file:
+<code class="docutils literal"><span class="pre">$SPLUNK_HOME/etc/apps/Splunk_TA_paloalto/local/savedsearches.conf</span></code></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Palo</span> <span class="n">Alto</span> <span class="n">Networks</span> <span class="o">-</span> <span class="n">Retrieve</span> <span class="n">ContentPack</span> <span class="n">Apps</span><span class="p">]</span>
+<span class="n">cron_schedule</span> <span class="o">=</span> <span class="mi">5</span> <span class="mi">0</span> <span class="o">*</span> <span class="o">*</span> <span class="mi">6</span>
+<span class="n">dispatch</span><span class="o">.</span><span class="n">earliest_time</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">m</span><span class="nd">@m</span>
+<span class="n">displayview</span> <span class="o">=</span> <span class="n">flashtimeline</span>
+<span class="n">enableSched</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">realtime_schedule</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">request</span><span class="o">.</span><span class="n">ui_dispatch_view</span> <span class="o">=</span> <span class="n">flashtimeline</span>
+<span class="n">search</span> <span class="o">=</span> <span class="o">|</span> <span class="n">pancontentpack</span> <span class="o">&lt;</span><span class="n">IP</span><span class="o">-</span><span class="ow">or</span><span class="o">-</span><span class="n">hostname</span><span class="o">&gt;</span> <span class="n">apps</span> <span class="o">|</span> <span class="n">outputlookup</span> <span class="n">createinapp</span><span class="o">=</span><span class="n">true</span> <span class="n">app_lookup</span>
+<span class="n">disabled</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="p">[</span><span class="n">Palo</span> <span class="n">Alto</span> <span class="n">Networks</span> <span class="o">-</span> <span class="n">Retrieve</span> <span class="n">ContentPack</span> <span class="n">Threats</span><span class="p">]</span>
+<span class="n">cron_schedule</span> <span class="o">=</span> <span class="mi">10</span> <span class="mi">0</span> <span class="o">*</span> <span class="o">*</span> <span class="mi">6</span>
+<span class="n">dispatch</span><span class="o">.</span><span class="n">earliest_time</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">m</span><span class="nd">@m</span>
+<span class="n">displayview</span> <span class="o">=</span> <span class="n">flashtimeline</span>
+<span class="n">enableSched</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">realtime_schedule</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">request</span><span class="o">.</span><span class="n">ui_dispatch_view</span> <span class="o">=</span> <span class="n">flashtimeline</span>
+<span class="n">search</span> <span class="o">=</span> <span class="o">|</span> <span class="n">pancontentpack</span> <span class="o">&lt;</span><span class="n">IP</span><span class="o">-</span><span class="ow">or</span><span class="o">-</span><span class="n">hostname</span><span class="o">&gt;</span> <span class="n">threats</span> <span class="o">|</span> <span class="n">outputlookup</span> <span class="n">createinapp</span><span class="o">=</span><span class="n">true</span> <span class="n">threat_lookup</span>
+<span class="n">disabled</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>Set <code class="docutils literal"><span class="pre">&lt;IP-or-hostname&gt;</span></code> to the IP or hostname of your Firewall or Panorama.
+Ensure you set the credentials for this device in the
+<a class="reference internal" href="getting_started.html#initialsetup"><span class="std std-ref">App configuration</span></a>. This example updates the lookup
+tables every Saturday at 12:05 AM for apps and 12:10 AM for threats.
+Change the cron_schedule to your desired update schedule.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The Palo Alto Networks App version 5.0 or higher must be installed for the
+lookup table update to work. But the saved searches must be created in
+the TA, not the App.</p>
+<p class="last">If using a custom admin role on the firewall, it must have <strong>Configuration</strong>
+permissions for the <strong>XML API</strong>.  See <a class="reference internal" href="getting_started.html#initialsetup"><span class="std std-ref">Step 2: Initial Setup</span></a> in the <a class="reference internal" href="getting_started.html#gettingstarted"><span class="std std-ref">Getting Started</span></a>
+Guide.</p>
+</div>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>The field is called <code class="docutils literal"><span class="pre">dst_class</span></code> in App versions before 5.0</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>Starting in App version 5.0, the <code class="docutils literal"><span class="pre">ip_classifications.csv</span></code> file is located in the Splunk_TA_paloalto Add-on.  Before 5.0, it is in the SplunkforPaloAltoNetworks App.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="external-search-for-autofocus">
+<span id="external-search-autofocus"></span><h2>External Search for AutoFocus<a class="headerlink" href="#external-search-for-autofocus" title="Permalink to this headline">¶</a></h2>
+<p>External Search can be used with AutoFocus <strong>Remote Search</strong> feature. Remote search is a feature in AutoFocus providing a way to search for IOC’s in an external system. The Palo Alto Networks Splunk App can receive a search request from AutoFocus and provide log events that match the search criteria.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This feature is only available on Palo Alto Networks App and requires access to AutoFocus.</p>
+</div>
+<p>Setting up remote search and how to use it in AutoFocus is documented on the Palo Alto Networks Website and will not be covered here. The values needed in <code class="docutils literal"><span class="pre">Step</span> <span class="pre">3</span></code> of the documentation are provided here along with the link to the documentation.</p>
+<ul>
+<li><p class="first"><a class="reference external" href="https://www.paloaltonetworks.com/documentation/autofocus/autofocus/autofocus_admin_guide/autofocus-search/set-up-remote-search">Setup AutoFocus remote search</a></p>
+</li>
+<li><dl class="first docutils">
+<dt>Values to be used in Step 3 of the doc</dt>
+<dd><p class="first">System Type: <code class="docutils literal"><span class="pre">Custom</span></code></p>
+<p class="last">Address: <code class="docutils literal"><span class="pre">https://&lt;SPLUNK</span> <span class="pre">SERVER&gt;:8000/en-US/app/SplunkforPaloAltoNetworks/external_search?search=</span></code></p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="external-search-for-log-link">
+<span id="external-search-log-link"></span><h2>External Search for Log Link<a class="headerlink" href="#external-search-for-log-link" title="Permalink to this headline">¶</a></h2>
+<p>Palo Alto Networks Firewall has a feature called Log Link, which allows you to cross launch into an external search from the Firewall UI. This feature can be used with the Palo Alto Networks Splunk App External Search page.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This feature is only available on Palo Alto Networks App and requires access to PAN-OS CLI.</p>
+</div>
+<p>Example CLI command</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>set deviceconfig system log-link Splunk.Dst url http://&lt;SPLUNK SERVER&gt;:8000/en-US/app/SplunkforPaloAltoNetworks/external_search?search=(dest_ip%20eq%20&#39;{dst}&#39;)
+</pre></div>
+</div>
+<p>Other possible fields to search</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dest_ip</span><span class="o">%</span><span class="mi">20</span><span class="n">eq</span><span class="o">%</span><span class="mi">20</span><span class="s1">&#39;</span><span class="si">{dst}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="n">src_ip</span><span class="o">%</span><span class="mi">20</span><span class="n">eq</span><span class="o">%</span><span class="mi">20</span><span class="s1">&#39;</span><span class="si">{src}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="n">dest_port</span><span class="o">%</span><span class="mi">20</span><span class="n">eq</span><span class="o">%</span><span class="mi">20</span><span class="s1">&#39;</span><span class="si">{dport}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="n">src_port</span><span class="o">%</span><span class="mi">20</span><span class="n">eq</span><span class="o">%</span><span class="mi">20</span><span class="s1">&#39;</span><span class="si">{sport}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="n">protocol</span><span class="o">%</span><span class="mi">20</span><span class="n">eq</span><span class="o">%</span><span class="mi">20</span><span class="s1">&#39;</span><span class="si">{proto}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="autofocus-export-list">
+<span id="id4"></span><h2>AutoFocus Export List<a class="headerlink" href="#autofocus-export-list" title="Permalink to this headline">¶</a></h2>
+<p>With the Palo Alto Networks Splunk Add-on an AutoFocus export list can be added
+as a modular input in Splunk. The modular input utilizes AutoFocus&#8217;s REST API
+to periodically sync an Export List from AutoFocus. The list of artifacts are
+stored in the KVStore and can be accessed via <cite>inputlookup</cite> macros. This data
+can then be used to correlate against other logs.</p>
+<p>Two steps are needed to enable AutoFocus export list syncing:</p>
+<p><strong>Step 1: Add the AutoFocus API key to the Add-on configuration</strong></p>
+<p>During the <a class="reference internal" href="getting_started.html#initialsetup"><span class="std std-ref">initial setup</span></a>, provide the AutoFocus API key.
+The AutoFocus API key is found in the AutoFocus portal on the <strong>Settings</strong> tab:
+<a class="reference external" href="https://autofocus.paloaltonetworks.com">https://autofocus.paloaltonetworks.com</a></p>
+<p>To access the configuration screen after initial setup, navigate to the <strong>Palo
+Alto Networks</strong> menu and click <strong>Configuration</strong>.</p>
+<a class="reference internal image-reference" href="_images/configuration.png"><img alt="_images/configuration.png" src="_images/configuration.png" style="width: 70%;" /></a>
+<p><strong>Step 2: Add AutoFocus Export List to Splunk from a Data Input</strong></p>
+<ul class="simple">
+<li>Learn more about <a class="reference external" href="https://www.paloaltonetworks.com/documentation/70/wildfire/wf_admin/monitor-wildfire-activity/wildfire-analysis-reports-close-up.html`">creating an Export List</a></li>
+</ul>
+<p>To retrieve the export list from AutoFocus, you must configure a data input. From the Settings menu click on <cite>Data Inputs</cite>. Under Local inputs types select <cite>AutoFocus Export List</cite> and add a new list.</p>
+<p>Give your new data input a name by entering it in the <code class="docutils literal"><span class="pre">Name</span></code> field.</p>
+<p>Set the name of your export list in the <code class="docutils literal"><span class="pre">label</span></code> field. This field must match the export list name from AutoFocus.</p>
+<a class="reference internal image-reference" href="_images/af_modinput.png"><img alt="_images/af_modinput.png" src="_images/af_modinput.png" style="width: 70%;" /></a>
+<p>Verify the data is being synced by running a search <code class="docutils literal"><span class="pre">|</span> <span class="pre">`pan_autofocus_export`</span></code></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A pipe(<code class="docutils literal"><span class="pre">|</span></code>) is always used in front of the macro to do a lookup search.</p>
+</div>
+<p><strong>Macros</strong>
+There are several new macros that can be used to correlate a search with the artifacts imported from the AutoFocus Export List.</p>
+<p><code class="docutils literal"><span class="pre">`|</span> <span class="pre">pan_autofocus_export`</span></code> - A macro to search on all export lists. This will return all entries from all AutoFocus inputs.</p>
+<p>The remaining macros requires one argument. Set the <code class="docutils literal"><span class="pre">label</span></code> of the export list you want to search against. Each macro is separated by the artifact types.</p>
+<p><code class="docutils literal"><span class="pre">`|</span> <span class="pre">pan_autofocus_export_dns(label)`</span></code></p>
+<p><code class="docutils literal"><span class="pre">`|</span> <span class="pre">pan_autofocus_export_connection(label)`</span></code></p>
+<p><code class="docutils literal"><span class="pre">`|</span> <span class="pre">pan_autofocus_export_registry(label)`</span></code></p>
+<p><code class="docutils literal"><span class="pre">`|</span> <span class="pre">pan_autofocus_export_file(label)`</span></code></p>
+<p><code class="docutils literal"><span class="pre">`|</span> <span class="pre">pan_autofocus_export_process(label)`</span></code></p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="userid.html" class="btn btn-neutral float-right" title="User-ID with Splunk" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="upgrade.html" class="btn btn-neutral" title="Upgrade" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016, Palo Alto Networks, Inc..
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v5.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

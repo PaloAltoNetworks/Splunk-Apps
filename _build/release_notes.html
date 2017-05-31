@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Release Notes &mdash; Palo Alto Networks App for Splunk v5.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Palo Alto Networks App for Splunk v5.0.0 documentation" href="index.html"/>
+        <link rel="prev" title="Get Support" href="support.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Palo Alto Networks App for Splunk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v5.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userid.html">User-ID with Splunk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Searchbar Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="universal_forwarder.html">Syslog-ng and Universal Forwarder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshoot.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Get Support</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#app">App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-on">Add-on</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#previous-versions">Previous Versions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#app-v5-3-1">App v5.3.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-on-v3-7-1">Add-on v3.7.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#app-v5-3-0">App v5.3.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-on-v3-7-0">Add-on v3.7.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#app-v5-2">App v5.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-on-v3-6">Add-on v3.6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#app-v5-1-0">App v5.1.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#app-v5-0-1">App v5.0.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-on-v3-5-3">Add-on v3.5.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#app-v5-0-0">App v5.0.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-on-v3-5-1">Add-on v3.5.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-on-v3-5-0">Add-on v3.5.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-2-2">v4.2.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-2-1">v4.2.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-2">v4.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-1-3">v4.1.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-1-2">v4.1.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-1-1">v4.1.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-1">v4.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-0-2">v4.0.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-0-1">v4.0.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v4-0">v4.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v3-4">v3.4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v3-3-2">v3.3.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v3-3-1">v3.3.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v3-3">v3.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v3-2-1">v3.2.1</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Palo Alto Networks App for Splunk</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Release Notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/release_notes.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="release-notes">
+<span id="releasenotes"></span><h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="app">
+<h2>App<a class="headerlink" href="#app" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>v5.4.0</dt>
+<dd><ul class="first last simple">
+<li>Endpoint Operations Dashboard</li>
+<li>Endpoint Security Dashboard</li>
+<li>Endpoint Dashboard support new Traps 3.4 fields</li>
+<li>Support for AutoFocus Remote Search via External Search Handler</li>
+<li>Support for Firewall Log Link via External Search Handler</li>
+<li>Improved AutoFocus cross launch</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="add-on">
+<h2>Add-on<a class="headerlink" href="#add-on" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>v3.8.0</dt>
+<dd><ul class="first last simple">
+<li>AutoFocus Export List modular input</li>
+<li>Improved configuration screen allows credentials to be changed</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="previous-versions">
+<h2>Previous Versions<a class="headerlink" href="#previous-versions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="app-v5-3-1">
+<span id="v530"></span><h3>App v5.3.1<a class="headerlink" href="#app-v5-3-1" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Changes made to meet new certification requirements</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="add-on-v3-7-1">
+<h3>Add-on v3.7.1<a class="headerlink" href="#add-on-v3-7-1" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Changes made to meet new certification requirements</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="app-v5-3-0">
+<span id="id1"></span><h3>App v5.3.0<a class="headerlink" href="#app-v5-3-0" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>GlobalProtect Dashboard</li>
+<li>Other updates are in the Add-on (see below)</li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>App 5.3.x requires Add-on 3.7.x</li>
+<li>REQUIRED ACTION: The App setup screen has moved to the Add-on. If you had previously set firewall credentials
+or a WildFire API key in the App setup screen, you&#8217;ll need to set them again in the Add-on
+setup screen.  See <a class="reference internal" href="getting_started.html#initialsetup"><span class="std std-ref">Step 2: Initial Setup</span></a> in the updated <a class="reference internal" href="getting_started.html#gettingstarted"><span class="std std-ref">Getting Started</span></a> Guide.
+You may delete the file <code class="docutils literal"><span class="pre">$SPLUNK_HOME/etc/apps/SplunkforPaloAltoNetworks/local/passwords.conf</span></code>
+to remove the credentails from the App, since they are no longer used.</li>
+<li>Datamodel acceleration might rebuild itself after installation due to updated constraints</li>
+<li>Eventtype pan_threat no longer includes these log_subtypes: url, data, file, and wildfire.
+You might need to update custom searches or panels you created that leverage
+the pan_threat eventtype. There are new eventtypes for each of the removed log_subtypes:
+pan_url, pan_data, pan_file, and pan_wildfire.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="add-on-v3-7-0">
+<h3>Add-on v3.7.0<a class="headerlink" href="#add-on-v3-7-0" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Integration with new Splunk Adaptive Response</li>
+<li>Tag to dynamic address group using modular actions and Adaptive Response</li>
+<li>Submit URL’s from any log in Splunk to WildFire</li>
+<li>Logs with malware hashes have a new event action that links directly to that hash in Autofocus</li>
+<li>Improved tagging for Splunk Enterprise Security, based on customer feedback</li>
+<li>New parser for GlobalProtect logs</li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Eventtype pan_threat no longer includes these log_subtypes: url, data, file, and wildfire.
+You might need to update custom searches or panels you created that leverage
+the pan_threat eventtype. There are new eventtypes for each of the removed log_subtypes:
+pan_url, pan_data, pan_file, and pan_wildfire.</p>
+</div>
+</div>
+<div class="section" id="app-v5-2">
+<h3>App v5.2<a class="headerlink" href="#app-v5-2" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li>Certified by Splunk</li>
+<li>Removed deprecated commands (<strong>panblock</strong> and <strong>panupdate</strong>) as a
+requirement for certification.</li>
+<li>Removes support for Splunk 6.1 and ealier as a requirement for
+certification.</li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you are using Splunk 6.1 or earlier, you must upgrade to Splunk
+6.2 or later before upgrading to App v5.2.0. If you currently use
+<strong>panblock</strong> or <strong>panupdate</strong> commands, please update your usage of the
+App to leverage <a class="reference internal" href="commands.html#pantag"><span class="std std-ref">pantag</span></a> and <a class="reference internal" href="commands.html#panuserupdate"><span class="std std-ref">panuserupdate</span></a> instead.</p>
+</div>
+</div>
+<div class="section" id="add-on-v3-6">
+<h3>Add-on v3.6<a class="headerlink" href="#add-on-v3-6" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>v3.6.1</dt>
+<dd><ul class="first last simple">
+<li>Certified by Splunk</li>
+<li>Add logo files for Splunkbase</li>
+</ul>
+</dd>
+<dt>v3.6.0</dt>
+<dd><ul class="first last simple">
+<li>Support new Traps 3.3.2 log format</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Traps versions before 3.3.2 are no longer supported beginning with</p>
+</div>
+<p>Add-on 3.6.0 and App 5.1.0.</p>
+</div>
+<div class="section" id="app-v5-1-0">
+<h3>App v5.1.0<a class="headerlink" href="#app-v5-1-0" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Datamodel updated to support new Traps 3.3.2 fields</li>
+<li>Endpoint Dashboard updated to support new Traps 3.3.2 fields</li>
+</ul>
+<p>WARNING: Traps versions before 3.3.2 are no longer supported beginning with this App version</p>
+</div>
+<div class="section" id="app-v5-0-1">
+<h3>App v5.0.1<a class="headerlink" href="#app-v5-0-1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix error when using pantag command with single firewall</li>
+<li>Fix error when using pancontentpack command</li>
+<li>Improved searchbar command logging</li>
+</ul>
+</div>
+<div class="section" id="add-on-v3-5-3">
+<h3>Add-on v3.5.3<a class="headerlink" href="#add-on-v3-5-3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix issue where endpoint logs would show up in CIM apps, but not Palo Alto Networks app</li>
+</ul>
+</div>
+<div class="section" id="app-v5-0-0">
+<h3>App v5.0.0<a class="headerlink" href="#app-v5-0-0" title="Permalink to this headline">¶</a></h3>
+<p>This major release re-architects the Palo Alto Networks App by splitting it
+into an App and an Add-on. The <a class="reference external" href="https://splunkbase.splunk.com/app/2757">Palo Alto Networks Add-on</a> is included in the
+<a class="reference external" href="https://splunkbase.splunk.com/app/491">Palo Alto Networks App</a> and is installed or upgraded automatically with the App.</p>
+<p>Review the <a class="reference internal" href="upgrade.html#upgrade"><span class="std std-ref">Upgrade Guide</span></a> to upgrade to version 5.0.0.</p>
+<p>In addition to the new Palo Alto Networks Add-on, this version also has the
+following new features:</p>
+<ul class="simple">
+<li>New SaaS dashboard with <a class="reference internal" href="advanced.html#sanctioned-saas"><span class="std std-ref">Un/Sanctioned SaaS Detection</span></a></li>
+<li>CIM 4.x compliance</li>
+<li>Optimized Datamodel for better performance and storage efficiency</li>
+<li>Logs are no longer required to be stored in the pan_logs index</li>
+<li><a class="reference internal" href="advanced.html#contentpack"><span class="std std-ref">Auto update script</span></a> for app and threat lookup tables</li>
+<li>New <a class="reference internal" href="commands.html#panuserupdate"><span class="std std-ref">panuserupdate</span></a> command for User-ID update</li>
+<li>Enhanced <a class="reference internal" href="commands.html#pantag"><span class="std std-ref">pantag</span></a> command to leverage log data for tags</li>
+<li>Both commands now support Panorama and VSYS targets, and are more efficient and scalable</li>
+<li>Better command documentation</li>
+<li>Changed from CC license to ISC license</li>
+<li>All new documentation website at <a class="reference external" href="http://pansplunk.readthedocs.io">http://pansplunk.readthedocs.io</a></li>
+</ul>
+</div>
+<div class="section" id="add-on-v3-5-1">
+<h3>Add-on v3.5.1<a class="headerlink" href="#add-on-v3-5-1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Add support for PAN-OS 7.0 new fields</li>
+<li>Add hip-match log type from Firewall and Panorama</li>
+<li>Add sourcetype category</li>
+<li>Add Sanctioned SaaS lookup table (see <a class="reference internal" href="advanced.html#sanctioned-saas"><span class="std std-ref">Un/Sanctioned SaaS Detection</span></a>)</li>
+<li>Update app_list.csv and threat_list.csv lookup tables with new format and data</li>
+<li>Fix incorrect value in report_id field for Wildfire logs in PAN-OS 6.1 or higher</li>
+<li>Fix src_category field should be dest_category</li>
+</ul>
+</div>
+<div class="section" id="add-on-v3-5-0">
+<h3>Add-on v3.5.0<a class="headerlink" href="#add-on-v3-5-0" title="Permalink to this headline">¶</a></h3>
+<p>Included with <a class="reference external" href="https://splunkbase.splunk.com/app/263/">Splunk Enterprise Security 4</a>.</p>
+<p>This new Add-on (TA) for Palo Alto Networks supports logs from Palo Alto
+Networks Next-generation Firewall, Panorama, and Traps Endpoint Security
+Manager. It is CIM 4.x compliant and designed to work with <a class="reference external" href="https://splunkbase.splunk.com/app/263/">Splunk Enterprise
+Security 4</a> and the <a class="reference external" href="https://splunkbase.splunk.com/app/491/">Palo Alto Networks App for Splunk v5</a>.</p>
+</div>
+<div class="section" id="v4-2-2">
+<h3>v4.2.2<a class="headerlink" href="#v4-2-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix drilldowns in Wildfire and Content dashboards</li>
+<li>Fix panel in Content dashboard to display correct data</li>
+</ul>
+</div>
+<div class="section" id="v4-2-1">
+<h3>v4.2.1<a class="headerlink" href="#v4-2-1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix Wildfire Report downloader and Applipedia New App check</li>
+<li>Fix Wildfire Dashboard Drilldowns</li>
+<li>Fix Threat Details Dashboard datamodel reference</li>
+<li>Fix Endpoint Dashboard would not work on Splunk 6.0.x</li>
+<li>Fix time range inconsistent on Overview Dashboard</li>
+<li>Fix issue where Endpoint Dashboard disappears if Netflow is enabled.</li>
+</ul>
+</div>
+<div class="section" id="v4-2">
+<h3>v4.2<a class="headerlink" href="#v4-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>New Palo Alto Networks <a class="reference external" href="http://media.paloaltonetworks.com/lp/traps/">Advanced Endpoint Protection</a></li>
+<li>Support Palo Alto Networks <a class="reference external" href="https://www.paloaltonetworks.com/documentation/61/pan-os/newfeaturesguide.html">PAN-OS 6.1</a></li>
+</ul>
+</div>
+<div class="section" id="v4-1-3">
+<h3>v4.1.3<a class="headerlink" href="#v4-1-3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Special commands (panblock, panupdate, pantag) now available from other apps</li>
+<li>Fix issue with unknown lookup errors during search</li>
+<li>Fix issue with meta scope and global namespace</li>
+</ul>
+</div>
+<div class="section" id="v4-1-2">
+<h3>v4.1.2<a class="headerlink" href="#v4-1-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix some Threat dashboard drilldowns</li>
+<li>Fix scope of CIM fields to remove conflict with some apps</li>
+<li>Remove macros from datamodel that were causing slower acceleration</li>
+</ul>
+<p>Note: changes to datamodel may require the acceleration to be rebuilt
+before data will show up in the dashboards</p>
+</div>
+<div class="section" id="v4-1-1">
+<h3>v4.1.1<a class="headerlink" href="#v4-1-1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Handle new fields in latest PAN-OS syslogs and WildFire reports</li>
+<li>Significant improvements to indexing efficiency</li>
+<li>Improved handling of Dynamic Address Group tagging</li>
+<li>Improvements and minor updates for Splunk 6.1.x</li>
+<li>Fix minor dashboard issues</li>
+<li>Fix minor field parsing issue</li>
+</ul>
+</div>
+<div class="section" id="v4-1">
+<h3>v4.1<a class="headerlink" href="#v4-1" title="Permalink to this headline">¶</a></h3>
+<p>This is a major update. If upgrading from a previous version, please read the Upgrade Notes in the documentation.</p>
+<ul class="simple">
+<li>PAN-OS Data model including acceleration</li>
+<li>Data model accelerated dashboards (replaces TSIDX-based dashboards)</li>
+<li>New command: pantag - tag IP addresses on the firewall into Dynamic Address Groups</li>
+<li>IP Classification - add metadata to your CIDR blocks, classifying them as
+internet/external/dmz/datacenter/etc.</li>
+<li>Applipedia change notifications and highlighting - know when Palo Alto
+Networks releases new application signatures and if those applications are
+on your network</li>
+</ul>
+</div>
+<div class="section" id="v4-0-2">
+<h3>v4.0.2<a class="headerlink" href="#v4-0-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix: Overview dashboard optimizations</li>
+<li>Fix: Top Applications panel would sometimes show error</li>
+<li>Fix: Traffic dashboard form filter works</li>
+</ul>
+</div>
+<div class="section" id="v4-0-1">
+<h3>v4.0.1<a class="headerlink" href="#v4-0-1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix: Config dashboard shows all events</li>
+<li>Fix: Better handling of navbar changes</li>
+</ul>
+</div>
+<div class="section" id="v4-0">
+<h3>v4.0<a class="headerlink" href="#v4-0" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Splunk 6 support</li>
+<li>Dashboards converted to Splunk 6 SimpleXML, meaning dashboards can now:<ul>
+<li>Print</li>
+<li>Export as pdf</li>
+<li>Produce scheduled reports</li>
+<li>Use pre-populated dropdowns in filters</li>
+<li>Change using SplunkWeb by editing the panels</li>
+</ul>
+</li>
+<li>Maps converted to Splunk 6 built-in maps (removes dependencies on other apps)</li>
+<li>Updated navbar including icons and colors</li>
+</ul>
+</div>
+<div class="section" id="v3-4">
+<h3>v3.4<a class="headerlink" href="#v3-4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>NetFlow support using NetFlow Integrator, a 3rd party program from NetFlow Logic<ul>
+<li>New set of dashboards, charts and graphs centered around NetFlow records
+from Palo Alto Networks devices</li>
+<li>App-ID and User-ID information is available in NetFlow records</li>
+</ul>
+</li>
+</ul>
+<p>Download a 30-day free trial of NetFlow Integrator at <a class="reference external" href="https://www.netflowlogic.com/downloads">https://www.netflowlogic.com/downloads</a></p>
+<p>Steps to configure NetFlow are available in the NetFlow section of the app
+documentation and README.</p>
+</div>
+<div class="section" id="v3-3-2">
+<h3>v3.3.2<a class="headerlink" href="#v3-3-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix: URL in WildFire dashboard corrected</li>
+<li>Fix: Overview dashboard colors were gray on some servers, set back to white</li>
+<li>Fix: Corrected description fields in commands.conf that resulted in log errors</li>
+<li>Fix: Corrected sourcetype in inputs.conf.sample</li>
+</ul>
+</div>
+<div class="section" id="v3-3-1">
+<h3>v3.3.1<a class="headerlink" href="#v3-3-1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fix: App setup screen allows blank values</li>
+<li>Fix: Several GUI fixes and enhancements</li>
+</ul>
+</div>
+<div class="section" id="v3-3">
+<h3>v3.3<a class="headerlink" href="#v3-3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Malware analysis reports from the WildFire Cloud are dynamically downloaded
+and indexed when a WildFire log is received from a firewall.</li>
+<li>WildFire dashboard<ul>
+<li>Recent WildFire events</li>
+<li>Graphs of WildFire statistical data</li>
+<li>Detect compromised hosts using malware behavior to traffic log correlation</li>
+</ul>
+</li>
+</ul>
+<p>Note: Malware analysis report retrieval requires a WildFire API Key from
+<a class="reference external" href="https://wildfire.paloaltonetworks.com">https://wildfire.paloaltonetworks.com</a></p>
+</div>
+<div class="section" id="v3-2-1">
+<h3>v3.2.1<a class="headerlink" href="#v3-2-1" title="Permalink to this headline">¶</a></h3>
+<p>Bug Fixes:</p>
+<ul class="simple">
+<li>savedsearches.conf: changed hard coded index=pan_logs to pan_index in
+scheduled searches. Thanks to Genti Zaimi for finding the issue and
+providing the fix</li>
+<li>pan_overview_switcher_maps.xml: modified geoip search to include localop to
+force the search to run on the searchhead. Thanks to Genti Zaimi for
+identifying the problem and providing the fix</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="support.html" class="btn btn-neutral" title="Get Support" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016, Palo Alto Networks, Inc..
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v5.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
