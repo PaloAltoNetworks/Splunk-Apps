@@ -2,7 +2,7 @@ require([
   'splunkjs/ready!',
   'splunkjs/mvc/simplexml/ready!',
   'underscore',
-  "jquery"
+  'jquery'
   ], function(
     mvc,
     ignored,
