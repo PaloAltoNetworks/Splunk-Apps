@@ -9,19 +9,22 @@ require([
     _,
     $
   ) {
-    // Required TA version
-    var dependencyVersion = "3.8.0";
+    // Get Required TA version
+    var dependencyVersion;
+    $.ajax({
+      url:"/en-US/splunkd/__raw/servicesNS/admin/SplunkforPaloAltoNetworks/configs/conf-app/install",
+      data: {
+            "output_mode": "json"
+        },
+        type: "GET",
+        dataType : "json"
+    }).done(function(response) {
+      for(var i = 0; i < response.entry.length; i++) {
+        dependencyVersion = response.entry[i].content.ta_dependency_version;
+      }
+    })            
 
-    // This is to see if they have asked to ignore this check.
-    var ignore_TA = localStorage.ignore_ta
-    // console.log(ignore_TA);
-    if(!ignore_TA) {
-      // console.log("They didn't want to ignore me so lets check if they seen the modal this session.");
-      var check_TA = sessionStorage.checked_ta
-    } else {
-      // console.log("looks like they want to ignore me");
-      var check_TA = 1;
-    }
+    var check_TA = sessionStorage.checked_ta
 
     // Only check if the TA is install once per a session.
     if (!check_TA) {
@@ -62,14 +65,6 @@ require([
         }
       });
     }
-    // FUTURE USE if we have a checkbox for never checking TA again.
-    // $( "#ta_check_close" ).click(function() {
-    //   ignore_ta_check = $('#ignore_ta_check').is(":checked");
-    //   if(ignore_ta_check === true) {
-    //     console.log("yes its checked");
-    //     localStorage.ignore_ta = 1;
-    //   } 
-    // });
 });
 // Function to deploy the modal.
 function deployModal(title, message) {
