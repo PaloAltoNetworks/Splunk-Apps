@@ -1,2 +1,0 @@
-wheel==0.23.0
-pan-python==0.8.0
