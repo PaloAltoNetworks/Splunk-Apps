@@ -167,13 +167,10 @@ def apikey(sessionKey, hostname, debug=False):
         return apikey
     except NoCredentialsFound:
         try:
-            logger.info('hello')
             log(debug, "API Key was not in Splunk credential store")
             # If Splunk doesn't know the API Key, get the username and password instead
             log(debug, "Getting credentials from Splunk credential store")
             fw_username, fw_password = get_firewall_credentials(sessionKey)
-            # fw_password = json.loads(fw_password)
-            logger.info(fw_password)
             # Use the username and password to determine the API key
             log(debug, "Getting API Key from firewall/Panorama")
             device = pandevice.base.PanDevice(hostname, fw_username, fw_password)
