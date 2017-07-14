@@ -362,27 +362,30 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
     can be customized with the `newl` and `indent` parameters.
 
     """
-    if full_document and len(input_dict) != 1:
-        raise ValueError('Document must have exactly one root.')
-    must_return = False
-    if output is None:
-        output = StringIO()
-        must_return = True
-    content_handler = XMLGenerator(output, encoding)
-    if full_document:
-        content_handler.startDocument()
-    for key, value in input_dict.items():
-        _emit(key, value, content_handler, full_document=full_document,
-              **kwargs)
-    if full_document:
-        content_handler.endDocument()
-    if must_return:
-        value = output.getvalue()
-        try:  # pragma no cover
-            value = value.decode(encoding)
-        except AttributeError:  # pragma no cover
-            pass
-        return value
+    try:
+        if full_document and len(input_dict) != 1:
+            raise ValueError('Document must have exactly one root.')
+        must_return = False
+        if output is None:
+            output = StringIO()
+            must_return = True
+        content_handler = XMLGenerator(output, encoding)
+        if full_document:
+            content_handler.startDocument()
+        for key, value in input_dict.items():
+            _emit(key, value, content_handler, full_document=full_document,
+                  **kwargs)
+        if full_document:
+            content_handler.endDocument()
+        if must_return:
+            value = output.getvalue()
+            try:  # pragma no cover
+                value = value.decode(encoding)
+            except AttributeError:  # pragma no cover
+                pass
+            return value
+    finally:
+        output.close()
 
 if __name__ == '__main__':  # pragma: no cover
     import sys
