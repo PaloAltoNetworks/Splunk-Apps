@@ -19,10 +19,10 @@
       <default/>
       <prefix>log.user=</prefix>
     </input>
-    <input type="text" token="src">
+    <input type="text" token="dest">
       <label>Hostname</label>
       <default/>
-      <prefix>log.src="</prefix>
+      <prefix>log.dest="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="device_ip">
@@ -73,7 +73,7 @@
       <chart>
         <title>Security Events</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ $user|s$ $src$ $device_ip|s$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype | rename log.log_subtype AS subtype | timechart count by subtype</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ $user|s$ $dest$ $device_ip|s$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype | rename log.log_subtype AS subtype | timechart count by subtype</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -116,7 +116,7 @@
       <table>
         <title>Latest Blocked Executables</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` AND log.log_subtype="Prevention Event" $file_name$ $user|s$ $src$ $device_ip|s$ $signature$ $severity$ $action$ groupby _time log.dvc log.user log.file_name | table _time log.dvc log.user log.file_name | rename log.user AS "User" | rename log.dvc AS "Dest IP" | rename log.file_name AS Filename | sort _time DESC | HEAD 5</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` AND log.log_subtype="Prevention Event" $file_name$ $user|s$ $dest$ $device_ip|s$ $signature$ $severity$ $action$ groupby _time log.dvc log.user log.file_name | table _time log.dvc log.user log.file_name | rename log.user AS "User" | rename log.dvc AS "Dest IP" | rename log.file_name AS Filename | sort _time DESC | HEAD 5</query>
           <earliest>@d</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -157,7 +157,7 @@
       <chart>
         <title>Most Vulnerable Applications</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ $user|s$ $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.file_name)`</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ $user|s$ $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.file_name)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -194,7 +194,7 @@
       <chart>
         <title>Most Vulnerable Machines</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.src)`</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.dest)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -229,7 +229,7 @@
       <chart>
         <title>Targeted Users</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.user)`</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.user)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -264,7 +264,7 @@
       <chart>
         <title>Endpoint Module</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.signature)`</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.signature)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -299,7 +299,7 @@
       <chart>
         <title>Action</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.log_subtype)`</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.log_subtype)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -336,7 +336,7 @@
       <chart>
         <title>Security Events by Severity (24 hours)</title>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(_time log.severity)` | timechart values(count) by severity</query> <earliest>-24h</earliest>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(_time log.severity)` | timechart values(count) by severity</query> <earliest>-24h</earliest>
           <latest>now</latest>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
