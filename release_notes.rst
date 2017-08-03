@@ -6,8 +6,22 @@ Release Notes
 
 App
 ===
+v5.4.1
+  * Endpoint Dashboard bug fix
 
-v5.4.0
+Add-on
+======
+
+v3.8.1
+  * Configuration screen bug fix
+
+Previous Versions
+=================
+
+.. _v540:
+
+App v5.4.0
+----------
   * Endpoint Operations Dashboard
   * Endpoint Security Dashboard 
   * Endpoint Dashboard support new Traps 3.4 fields
@@ -15,16 +29,10 @@ v5.4.0
   * Support for Firewall Log Link via External Search Handler
   * Improved AutoFocus cross launch
 
-
-Add-on
-======
-
-v3.8.0
+Aadd-on v3.8.0
+--------------
   * AutoFocus Export List modular input
   * Improved configuration screen allows credentials to be changed
-
-Previous Versions
-=================
 
 .. _v530:
 
