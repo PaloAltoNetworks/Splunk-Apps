@@ -29,7 +29,7 @@ App v5.4.0
   * Support for Firewall Log Link via External Search Handler
   * Improved AutoFocus cross launch
 
-Aadd-on v3.8.0
+Add-on v3.8.0
 --------------
   * AutoFocus Export List modular input
   * Improved configuration screen allows credentials to be changed
