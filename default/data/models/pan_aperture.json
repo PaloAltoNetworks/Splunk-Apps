@@ -4,7 +4,7 @@
   "modelName": "pan_aperture",
   "objectNameList": [
     "log",
-    "Incident",
+    "incident",
     "remediation",
     "policy_violation",
     "activity_monitoring",
@@ -215,7 +215,7 @@
       "calculations": [],
       "constraints": [
         {
-          "owner": "log.Incident",
+          "owner": "log.incident",
           "search": "eventtype=\"pan_aperture_incident\""
         }
       ],
@@ -402,8 +402,8 @@
           "type": "string"
         }
       ],
-      "lineage": "log.Incident",
-      "objectName": "Incident",
+      "lineage": "log.incident",
+      "objectName": "incident",
       "parentName": "log"
     },
     {
