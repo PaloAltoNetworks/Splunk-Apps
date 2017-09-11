@@ -1,0 +1,1190 @@
+{
+  "description": "",
+  "displayName": "Palo Alto Networks Aperture Logs",
+  "modelName": "pan_aperture",
+  "objectNameList": [
+    "log",
+    "incident",
+    "remediation",
+    "policy_violation",
+    "activity_monitoring",
+    "admin_audit"
+  ],
+  "objectSummary": {
+    "Event-Based": 6,
+    "Search-Based": 0,
+    "Transaction-Based": 0
+  },
+  "objects": [
+    {
+      "calculations": [],
+      "constraints": [
+        {
+          "owner": "log",
+          "search": "eventtype=\"pan_aperture\""
+        }
+      ],
+      "displayName": "Aperture Logs",
+      "fields": [
+        {
+          "comment": "",
+          "displayName": "object_category",
+          "editable": true,
+          "fieldName": "object_category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "action",
+          "editable": true,
+          "fieldName": "action",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object",
+          "editable": true,
+          "fieldName": "object",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object_path",
+          "editable": true,
+          "fieldName": "object_path",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "signature",
+          "editable": true,
+          "fieldName": "signature",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "user",
+          "editable": true,
+          "fieldName": "user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "app",
+          "editable": true,
+          "fieldName": "app",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "category",
+          "editable": true,
+          "fieldName": "category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "severity",
+          "editable": true,
+          "fieldName": "severity",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "comment": "",
+          "displayName": "src_user",
+          "editable": true,
+          "fieldName": "src_user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "src_ip",
+          "editable": true,
+          "fieldName": "source_ip",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "_time",
+          "editable": true,
+          "fieldName": "_time",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "timestamp"
+        },
+        {
+          "comment": "",
+          "displayName": "host",
+          "editable": true,
+          "fieldName": "host",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "source",
+          "editable": true,
+          "fieldName": "source",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "sourcetype",
+          "editable": true,
+          "fieldName": "sourcetype",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "lineage": "log",
+      "objectName": "log",
+      "parentName": "BaseEvent"
+    },
+    {
+      "calculations": [],
+      "constraints": [
+        {
+          "owner": "log.incident",
+          "search": "eventtype=\"pan_aperture_incident\""
+        }
+      ],
+      "displayName": "Incident",
+      "fields": [
+        {
+          "comment": "",
+          "displayName": "object_category",
+          "editable": true,
+          "fieldName": "object_category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "action",
+          "editable": true,
+          "fieldName": "action",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object",
+          "editable": true,
+          "fieldName": "object",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object_path",
+          "editable": true,
+          "fieldName": "object_path",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "signature",
+          "editable": true,
+          "fieldName": "signature",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "user",
+          "editable": true,
+          "fieldName": "user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "app",
+          "editable": true,
+          "fieldName": "app",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "category",
+          "editable": true,
+          "fieldName": "category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "severity",
+          "editable": true,
+          "fieldName": "severity",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "comment": "",
+          "displayName": "src_user",
+          "editable": true,
+          "fieldName": "src_user",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "src_ip",
+          "editable": true,
+          "fieldName": "source_ip",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "_time",
+          "editable": true,
+          "fieldName": "_time",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "timestamp"
+        },
+        {
+          "comment": "",
+          "displayName": "host",
+          "editable": true,
+          "fieldName": "host",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "source",
+          "editable": true,
+          "fieldName": "source",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "sourcetype",
+          "editable": true,
+          "fieldName": "sourcetype",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "lineage": "log.incident",
+      "objectName": "incident",
+      "parentName": "log"
+    },
+    {
+      "calculations": [],
+      "constraints": [
+        {
+          "owner": "log.remediation",
+          "search": "eventtype=\"pan_aperture_remediation\""
+        }
+      ],
+      "displayName": "Remediation",
+      "fields": [
+        {
+          "comment": "",
+          "displayName": "object_category",
+          "editable": true,
+          "fieldName": "object_category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "action",
+          "editable": true,
+          "fieldName": "action",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object",
+          "editable": true,
+          "fieldName": "object",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object_path",
+          "editable": true,
+          "fieldName": "object_path",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "signature",
+          "editable": true,
+          "fieldName": "signature",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "user",
+          "editable": true,
+          "fieldName": "user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "app",
+          "editable": true,
+          "fieldName": "app",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "category",
+          "editable": true,
+          "fieldName": "category",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "severity",
+          "editable": true,
+          "fieldName": "severity",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "comment": "",
+          "displayName": "src_user",
+          "editable": true,
+          "fieldName": "src_user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "src_ip",
+          "editable": true,
+          "fieldName": "source_ip",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "_time",
+          "editable": true,
+          "fieldName": "_time",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "timestamp"
+        },
+        {
+          "comment": "",
+          "displayName": "host",
+          "editable": true,
+          "fieldName": "host",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "source",
+          "editable": true,
+          "fieldName": "source",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "sourcetype",
+          "editable": true,
+          "fieldName": "sourcetype",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "lineage": "log.remediation",
+      "objectName": "remediation",
+      "parentName": "log"
+    },
+    {
+      "calculations": [],
+      "constraints": [
+        {
+          "owner": "log.policy_violation",
+          "search": "eventtype=\"pan_aperture_policy_violation\""
+        }
+      ],
+      "displayName": "Policy Violation",
+      "fields": [
+        {
+          "comment": "",
+          "displayName": "object_category",
+          "editable": true,
+          "fieldName": "object_category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "action",
+          "editable": true,
+          "fieldName": "action",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object",
+          "editable": true,
+          "fieldName": "object",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object_path",
+          "editable": true,
+          "fieldName": "object_path",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "signature",
+          "editable": true,
+          "fieldName": "signature",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "user",
+          "editable": true,
+          "fieldName": "user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "app",
+          "editable": true,
+          "fieldName": "app",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "category",
+          "editable": true,
+          "fieldName": "category",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "severity",
+          "editable": true,
+          "fieldName": "severity",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "comment": "",
+          "displayName": "src_user",
+          "editable": true,
+          "fieldName": "src_user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "src_ip",
+          "editable": true,
+          "fieldName": "source_ip",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "_time",
+          "editable": true,
+          "fieldName": "_time",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "timestamp"
+        },
+        {
+          "comment": "",
+          "displayName": "host",
+          "editable": true,
+          "fieldName": "host",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "source",
+          "editable": true,
+          "fieldName": "source",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "sourcetype",
+          "editable": true,
+          "fieldName": "sourcetype",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "lineage": "log.policy_violation",
+      "objectName": "policy_violation",
+      "parentName": "log"
+    },
+    {
+      "calculations": [],
+      "constraints": [
+        {
+          "owner": "log.activity_monitoring",
+          "search": "eventtype=\"pan_aperture_activity_monitoring\""
+        }
+      ],
+      "displayName": "Activity Monitoring",
+      "fields": [
+        {
+          "comment": "",
+          "displayName": "object_category",
+          "editable": true,
+          "fieldName": "object_category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "action",
+          "editable": true,
+          "fieldName": "action",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object",
+          "editable": true,
+          "fieldName": "object",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object_path",
+          "editable": true,
+          "fieldName": "object_path",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "signature",
+          "editable": true,
+          "fieldName": "signature",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "user",
+          "editable": true,
+          "fieldName": "user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "app",
+          "editable": true,
+          "fieldName": "app",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "category",
+          "editable": true,
+          "fieldName": "category",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "severity",
+          "editable": true,
+          "fieldName": "severity",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "comment": "",
+          "displayName": "src_user",
+          "editable": true,
+          "fieldName": "src_user",
+          "fieldSearch": "",
+          "hidden": true,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "src_ip",
+          "editable": true,
+          "fieldName": "source_ip",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "_time",
+          "editable": true,
+          "fieldName": "_time",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "timestamp"
+        },
+        {
+          "comment": "",
+          "displayName": "host",
+          "editable": true,
+          "fieldName": "host",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "source",
+          "editable": true,
+          "fieldName": "source",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "sourcetype",
+          "editable": true,
+          "fieldName": "sourcetype",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "lineage": "log.activity_monitoring",
+      "objectName": "activity_monitoring",
+      "parentName": "log"
+    },
+    {
+      "calculations": [],
+      "constraints": [
+        {
+          "owner": "log.admin_audit",
+          "search": "eventtype=\"pan_aperture_admin_audit\""
+        }
+      ],
+      "displayName": "Admin Audit",
+      "fields": [
+        {
+          "comment": "",
+          "displayName": "object_category",
+          "editable": true,
+          "fieldName": "object_category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "action",
+          "editable": true,
+          "fieldName": "action",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object",
+          "editable": true,
+          "fieldName": "object",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "object_path",
+          "editable": true,
+          "fieldName": "object_path",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "signature",
+          "editable": true,
+          "fieldName": "signature",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "user",
+          "editable": true,
+          "fieldName": "user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "app",
+          "editable": true,
+          "fieldName": "app",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "category",
+          "editable": true,
+          "fieldName": "category",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "severity",
+          "editable": true,
+          "fieldName": "severity",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "comment": "",
+          "displayName": "src_user",
+          "editable": true,
+          "fieldName": "src_user",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "src_ip",
+          "editable": true,
+          "fieldName": "source_ip",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "log",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "_time",
+          "editable": true,
+          "fieldName": "_time",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "timestamp"
+        },
+        {
+          "comment": "",
+          "displayName": "host",
+          "editable": true,
+          "fieldName": "host",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "source",
+          "editable": true,
+          "fieldName": "source",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "comment": "",
+          "displayName": "sourcetype",
+          "editable": true,
+          "fieldName": "sourcetype",
+          "fieldSearch": "",
+          "hidden": false,
+          "multivalue": false,
+          "owner": "BaseEvent",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "lineage": "log.admin_audit",
+      "objectName": "admin_audit",
+      "parentName": "log"
+    }
+  ]
+}
