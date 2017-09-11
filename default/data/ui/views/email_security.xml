@@ -1,0 +1,231 @@
+<form>
+  <label>Email Security</label>
+  <search id="basesearch">
+    <query>| tstats count FROM datamodel="pan_firewall" WHERE eventtype="pan_email" `groupby(_time sourcetype log.app log.user log.src_ip log.threat_name log.severity)` | append [| search eventtype="pan:emails" | stats count by _time, sourcetype, bytes_in, bytes_out, src_ip, sender]</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+      <!--change>
+        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
+        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
+        <eval token="timediff">'latest_n'-'earliest_n'</eval>
+        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
+        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
+        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
+      </change-->
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="threat_name">
+      <label>Threat</label>
+      <default></default>
+      <prefix>log.threat_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="dropdown" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.app)`</populatingSearch>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Inbound</title>
+      <single>
+        <search base="basesearch">
+          <query>| search sourcetype="stream:smtp" bytes_in &gt; 0 | bucket _time span=1m | stats count by _time</query>
+          <earliest>rt$time.earliest$</earliest>
+          <latest>rtnow</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-1m</option>
+        <option name="underLabel">Emails per Minute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Email Threats Per Minute</title>
+      <single>
+        <search base="basesearch">
+          <query>| search sourcetype="pan:threat" | bucket _time span=1m | stats count by _time</query>
+          <earliest>rt$time.earliest$</earliest>
+          <latest>rtnow</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Outbound</title>
+      <single>
+        <search base="basesearch">
+          <query>| search sourcetype="stream:smtp" bytes_out &gt; 0 | bucket _time span=1m | stats count by _time</query>
+          <earliest>rt$time.earliest$</earliest>
+          <latest>rtnow</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-1m</option>
+        <option name="underLabel">Emails per Minute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Email Sources</title>
+      <table>
+        <title>src, app, threat, count</title>
+        <search base="basesearch">
+          <query>| stats count by src_ip threat_name app | sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="count">15</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Large Email Senders</title>
+      <table>
+        <title>sender, app, count, size</title>
+        <search base="basesearch">
+          <query>| search bytes_out &gt; 0 | table src_ip sender bytes_out count | sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="count">15</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Threats By Source Location</title>
+      <map>
+        <search base="basesearch">
+          <query>| iplocation src | geostats sum(count) by log_subtype</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Email Apps With Threats By Severity</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats sum(count) AS count by app severity
+| eval severity_count=mvzip(severity,count,":")
+| stats sum(count) as app_count values(severity_count) as severity_count by app
+| sort -app_count
+| head 10
+| mvexpand severity_count
+| rex field=severity_count "(?&lt;severity&gt;\w+):(?&lt;count&gt;\d+)"
+| xyseries app severity count
+| addtotals
+| sort -Total
+| fields - Total</query>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.fieldColors">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</option>
+        <option name="charting.legend.labels">[critical,high,medium,low,informational]</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/threat_detail?form.$click.name$=$click.value$&earliest=$earliest$&latest=$latest$
+    ]]>
+          </link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Emails without file, emails with file, emails with threat, emails with file and threat</title>
+        <search>
+          <query>test</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+</form>

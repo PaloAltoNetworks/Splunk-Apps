@@ -1,0 +1,234 @@
+<form>
+  <label>User Behavior</label>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND nodename!="log.wildfire.benign") $log_subtype$ $severity$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action
+| append
+    [| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.src_ip log.user log.object
+    | rename log.src_ip AS log.client_ip | rename log.object AS log.threat_name ]
+| append 
+    [| tstats summariesonly=t values(log.dest) as log.client_ip values(log.file_name) AS log.file_name count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.user log.action
+    | eval log.threat_name="Traps Endpoint Protection"]
+| rename log.* AS *
+| eval severity=case(severity=="critical","critical", severity=="high","high", severity=="medium","medium", severity=="low","low", severity=="informational","informational")
+| eval victim_ip=if(isnull(direction) OR direction="client-to-server", server_ip, client_ip)</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search id="countsearch">
+    <query>| tstats summariesonly=t prestats=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND nodename!="log.wildfire.benign") $log_subtype$ $severity$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action
+| append
+    [| tstats summariesonly=t prestats=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.src_ip log.user log.object
+    | rename log.src_ip AS log.client_ip | rename log.object AS log.threat_name ]
+| append 
+    [| tstats summariesonly=t prestats=t values(log.dest) as log.client_ip values(log.file_name) AS log.file_name count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.user log.action
+    | eval log.threat_name="Traps Endpoint Protection"]
+| rename log.* AS *
+| eval severity=case(severity=="critical","critical", severity=="high","high", severity=="medium","medium", severity=="low","low", severity=="informational","informational")
+| eval victim_ip=if(isnull(direction) OR direction="client-to-server", server_ip, client_ip)</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+      <!--change>
+        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
+        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
+        <eval token="timediff">'latest_n'-'earliest_n'</eval>
+        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
+        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
+        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
+      </change-->
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_name">
+      <label>Destination Hostname</label>
+      <default></default>
+      <prefix>log.dest_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>Source User</label>
+      <default></default>
+      <prefix>log.user=</prefix>
+    </input>
+    <input type="dropdown" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.url, log.vsys)`</populatingSearch>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Web Hits</title>
+        <search>
+          <query>
+          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_name$ "$user|s$" `table(log.dest_name, count)`
+        </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="wrap">false</option>
+        <option name="displayRowNumbers">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">10</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` dest_name=$click.value|s$&earliest=$earliest$&latest=$latest$
+    ]]>
+          </link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <chart>
+        <title>Categories</title>
+        <search>
+          <query>
+          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_name$ "$user|s$" `table(log.category, count)`
+        </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
+    ]]>
+          </link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Applications</title>
+        <search>
+          <query>
+          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_name$ "$user|s$" `table(log.app, count)`
+        </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
+    ]]>
+          </link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Possible Data Leaks</title>
+      <table>
+        <search>
+          <query>`pan_data` | stats count by user app file_name src_ip</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Applications Not Using Default Port</title>
+      <table>
+        <search>
+          <query>`pan_traffic` | rename app:default_ports to default_ports | where not like(default_ports,"%".dest_port."%") | stats count by app default_ports dest_port | sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Rare Applications</title>
+      <table>
+        <search>
+          <query>eventtype="pan_traffic" | rare app</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -13,10 +13,10 @@
       <prefix>log.src_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="dest_hostname">
+    <input type="text" token="dest_name">
       <label>Destination Hostname</label>
       <default></default>
-      <prefix>log.dest_hostname="</prefix>
+      <prefix>log.dest_name="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="user">
@@ -38,7 +38,7 @@
       <title>Web Hits</title>
       <search>
         <query>
-          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_hostname$ "$user|s$" `table(log.dest_hostname, count)`
+          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_name$ "$user|s$" `table(log.dest_name, count)`
         </query>
         <earliest>$earliest$</earliest>
         <latest>$latest$</latest>
@@ -64,7 +64,7 @@
       <drilldown>
         <link>
           <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` dest_hostname=$click.value|s$&earliest=$earliest$&latest=$latest$
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` dest_name=$click.value|s$&earliest=$earliest$&latest=$latest$
     ]]>
         </link>
       </drilldown>
@@ -73,7 +73,7 @@
       <title>Categories</title>
       <search>
         <query>
-          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_hostname$ "$user|s$" `table(log.category, count)`
+          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_name$ "$user|s$" `table(log.category, count)`
         </query>
         <earliest>$earliest$</earliest>
         <latest>$latest$</latest>
@@ -103,7 +103,7 @@
       <title>Applications</title>
       <search>
         <query>
-          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_hostname$ "$user|s$" `table(log.app, count)`
+          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_name$ "$user|s$" `table(log.app, count)`
         </query>
         <earliest>$earliest$</earliest>
         <latest>$latest$</latest>
@@ -135,7 +135,7 @@
       <title>Web Activity Summary</title>
       <search>
         <query>
-          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_hostname$ "$user|s$" `table(log.action log.category log.dest_hostname, count)`
+          | `pan_tstats` count FROM `node(log.url)` $vsys$ $src_ip$ $dest_name$ "$user|s$" `table(log.action log.category log.dest_name, count)`
         </query>
         <earliest>$earliest$</earliest>
         <latest>$latest$</latest>
@@ -161,7 +161,7 @@
       <drilldown>
         <link field="Action">
           <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_web_activity` action=$row.action|s$ category=$row.category|s$ dest_hostname=$row.dest_hostname|s$&earliest=$earliest$&latest=$latest$
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_web_activity` action=$row.action|s$ category=$row.category|s$ dest_name=$row.dest_name|s$&earliest=$earliest$&latest=$latest$
     ]]>
         </link>
         <link field="Category">
@@ -171,7 +171,7 @@
         </link>
         <link field="Hostname">
           <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_web_activity` dest_hostname=$row.dest_hostname|s$&earliest=$earliest$&latest=$latest$
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_web_activity` dest_name=$row.dest_name|s$&earliest=$earliest$&latest=$latest$
     ]]>
         </link>
       </drilldown>

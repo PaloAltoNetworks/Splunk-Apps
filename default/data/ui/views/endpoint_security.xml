@@ -1,111 +1,185 @@
 <form>
-  <label>Endpoint Security Dashboard</label>
+  <label>Endpoint Security</label>
+  <search id="basesearch">
+    <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.signature | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search id="prevention">
+    <query>| `pan_tstats` count FROM `ep_node(log.attacks)` log.log_subtype="Prevention Event" $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.dest log.dest_ip log.severity log.file_name log.user log.signature log.file_hash | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
   <fieldset submitButton="true" autoRun="true">
-    <input type="time" searchWhenChanged="true">
-      <label>Time Range</label>
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
       <default>
         <earliest>-60m</earliest>
         <latest>now</latest>
       </default>
     </input>
-    <input type="text" token="file_name">
-      <label>Process</label>
-      <default/>
-      <prefix>log.file_name="</prefix>
-      <suffix>"</suffix>
-    </input>
     <input type="text" token="user">
       <label>User</label>
-      <default/>
+      <default></default>
       <prefix>log.user=</prefix>
     </input>
     <input type="text" token="dest">
       <label>Hostname</label>
-      <default/>
+      <default></default>
       <prefix>log.dest="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="device_ip">
-      <label>Device IP</label>
-      <default/>
-      <prefix>log.dvc="</prefix>
+    <input type="text" token="dest_ip">
+      <label>IP Address</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="dropdown" token="signature">
+    <input type="text" token="file_name">
+      <label>Process</label>
+      <default></default>
+      <prefix>log.file_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="signature">
       <label>Endpoint Module</label>
-      <default/>
+      <default></default>
       <prefix>log.signature="</prefix>
       <suffix>"</suffix>
-      <!-- <choice value="">ANY</choice> -->
-      <search>
-        <query>| `_pan_ep_dropdown(log.attacks, log.signature)`</query>
-      </search>
-      <fieldForLabel>field_with_count</fieldForLabel>
-      <fieldForValue>field</fieldForValue>
     </input>
-    <input type="dropdown" token="severity">
+    <input type="multiselect" token="severity">
       <label>Severity</label>
-      <default/>
-      <prefix>log.severity="</prefix>
-      <suffix>"</suffix>
-      <!-- <choice value="">ANY</choice> -->
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
       <search>
-        <query>| `_pan_ep_dropdown(log, log.severity)`</query>
+        <query>| inputlookup endpoint_severity_lookup 
+| fields severity
+| dedup severity</query>
       </search>
-      <fieldForLabel>field_with_count</fieldForLabel>
-      <fieldForValue>field</fieldForValue>
+      <fieldForLabel>severity</fieldForLabel>
+      <fieldForValue>severity</fieldForValue>
+      <choice value="*">All</choice>
+      <valuePrefix>log.severity="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
     </input>
-    <input type="dropdown" token="action">
+    <input type="multiselect" token="action">
       <label>Action</label>
-      <default/>
-      <prefix>log.log_subtype="</prefix>
-      <suffix>"</suffix>
-      <!-- <choice value="">ANY</choice> -->
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
       <search>
-        <query>| `_pan_ep_dropdown(log.attacks, log.log_subtype)`</query>
+        <query>| inputlookup endpoint_actions_lookup 
+| fields action
+| dedup action
+| sort action</query>
       </search>
-      <fieldForLabel>field_with_count</fieldForLabel>
-      <fieldForValue>field</fieldForValue>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <choice value="*">All</choice>
+      <valuePrefix>log.action="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
     </input>
   </fieldset>
   <row>
     <panel>
+      <title>Endpoint Security Events By Type</title>
       <chart>
-        <title>Security Events</title>
+        <search base="basesearch">
+          <query>| timechart count by log_subtype</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.legend.placement">bottom</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Security Events By Severity</title>
+      <chart>
+        <search base="basesearch">
+          <query>| timechart count by severity</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.legend.placement">bottom</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Endpoint Security Event Types</title>
+      <chart>
         <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ $user|s$ $dest$ $device_ip|s$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype | rename log.log_subtype AS subtype | timechart count by subtype</query>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.log_subtype)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
-          <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
         <option name="charting.axisTitleY.visibility">visible</option>
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
         <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">area</option>
-        <option name="charting.chart.bubbleMaximumSize">50</option>
-        <option name="charting.chart.bubbleMinimumSize">10</option>
-        <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.chart.nullValueMode">connect</option>
-        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
         <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
           <link>
             <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-            ]]>
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+          </link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Endpoint Protection Modules</title>
+      <chart>
+        <search>
+          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.signature)`</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
+          ]]>
           </link>
         </drilldown>
       </chart>
@@ -113,258 +187,65 @@
   </row>
   <row>
     <panel>
+      <title>Prevention Events</title>
       <table>
-        <title>Latest Blocked Executables</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` AND log.log_subtype="Prevention Event" $file_name$ $user|s$ $dest$ $device_ip|s$ $signature$ $severity$ $action$ groupby _time log.dvc log.user log.file_name | table _time log.dvc log.user log.file_name | rename log.user AS "User" | rename log.dvc AS "Dest IP" | rename log.file_name AS Filename | sort _time DESC | HEAD 5</query>
-          <earliest>@d</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
+        <search base="prevention">
+          <query>| search log_subtype="Prevention event" | eval autofocus="Open in Autofocus" | table _time dest_ip user file_name signature autofocus file_hash</query>
         </search>
+        <fields>_time dest_ip user file_name signature autofocus</fields>
         <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="wrap">false</option>
         <drilldown>
-          <link field="User">
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype="Prevention Event" $row.User|s$&earliest=$earliest$&latest=$latest$
-            ]]>
-          </link>
-          <link field="Dest IP">
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype="Prevention Event" $row.Dest IP|s$&earliest=$earliest$&latest=$latest$
-            ]]>
-          </link>
-          <link field="Filename">
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype="Prevention Event" $row.Filename|s$&earliest=$earliest$&latest=$latest$
-            ]]>
-          </link>
-        <link field="*">
-          <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype="Prevention Event" $row.Dest IP|s$ $row.User|s$ $row.Filename|s$&earliest=$earliest$&latest=$latest$
-    ]]>
-        </link>
-
+          <condition field="autofocus">
+            <link target="autofocus">https://autofocus.paloaltonetworks.com/#/sample/$row.file_hash$</link>
+          </condition>
+          <condition field="*">
+            <link target="_self">search?q=`pan_endpoint` $click.name2$=$click.value2|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Most Vulnerable Machines</title>
+      <table>
+        <search base="prevention">
+          <query>| top limit=100 dest</query>
+        </search>
+        <option name="drilldown">row</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_endpoint` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
     <panel>
-      <chart>
-        <title>Most Vulnerable Applications</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ $user|s$ $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.file_name)`</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+      <title>Targeted Users</title>
+      <table>
+        <search base="prevention">
+          <query>| top limit=100 user</query>
         </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">0</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">right</option>
+        <option name="drilldown">row</option>
+        <option name="wrap">false</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_endpoint` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
-      </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <chart>
-        <title>Most Vulnerable Machines</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.dest)`</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">0</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">none</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
-        </drilldown>
-      </chart>
+      </table>
     </panel>
     <panel>
-      <chart>
-        <title>Targeted Users</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.user)`</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+      <title>Most Vulnerable Applications</title>
+      <table>
+        <search base="prevention">
+          <query>| top limit=100 file_name</query>
         </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">right</option>
+        <option name="drilldown">row</option>
+        <option name="wrap">false</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_endpoint` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <chart>
-        <title>Endpoint Module</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.signature)`</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">right</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <chart>
-        <title>Action</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.log_subtype)`</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">right</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
-        </drilldown>
-      </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <chart>
-        <title>Security Events by Severity (24 hours)</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $dest$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(_time log.severity)` | timechart values(count) by severity</query> <earliest>-24h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">collapsed</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">0</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">bottom</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-          ]]>
-          </link>
-        </drilldown>
-      </chart>
+      </table>
     </panel>
   </row>
 </form>

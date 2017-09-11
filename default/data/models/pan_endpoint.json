@@ -86,7 +86,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc",
+                    "fieldName": "dest_ip",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -94,7 +94,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "device",
+                    "displayName": "dest_ip",
                     "comment": ""
                 },
                 {
@@ -170,18 +170,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "rt",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "rt",
-                    "comment": ""
-                },
-                {
                     "fieldName": "src",
                     "owner": "log",
                     "type": "string",
@@ -203,6 +191,66 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "signature",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "dest_host",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "dest_host",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
                     "comment": ""
                 },
                 {
@@ -341,7 +389,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc",
+                    "fieldName": "dest_ip",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -349,7 +397,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "device",
+                    "displayName": "dest_ip",
                     "comment": ""
                 },
                 {
@@ -413,7 +461,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "rt",
+                    "fieldName": "content_version",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -421,7 +469,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "rt",
+                    "displayName": "content_version",
                     "comment": ""
                 },
                 {
@@ -446,6 +494,66 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "signature",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "dest_host",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "dest_host",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
                     "comment": ""
                 },
                 {
@@ -584,7 +692,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc",
+                    "fieldName": "dest_ip",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -592,7 +700,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "device",
+                    "displayName": "dest_ip",
                     "comment": ""
                 },
                 {
@@ -656,7 +764,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "rt",
+                    "fieldName": "content_version",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -664,7 +772,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "rt",
+                    "displayName": "content_version",
                     "comment": ""
                 },
                 {
@@ -689,6 +797,66 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "signature",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": true,
+                    "editable": true,
+                    "displayName": "action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "dest_host",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "dest_host",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
                     "comment": ""
                 },
                 {

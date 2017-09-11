@@ -1,5 +1,5 @@
 <form>
-  <label>GlobalProtect Dashboard</label>
+  <label>GlobalProtect</label>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true">
       <default>

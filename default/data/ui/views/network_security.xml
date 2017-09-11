@@ -1,0 +1,183 @@
+<form>
+  <label>Network Security</label>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") OR nodename="log.data" $log_subtype$ $severity$ GROUPBY _time sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action log.src_zone log.dest_zone | rename log.* AS *
+| eval victim_ip=if(isnull(direction) OR direction="client-to-server", server_ip, client_ip)
+| lookup minemeldfeeds_lookup indicator AS client_ip OUTPUT value.autofocus_tags AS autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS server_ip OUTPUT value.autofocus_tags AS autofocus_tags
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search id="correlation">
+    <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY log.severity log.object log.evidence | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+      <!--change>
+        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
+        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
+        <eval token="timediff">'latest_n'-'earliest_n'</eval>
+        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
+        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
+        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
+      </change-->
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="threat_name">
+      <label>Threat</label>
+      <default></default>
+      <prefix>log.threat_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="log_subtype">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="severity">
+      <label>Severity</label>
+      <default></default>
+      <prefix>log.severity="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="dropdown" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.app)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.vsys)`</populatingSearch>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Top Correlation Events</title>
+      <table>
+        <search base="correlation">
+          <query>| stats sum(count) AS count by evidence object severity</query>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 20 Vulnerability Events</title>
+      <table>
+        <search base="basesearch">
+          <query>| search log_subtype="vulnerability" | stats sum(count) AS count by threat_name severity
+| sort 20 -count</query>
+        </search>
+        <option name="drilldown">row</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_threat` $click.name$="$click.value$"&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Top 20 Virus and Malware Events</title>
+      <table>
+        <search base="basesearch">
+          <query>| search log_subtype="virus" OR log_subtype="*virus*" | stats count by file_name log_subtype user client_ip server_ip | sort - count</query>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 10 Apps With Threats By Severity</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats sum(count) AS count by app severity
+| eval severity_count=mvzip(severity,count,":")
+| stats sum(count) as app_count values(severity_count) as severity_count by app
+| sort -app_count
+| head 10
+| mvexpand severity_count
+| rex field=severity_count "(?&lt;severity&gt;\w+):(?&lt;count&gt;\d+)"
+| xyseries app severity count
+| addtotals
+| sort -Total
+| fields - Total</query>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.fieldColors">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</option>
+        <option name="charting.legend.labels">[critical,high,medium,low,informational]</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/threat_detail?form.$click.name$=$click.value$&earliest=$earliest$&latest=$latest$
+    ]]>
+          </link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Threats By Source Location</title>
+      <map>
+        <search base="basesearch">
+          <query>| iplocation client_ip | geostats sum(count) by log_subtype</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Data Filtering</title>
+      <table>
+        <search base="basesearch">
+          <query>| eval time_in_seconds=_time | eval drilldown_token=if(sourcetype=="pan:endpoint","endpoint_event","network_event") | table _time threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags | sort - _time</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="severity">
+          <colorPalette type="map">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</colorPalette>
+        </format>
+        <format type="color" field="action">
+          <colorPalette type="map">{"allowed":#F7BC38,"blocked":#A2CC3E,"deferred":#6A5C9E,"dropped":#65A637}</colorPalette>
+        </format>
+        <fields>["_time","log_subtype","threat_name","severity","action","app","client_ip","server_ip","user","file_name"]</fields>
+        <drilldown>
+          <link target="_blank">/app/SplunkforPaloAltoNetworks/incident_investigation?client_ip=$row.client_ip$&amp;server_ip=$row.server_ip$&amp;$row.drilldown_token$=t&amp;event_time=$row.time_in_seconds$&amp;session_id=$row.session_id$&amp;serial_number=$row.serial_number$&amp;victim_ip=$row.victim_ip$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>
