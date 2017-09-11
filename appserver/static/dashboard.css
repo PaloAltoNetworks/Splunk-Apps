@@ -76,3 +76,22 @@
     color: #ffffff;
     background-color: #016baf;
 }
+
+a.custom-drilldown {
+    color: rgb(51, 51, 51);
+    text-decoration: none;
+}
+
+a.custom-drilldown:hover {
+    color: rgb(51, 51, 51);
+    text-decoration: underline;
+}
+
+.custom-single-result {
+    letter-spacing: -0.02em;
+    font-weight: bold;
+    fill: rgb(51, 51, 51);
+    opacity: 1;
+    font-size: 40px;
+    line-height: 80px;
+}
