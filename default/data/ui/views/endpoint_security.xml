@@ -92,6 +92,8 @@
         </search>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
           <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>

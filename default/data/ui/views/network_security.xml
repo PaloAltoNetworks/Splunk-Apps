@@ -108,7 +108,7 @@
         <search base="basesearch">
           <query>| search log_subtype="virus" OR log_subtype="*virus*" | stats count by file_name log_subtype user client_ip server_ip | sort - count</query>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">row</option>
       </table>
     </panel>
   </row>
@@ -151,33 +151,6 @@
         <option name="drilldown">none</option>
         <option name="mapping.type">marker</option>
       </map>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>Data Filtering</title>
-      <table>
-        <search base="basesearch">
-          <query>| eval time_in_seconds=_time | eval drilldown_token=if(sourcetype=="pan:endpoint","endpoint_event","network_event") | table _time threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags | sort - _time</query>
-        </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">row</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-        <format type="color" field="severity">
-          <colorPalette type="map">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</colorPalette>
-        </format>
-        <format type="color" field="action">
-          <colorPalette type="map">{"allowed":#F7BC38,"blocked":#A2CC3E,"deferred":#6A5C9E,"dropped":#65A637}</colorPalette>
-        </format>
-        <fields>["_time","log_subtype","threat_name","severity","action","app","client_ip","server_ip","user","file_name"]</fields>
-        <drilldown>
-          <link target="_blank">/app/SplunkforPaloAltoNetworks/incident_investigation?client_ip=$row.client_ip$&amp;server_ip=$row.server_ip$&amp;$row.drilldown_token$=t&amp;event_time=$row.time_in_seconds$&amp;session_id=$row.session_id$&amp;serial_number=$row.serial_number$&amp;victim_ip=$row.victim_ip$</link>
-        </drilldown>
-      </table>
     </panel>
   </row>
 </form>

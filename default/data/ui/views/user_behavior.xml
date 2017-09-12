@@ -35,14 +35,39 @@
         <earliest>-60m</earliest>
         <latest>now</latest>
       </default>
-      <!--change>
-        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
-        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
-        <eval token="timediff">'latest_n'-'earliest_n'</eval>
-        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
-        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
-        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
-      </change-->
+    </input>
+    <input type="multiselect" token="serial_number">
+      <label>Serial Number</label>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <fieldForLabel>serial_host</fieldForLabel>
+      <fieldForValue>serial_number</fieldForValue>
+      <search>
+        <query>| inputlookup pan_devices_lookup 
+| eval serial_host=if(!isnull(dvc_host),serial_number." : ".dvc_host,serial_number) 
+| stats count by serial_number serial_host</query>
+      </search>
+      <choice value="*">All</choice>
+      <valuePrefix>log.serial_number="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <default>*</default>
+    </input>
+    <input type="multiselect" token="virtual_system">
+      <label>Vsys</label>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <fieldForLabel>vsys</fieldForLabel>
+      <fieldForValue>vsys</fieldForValue>
+      <search>
+        <query>| inputlookup pan_devices_lookup
+| stats count by vsys</query>
+      </search>
+      <choice value="*">All</choice>
+      <valuePrefix>log.virtual_system="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <default>*</default>
     </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
@@ -50,24 +75,32 @@
       <prefix>log.src_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="dest_name">
-      <label>Destination Hostname</label>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
       <default></default>
-      <prefix>log.dest_name="</prefix>
+      <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="user">
-      <label>Source User</label>
+      <label>User</label>
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="dropdown" token="vsys">
-      <label>Virtual System</label>
-      <default></default>
-      <prefix>log.vsys="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.url, log.vsys)`</populatingSearch>
+    <input type="multiselect" token="app">
+      <label>Application</label>
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <choice value="*">All</choice>
+      <valuePrefix>log.app="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <fieldForLabel>app</fieldForLabel>
+      <fieldForValue>app</fieldForValue>
+      <search>
+        <query>| inputlookup app_list.csv
+| fields app</query>
+      </search>
     </input>
   </fieldset>
   <row>

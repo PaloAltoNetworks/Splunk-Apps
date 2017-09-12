@@ -2,7 +2,7 @@
   <label>SaaS Activity</label>
   <description></description>
   <search id="baseSearch">
-    <query>| tstats count from datamodel=pan_firewall WHERE nodename="log.traffic.end" log.app:is_saas="yes" $action$ $src_ip$ $dst_ip$ "$user|s$" $app$ `groupby(_time log.app log.app:is_sanctioned_saas log.app:category log.app:subcategory log.user log.bytes)` | append [tstats count from datamodel=pan_aperture `groupby(_time log.app log.user log.action)`]</query>
+    <query>| tstats count from datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" $action$ $src_ip$ $dst_ip$ "$user|s$" $app$ `groupby(_time log.app log.app:is_sanctioned_saas log.app:category log.app:subcategory log.user log.bytes)` | append [tstats count from datamodel=pan_aperture `groupby(_time log.app log.user log.action)`]</query>
     <earliest>$earliest$</earliest>
     <latest>$latest$</latest>
   </search>
@@ -208,12 +208,12 @@
           <link field="Vol in MB">
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$ app:category=$row.app:category|s$ app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-      ]]>
+	    ]]>
           </link>
           <link field="distribution">
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$ app:category=$row.app:category|s$ app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-      ]]>
+	    ]]>
           </link>
         </drilldown>
       </table>
@@ -251,7 +251,7 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas="yes" | where $app:is_sanctioned_saas$=if("Sanctioned"=$click.value|s$,"yes","no")&earliest=$earliest$&latest=$latest$
-        ]]>
+	      ]]>
           </link>
         </drilldown>
       </chart>
@@ -271,7 +271,7 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas="yes" | where $app:is_sanctioned_saas$=if("Sanctioned"=$row.SaaS|s$,"yes","no")&earliest=$earliest$&latest=$latest$
-          ]]>
+	        ]]>
           </link>
         </drilldown>
       </table>
@@ -309,7 +309,7 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
+	        ]]>
           </link>
         </drilldown>
       </chart>
@@ -345,7 +345,7 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
+	        ]]>
           </link>
         </drilldown>
       </chart>
@@ -383,7 +383,7 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas=yes app.category=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
+	        ]]>
           </link>
         </drilldown>
       </chart>
@@ -419,7 +419,7 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas=yes app.category=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
+	        ]]>
           </link>
         </drilldown>
       </chart>
