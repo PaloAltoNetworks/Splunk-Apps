@@ -38,18 +38,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "object",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "object",
-                    "comment": ""
-                },
-                {
                     "fieldName": "object_path",
                     "owner": "log",
                     "type": "string",
@@ -122,18 +110,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "src_user",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_user",
-                    "comment": ""
-                },
-                {
                     "fieldName": "src_ip",
                     "owner": "log",
                     "type": "string",
@@ -143,6 +119,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "log_subtype",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "log_subtype",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action_taken_by",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action_taken_by",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "object_creator",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "object_creator",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_name",
                     "comment": ""
                 },
                 {
@@ -233,18 +257,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "object",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "object",
-                    "comment": ""
-                },
-                {
                     "fieldName": "object_path",
                     "owner": "log",
                     "type": "string",
@@ -317,18 +329,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "src_user",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "src_user",
-                    "comment": ""
-                },
-                {
                     "fieldName": "src_ip",
                     "owner": "log",
                     "type": "string",
@@ -338,6 +338,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "log_subtype",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "log_subtype",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action_taken_by",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action_taken_by",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "object_creator",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "object_creator",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_name",
                     "comment": ""
                 },
                 {
@@ -428,18 +476,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "object",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "object",
-                    "comment": ""
-                },
-                {
                     "fieldName": "object_path",
                     "owner": "log",
                     "type": "string",
@@ -512,18 +548,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "src_user",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_user",
-                    "comment": ""
-                },
-                {
                     "fieldName": "src_ip",
                     "owner": "log",
                     "type": "string",
@@ -533,6 +557,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "log_subtype",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "log_subtype",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action_taken_by",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action_taken_by",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "object_creator",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "object_creator",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_name",
                     "comment": ""
                 },
                 {
@@ -623,18 +695,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "object",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "object",
-                    "comment": ""
-                },
-                {
                     "fieldName": "object_path",
                     "owner": "log",
                     "type": "string",
@@ -707,18 +767,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "src_user",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_user",
-                    "comment": ""
-                },
-                {
                     "fieldName": "src_ip",
                     "owner": "log",
                     "type": "string",
@@ -728,6 +776,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "log_subtype",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "log_subtype",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action_taken_by",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action_taken_by",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "object_creator",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "object_creator",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_name",
                     "comment": ""
                 },
                 {
@@ -818,18 +914,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "object",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "object",
-                    "comment": ""
-                },
-                {
                     "fieldName": "object_path",
                     "owner": "log",
                     "type": "string",
@@ -902,18 +986,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "src_user",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "src_user",
-                    "comment": ""
-                },
-                {
                     "fieldName": "src_ip",
                     "owner": "log",
                     "type": "string",
@@ -923,6 +995,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "log_subtype",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "log_subtype",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action_taken_by",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action_taken_by",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "object_creator",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "object_creator",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_name",
                     "comment": ""
                 },
                 {
@@ -1013,18 +1133,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "object",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "object",
-                    "comment": ""
-                },
-                {
                     "fieldName": "object_path",
                     "owner": "log",
                     "type": "string",
@@ -1097,18 +1205,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "src_user",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_user",
-                    "comment": ""
-                },
-                {
                     "fieldName": "src_ip",
                     "owner": "log",
                     "type": "string",
@@ -1118,6 +1214,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_ip",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "log_subtype",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "log_subtype",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "action_taken_by",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "action_taken_by",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "object_creator",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "object_creator",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_name",
                     "comment": ""
                 },
                 {
