@@ -1,8 +1,10 @@
 <form>
   <label>SaaS Activity</label>
   <description></description>
-  <search id="baseSearch">
-    <query>| tstats count from datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" $action$ $src_ip$ $dst_ip$ "$user|s$" $app$ `groupby(_time log.app log.app:is_sanctioned_saas log.app:category log.app:subcategory log.user log.bytes)` | append [tstats count from datamodel=pan_aperture `groupby(_time log.app log.user log.action)`]</query>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) AS log.action count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.type), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
+| stats values AS * by _time log.app log.src_ip log.user | rename log.* as *</query>
     <earliest>$earliest$</earliest>
     <latest>$latest$</latest>
   </search>
@@ -50,7 +52,7 @@
   <row>
     <panel>
       <single>
-        <search base="baseSearch">
+        <search base="basesearch">
           <query>stats dc(app)</query>
         </search>
         <option name="drilldown">none</option>
@@ -59,7 +61,7 @@
     </panel>
     <panel>
       <single>
-        <search base="baseSearch">
+        <search base="basesearch">
           <query>stats dc(user)</query>
         </search>
         <option name="drilldown">none</option>
@@ -68,8 +70,8 @@
     </panel>
     <panel>
       <single>
-        <search base="baseSearch">
-          <query>stats sum(bytes) AS sbytes | sort -sbytes | eval "Vol in MB"=round(sbytes/1024/1024) | table "Vol in MB"</query>
+        <search base="basesearch">
+          <query>| eval tbytes= bytes_in + bytes_out | stats sum(tbytes) AS sbytes| sort -sbytes | eval "Vol in MB"=round(sbytes/1024/1024) | table "Vol in MB"</query>
         </search>
         <option name="drilldown">none</option>
         <option name="underLabel">Megabytes</option>
@@ -78,13 +80,11 @@
   </row>
   <row>
     <panel>
+      <title>SaaS Usage</title>
       <chart>
-        <title>SaaS Usage</title>
-        <search base="baseSearch">
+        <search base="basesearch">
           <query>timechart count by app</query>
         </search>
-        <option name="charting.chart">area</option>
-        <option name="charting.axisY2.enabled">false</option>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
         <option name="charting.axisTitleX.visibility">collapsed</option>
@@ -92,7 +92,9 @@
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
@@ -116,8 +118,8 @@
   </row>
   <row>
     <panel>
+      <title>SaaS Actions</title>
       <chart>
-        <title>SaaS Actions</title>
         <search>
           <query>`pan_aperture` log_type="activity_monitoring" | stats count by _time action | timechart values(count) by action</query>
           <earliest>$earliest$</earliest>
@@ -154,8 +156,8 @@
       </chart>
     </panel>
     <panel>
+      <title>SaaS Latest File Actions</title>
       <table>
-        <title>SaaS Latest File Actions</title>
         <search>
           <query>`pan_aperture` log_type="activity_monitoring" | table _time item_name action</query>
           <earliest>$earliest$</earliest>
@@ -174,16 +176,16 @@
   </row>
   <row>
     <panel>
+      <title>SaaS Distribution</title>
       <table>
-        <title>SaaS Distribution</title>
-        <search base="baseSearch">
+        <search base="basesearch">
           <query>stats sparkline count sum(bytes) AS sbytes by app app:category app:subcategory | sort -sbytes | head 8 | eval "Vol in MB"=round(sbytes/1024/1024) | rename sparkline AS distribution | rename vsys AS VSYS | rename count as Sessions | table app app:category app:subcategory Sessions "Vol in MB" distribution</query>
         </search>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="drilldown">cell</option>
-        <option name="dataOverlayMode">none</option>
         <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
         <drilldown>
           <link field="app">
             <![CDATA[
@@ -208,12 +210,32 @@
           <link field="Vol in MB">
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$ app:category=$row.app:category|s$ app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-	    ]]>
+      ]]>
           </link>
           <link field="distribution">
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$ app:category=$row.app:category|s$ app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-	    ]]>
+      ]]>
+          </link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>SaaS Statistics</title>
+      <table>
+        <search base="basesearch">
+          <query>stats sum(bytes) AS sbytes count as Sessions dc(user) as Users by app:is_sanctioned_saas | replace no with Non-sanctioned in app:is_sanctioned_saas | replace yes with Sanctioned in app:is_sanctioned_saas | sort -sbytes | eval "Megabytes"=round(sbytes/1024/1024) | rename app:is_sanctioned_saas as SaaS | table SaaS Users Megabytes Sessions</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas="yes" | where $app:is_sanctioned_saas$=if("Sanctioned"=$row.SaaS|s$,"yes","no")&earliest=$earliest$&latest=$latest$
+          ]]>
           </link>
         </drilldown>
       </table>
@@ -221,13 +243,45 @@
   </row>
   <row>
     <panel>
+      <title>Sanctioned SaaS Applications</title>
+      <table>
+        <search base="basesearch">
+          <query>| search app:is_sanctioned_saas="yes" | top limit=100 app</query>
+        </search>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
+          ]]>
+          </link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Non-Sanctioned SaaS Applications</title>
+      <table>
+        <search base="basesearch">
+          <query>| search app:is_sanctioned_saas="no" | top limit=100 app</query>
+        </search>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
+          ]]>
+          </link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>% SaaS Distribution</title>
       <chart>
-        <title>% SaaS Distribution</title>
-        <search base="baseSearch">
+        <search base="basesearch">
           <query>stats count by app:is_sanctioned_saas | replace no with Non-sanctioned in app:is_sanctioned_saas | replace yes with Sanctioned in app:is_sanctioned_saas | sort -count</query>
         </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.axisY2.enabled">false</option>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
         <option name="charting.axisTitleX.visibility">visible</option>
@@ -235,7 +289,9 @@
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
@@ -251,38 +307,21 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas="yes" | where $app:is_sanctioned_saas$=if("Sanctioned"=$click.value|s$,"yes","no")&earliest=$earliest$&latest=$latest$
-	      ]]>
+        ]]>
           </link>
         </drilldown>
       </chart>
     </panel>
     <panel>
-      <table>
-        <title>SaaS Statistics</title>
-        <search base="baseSearch">
-          <query>stats sum(bytes) AS sbytes count as Sessions dc(user) as Users by app:is_sanctioned_saas | replace no with Non-sanctioned in app:is_sanctioned_saas | replace yes with Sanctioned in app:is_sanctioned_saas | sort -sbytes | eval "Megabytes"=round(sbytes/1024/1024) | rename app:is_sanctioned_saas as SaaS | table SaaS Users Megabytes Sessions</query>
-        </search>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="drilldown">cell</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="count">10</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas="yes" | where $app:is_sanctioned_saas$=if("Sanctioned"=$row.SaaS|s$,"yes","no")&earliest=$earliest$&latest=$latest$
-	        ]]>
-          </link>
-        </drilldown>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
+      <title>Top File Sharing SaaS Apps</title>
       <chart>
-        <title>Sanctioned SaaS Applications</title>
-        <search base="baseSearch">
-          <query>search app:is_sanctioned_saas="yes" | top limit=100 app</query>
+        <search>
+          <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) AS log.action count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.type), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
+| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * | eval tbytes= bytes_in + bytes_out | stats sum(tbytes) AS total_bytes by app | sort -total_bytes</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -291,108 +330,34 @@
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
         <option name="charting.chart">pie</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
         <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
+        <option name="charting.drilldown">none</option>
         <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
-	        ]]>
-          </link>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <chart>
-        <title>Non-Sanctioned SaaS Applications</title>
-        <search base="baseSearch">
-          <query>search app:is_sanctioned_saas="no" | top limit=100 app</query>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">pie</option>
-        <option name="charting.chart.bubbleMaximumSize">50</option>
-        <option name="charting.chart.bubbleMinimumSize">10</option>
-        <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">right</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
-	        ]]>
-          </link>
-        </drilldown>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
       </chart>
     </panel>
   </row>
   <row>
     <panel>
+      <title>Top Categories - Sanctioned</title>
       <chart>
-        <title>Top Categories - Sanctioned</title>
-        <search base="baseSearch">
-          <query>search app:is_sanctioned_saas="yes" | top limit=5 app:subcategory</query>
-        </search>
-        <option name="charting.chart">bar</option>
-        <option name="charting.axisY2.enabled">false</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">collapsed</option>
-        <option name="charting.axisTitleY.visibility">collapsed</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart.bubbleMaximumSize">50</option>
-        <option name="charting.chart.bubbleMinimumSize">10</option>
-        <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">none</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas=yes app.category=$click.value$&earliest=$earliest$&latest=$latest$
-	        ]]>
-          </link>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <chart>
-        <title>Top Categories - Non-Sanctioned</title>
-        <search base="baseSearch">
-          <query>search app:is_sanctioned_saas="no" | top limit=5 app:subcategory</query>
+        <search base="basesearch">
+          <query>| search app:is_sanctioned_saas="yes" | top limit=5 app:subcategory</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -401,7 +366,7 @@
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
         <option name="charting.chart">bar</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
@@ -419,31 +384,27 @@
           <link>
             <![CDATA[
               /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas=yes app.category=$click.value$&earliest=$earliest$&latest=$latest$
-	        ]]>
+          ]]>
           </link>
         </drilldown>
       </chart>
     </panel>
-  </row>
-  <row>
     <panel>
-      <table>
-        <title>Top File Sharing SaaS Apps</title>
-        <search>
-          <query>| `pan_tstats` count dc(log.user) as Users FROM `node(log.file)` log.app:is_saas="yes" $action$ $src_ip$ $dst_ip$ "$user|s$" $app$  `groupby(log.app log.app:risk)` | sort -count | rename app as Application | rename count as "Uploads/Downloads" | rename app:risk as Risk</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+      <title>Top Categories - Non-Sanctioned</title>
+      <chart>
+        <search base="basesearch">
+          <query>| search app:is_sanctioned_saas="no" | top limit=5 app:subcategory</query>
         </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.axisY2.enabled">false</option>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
@@ -454,98 +415,15 @@
         <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">right</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">all</option>
-        <option name="count">10</option>
+        <option name="charting.legend.placement">none</option>
         <drilldown>
           <link>
             <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_file` app=$row.Application|s$&earliest=$earliest$&latest=$latest$
+              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas=yes app.category=$click.value$&earliest=$earliest$&latest=$latest$
           ]]>
           </link>
         </drilldown>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <map>
-        <title>Activity by Source IP</title>
-        <search>
-          <query>| `pan_tstats` latest(log.event_id) FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ AND log.event_id="globalprotectgateway-regist-succ" OR log.event_id="globalprotectgateway-logout-succ" groupby log.src_ip | iplocation log.src_ip | geostats count by log.src_ip</query>
-        </search>
-        <option name="mapping.choroplethLayer.colorBins">5</option>
-        <option name="mapping.choroplethLayer.colorMode">auto</option>
-        <option name="mapping.choroplethLayer.maximumColor">0xDB5800</option>
-        <option name="mapping.choroplethLayer.minimumColor">0x2F25BA</option>
-        <option name="mapping.choroplethLayer.neutralPoint">0</option>
-        <option name="mapping.choroplethLayer.shapeOpacity">0.75</option>
-        <option name="mapping.choroplethLayer.showBorder">1</option>
-        <option name="mapping.data.maxClusters">100</option>
-        <option name="mapping.drilldown">all</option>
-        <option name="mapping.map.center">(37.72,-113.47)</option>
-        <option name="mapping.map.panning">true</option>
-        <option name="mapping.map.scrollZoom">false</option>
-        <option name="mapping.map.zoom">3</option>
-        <option name="mapping.markerLayer.markerMaxSize">50</option>
-        <option name="mapping.markerLayer.markerMinSize">10</option>
-        <option name="mapping.markerLayer.markerOpacity">0.8</option>
-        <option name="mapping.showTiles">1</option>
-        <option name="mapping.tileLayer.maxZoom">7</option>
-        <option name="mapping.tileLayer.minZoom">0</option>
-        <option name="mapping.tileLayer.tileOpacity">1</option>
-        <option name="mapping.type">marker</option>
-        <option name="drilldown">all</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` src_ip=$click.name$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
-        </drilldown>
-      </map>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <map>
-        <title>User Activity Location by Source IP</title>
-        <search>
-          <query>`pan_aperture` log_type="activity_monitoring" | stats count by source_ip user | iplocation source_ip | geostats count by user</query>
-        </search>
-        <option name="mapping.choroplethLayer.colorBins">5</option>
-        <option name="mapping.choroplethLayer.colorMode">auto</option>
-        <option name="mapping.choroplethLayer.maximumColor">0xDB5800</option>
-        <option name="mapping.choroplethLayer.minimumColor">0x2F25BA</option>
-        <option name="mapping.choroplethLayer.neutralPoint">0</option>
-        <option name="mapping.choroplethLayer.shapeOpacity">0.75</option>
-        <option name="mapping.choroplethLayer.showBorder">1</option>
-        <option name="mapping.data.maxClusters">100</option>
-        <option name="mapping.drilldown">all</option>
-        <option name="mapping.map.center">(37.72,-113.47)</option>
-        <option name="mapping.map.panning">true</option>
-        <option name="mapping.map.scrollZoom">false</option>
-        <option name="mapping.map.zoom">3</option>
-        <option name="mapping.markerLayer.markerMaxSize">50</option>
-        <option name="mapping.markerLayer.markerMinSize">10</option>
-        <option name="mapping.markerLayer.markerOpacity">0.8</option>
-        <option name="mapping.showTiles">1</option>
-        <option name="mapping.tileLayer.maxZoom">7</option>
-        <option name="mapping.tileLayer.minZoom">0</option>
-        <option name="mapping.tileLayer.tileOpacity">1</option>
-        <option name="mapping.type">marker</option>
-        <option name="drilldown">all</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` src_ip=$click.name$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
-        </drilldown>
-      </map>
+      </chart>
     </panel>
   </row>
 </form>
