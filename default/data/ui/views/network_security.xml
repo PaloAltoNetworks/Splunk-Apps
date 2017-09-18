@@ -114,6 +114,29 @@
   </row>
   <row>
     <panel>
+      <title>DNS Sinkhole</title>
+      <table>
+        <search base="basesearch">
+          <query>
+            |  search vendor_action="sinkhole" | table client_ip user file_name src_zone dest_zone
+            | sort 20 -count
+          </query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <title>Top 10 Apps With Threats By Severity</title>
       <chart>
         <search base="basesearch">

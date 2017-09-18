@@ -6,7 +6,8 @@
     [| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.src_ip log.user log.object log.action
     | rename log.src_ip AS log.client_ip | rename log.object AS log.threat_name ]
 | append 
-    [| tstats summariesonly=t values(log.dest) as log.client_ip values(log.file_name) AS log.file_name count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.user log.action log.threat_name]
+    [| tstats summariesonly=t values(log.dest) as log.client_ip values(log.file_name) AS log.file_name count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.user log.action log.signature
+    |rename log.signature AS log.threat_name]
 | rename log.* AS *
 | eval severity=case(severity=="critical","critical", severity=="high","high", severity=="medium","medium", severity=="low","low", severity=="informational","informational")
 | eval victim_ip=if(isnull(direction) OR direction="client-to-server", server_ip, client_ip)
