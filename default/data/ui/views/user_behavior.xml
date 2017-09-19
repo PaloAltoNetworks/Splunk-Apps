@@ -1,7 +1,7 @@
 <form>
   <label>User Behavior</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.app:category) AS log.app:category, values(log.app:is_saas) AS log.app:is_saas, values(log.app:default_ports) AS log.app:default_ports, values(log.app) AS log.app, values(log.user) AS log.user, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.dest_port) AS log.dest_port, values(log.severity) AS log.severity, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.url" OR nodename="log.data") GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.src_ip
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.app:category) AS log.app:category, values(log.app:is_saas) AS log.app:is_saas, values(log.app:default_ports) AS log.app:default_ports, values(log.app) AS log.app, values(log.user) AS log.user, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.dest_port) AS log.dest_port, values(log.severity) AS log.severity, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.url" OR nodename="log.data") $log_subtype$ $src_ip$ $dest_ip$ $app$ $category$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.src_ip
       | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -40,12 +40,6 @@
       <prefix>log.log_subtype="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="severity" searchWhenChanged="true">
-      <label>Severity</label>
-      <default></default>
-      <prefix>log.severity="</prefix>
-      <suffix>"</suffix>
-    </input>
     <input type="dropdown" token="app">
       <label>Application</label>
       <default></default>
@@ -53,6 +47,14 @@
       <suffix>"</suffix>
       <choice value="">ANY</choice>
       <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.app)`</populatingSearch>
+    </input>
+    <input type="dropdown" token="category">
+      <label>Categories</label>
+      <default></default>
+      <prefix>log.app:category="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic, log.app)`</populatingSearch>
     </input>
     <input type="dropdown" token="vsys">
       <label>Virtual System</label>
@@ -72,7 +74,7 @@
           <latest>rtnow</latest>
         </search>
         <option name="colorBy">trend</option>
-        <option name="drilldown">all</option>
+        <option name="drilldown">none</option>
         <option name="height">143</option>
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">inverse</option>
@@ -80,9 +82,6 @@
         <option name="underLabel">Traffic Events per Hour</option>
         <option name="unitPosition">after</option>
         <option name="useColors">0</option>
-        <drilldown>
-          <link target="_blank">/app/SplunkforPaloAltoNetworks/file_activity</link>
-        </drilldown>
       </single>
       <single>
         <search base="basesearch">
@@ -91,16 +90,13 @@
           <latest>rtnow</latest>
         </search>
         <option name="colorBy">trend</option>
-        <option name="drilldown">all</option>
+        <option name="drilldown">none</option>
         <option name="height">143</option>
         <option name="showTrendIndicator">1</option>
         <option name="trendColorInterpretation">inverse</option>
         <option name="trendInterval">$time.earliest$</option>
         <option name="underLabel">Data  Events Per Hour</option>
         <option name="useColors">1</option>
-        <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity</link>
-        </drilldown>
       </single>
       <single>
         <search base="basesearch">
@@ -175,11 +171,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-    ]]>
-          </link>
+          <set token="form.category">$click.value$</set>
         </drilldown>
       </chart>
     </panel>
@@ -203,11 +195,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-    ]]>
-          </link>
+          <set token="form.app">$click.value$</set>
         </drilldown>
       </chart>
     </panel>
@@ -252,7 +240,7 @@
       <title>Rare Applications</title>
       <table>
         <search>
-          <query>eventtype="pan_traffic" | rare app</query>
+          <query>| search log_subtype="end" | rare app</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -264,6 +252,9 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
+        <drilldown>
+          <set token="form.app">$click.value$</set>
+        </drilldown>
       </table>
     </panel>
   </row>
