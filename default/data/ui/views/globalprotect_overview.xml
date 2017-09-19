@@ -1,5 +1,11 @@
 <form>
   <label>GlobalProtect</label>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t latest(log.event_id) AS latest_event, values(log.agent_message) AS log.agent_message, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_firewall" WHERE nodename="log.system.globalprotect" $src_ip$ "$user|s$" $object$ groupby _time log.event_id log.user
+      | rename log.* as *</query>
+    <earliest>$earliest$</earliest>
+    <latest>$latest$</latest>
+  </search>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true">
       <default>
@@ -9,18 +15,18 @@
     </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
-      <default/>
+      <default></default>
       <prefix>log.src_ip="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="user">
       <label>User</label>
-      <default/>
+      <default></default>
       <prefix>log.user=</prefix>
     </input>
     <input type="dropdown" token="object">
       <label>Portal/Gateway</label>
-      <default/>
+      <default></default>
       <prefix>log.object="</prefix>
       <suffix>"</suffix>
       <choice value="">ALL</choice>
@@ -31,8 +37,8 @@
     <panel>
       <chart>
         <title>Login/Logout Events</title>
-        <search>
-          <query>|`pan_tstats` count FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ log.event_id="globalprotectgateway-logout-succ" OR log.event_id="globalprotectgateway-regist-succ" groupby _time log.event_id | timechart values(count) by log.event_id | eval event=log.event_id | rename globalprotectgateway-regist-succ AS "Login" | rename globalprotectgateway-logout-succ AS Logout</query>
+        <search base="basesearch">
+          <query>| where event_id="globalprotectgateway-logout-succ" OR event_id="globalprotectgateway-regist-succ" | timechart values(count) by event_id | eval event=event_id | rename globalprotectgateway-regist-succ AS "Login" | rename globalprotectgateway-logout-succ AS Logout</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -70,8 +76,10 @@
     <panel>
       <chart>
         <title>Events by User</title>
-        <search>
-          <query>| `pan_tstats` count FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ AND log.src_ip != "192.*" AND  log.src_ip != "10.*" groupby _time log.user | timechart values(count) by log.user</query>
+        <search base="basesearch">
+          <query>| search src_ip != "10.*" | timechart values(count) by user</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -110,8 +118,8 @@
     <panel>
       <chart>
         <title>Events by Source IP</title>
-        <search>
-          <query>| `pan_tstats` count FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ AND log.src_ip != "192.*" AND  log.src_ip != "10.*" groupby log.src_ip</query>
+        <search base="basesearch">
+          <query>| search NOT src_ip="192.*" NOT src_ip="10.*" | stats count(count) by src_ip</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -148,8 +156,8 @@
     <panel>
       <chart>
         <title>Failed Login by User</title>
-        <search>
-          <query>| `pan_tstats` count FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ log.event_id="*fail*" groupby log.user</query>
+        <search base="basesearch">
+          <query>| where event_id="globalprotectportal-auth-fail" | stats count(count) by user</query>
         </search>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
@@ -190,8 +198,8 @@
     <panel>
       <chart>
         <title>Disabled Client's</title>
-        <search>
-          <query>| `pan_tstats` count FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ log.event_id="globalprotectgateway-agent-msg" log.agent_message="Agent Disable" groupby log.user| `top(20)`</query>
+        <search base="basesearch">
+          <query>| where event_id="globalprotectgateway-agent-msg" AND agent_message="Agent Disable" | stats count(count) by user</query>
         </search>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
@@ -243,8 +251,8 @@
     <panel>
       <chart>
         <title>Logins by User</title>
-        <search>
-          <query>| `pan_tstats` count FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ log.event_id="globalprotectgateway-auth-succ" groupby log.user | `top(20)`</query>
+        <search base="basesearch">
+          <query>| where event_id="globalprotectgateway-auth-succ" | stats count(count) by user | `top(20)`</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -284,10 +292,8 @@
     <panel>
       <single>
         <title>Total Users Logged In</title>
-        <search>
-          <query>| `pan_tstats` latest(log.event_id) AS latest_event FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ (log.event_id="globalprotectgateway-regist-succ" OR log.event_id="globalprotectgateway-logout-succ") groupby log.user | search latest_event="globalprotectgateway-regist-succ" | stats dc(log.user)</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+        <search base="basesearch">
+          <query>| where event_id="globalprotectgateway-regist-succ" OR event_id="globalprotectgateway-logout-succ" | search latest_event="globalprotectgateway-regist-succ" | stats count(count) by user | stats dc(user)</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -308,10 +314,8 @@
     <panel>
       <table>
         <title>Users Logged In</title>
-        <search>
-          <query>| `pan_tstats` latest(log.event_id) AS latest_event FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$  (log.event_id="globalprotectgateway-regist-succ" OR log.event_id="globalprotectgateway-logout-succ") `groupby(log.user)` | search latest_event="globalprotectgateway-regist-succ" | table user</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+        <search base="basesearch">
+          <query>| where event_id="globalprotectgateway-regist-succ" OR event_id="globalprotectgateway-logout-succ" | search latest_event="globalprotectgateway-regist-succ" | stats count(count) by user | table user</query>
         </search>
         <html tokens="true">
           <div class="footnote">
@@ -337,9 +341,10 @@
     <panel>
       <map>
         <title>User Location by Source IP</title>
-        <search>
-          <query>| `pan_tstats` latest(log.event_id) FROM `node(log.system.globalprotect)` $src_ip$ "$user|s$" $object$ AND log.event_id="globalprotectgateway-regist-succ" OR log.event_id="globalprotectgateway-logout-succ" groupby log.src_ip | iplocation log.src_ip | geostats count by log.src_ip</query>
+        <search base="basesearch">
+          <query>| where event_id="globalprotectgateway-regist-succ" OR event_id="globalprotectgateway-logout-succ" | iplocation src_ip | geostats count by user</query>
         </search>
+        <option name="drilldown">all</option>
         <option name="mapping.choroplethLayer.colorBins">5</option>
         <option name="mapping.choroplethLayer.colorMode">auto</option>
         <option name="mapping.choroplethLayer.maximumColor">0xDB5800</option>
@@ -348,10 +353,9 @@
         <option name="mapping.choroplethLayer.shapeOpacity">0.75</option>
         <option name="mapping.choroplethLayer.showBorder">1</option>
         <option name="mapping.data.maxClusters">100</option>
-        <option name="mapping.drilldown">all</option>
         <option name="mapping.map.center">(37.72,-113.47)</option>
-        <option name="mapping.map.panning">true</option>
-        <option name="mapping.map.scrollZoom">false</option>
+        <option name="mapping.map.panning">1</option>
+        <option name="mapping.map.scrollZoom">0</option>
         <option name="mapping.map.zoom">3</option>
         <option name="mapping.markerLayer.markerMaxSize">50</option>
         <option name="mapping.markerLayer.markerMinSize">10</option>
@@ -361,7 +365,6 @@
         <option name="mapping.tileLayer.minZoom">0</option>
         <option name="mapping.tileLayer.tileOpacity">1</option>
         <option name="mapping.type">marker</option>
-        <option name="drilldown">all</option>
         <drilldown>
           <link>
             <![CDATA[

@@ -2,9 +2,9 @@
   <label>SaaS Activity</label>
   <description></description>
   <search id="basesearch">
-    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) AS log.action count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.type), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
-| stats values AS * by _time log.app log.src_ip log.user | rename log.* as *</query>
+    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
+| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * </query>
     <earliest>$earliest$</earliest>
     <latest>$latest$</latest>
   </search>
@@ -158,8 +158,8 @@
     <panel>
       <title>SaaS Latest File Actions</title>
       <table>
-        <search>
-          <query>`pan_aperture` log_type="activity_monitoring" | table _time item_name action</query>
+        <search base="basesearch">
+          <query>| where log_subtype="activity_monitoring" | table _time item_name action</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -179,7 +179,7 @@
       <title>SaaS Distribution</title>
       <table>
         <search base="basesearch">
-          <query>stats sparkline count sum(bytes) AS sbytes by app app:category app:subcategory | sort -sbytes | head 8 | eval "Vol in MB"=round(sbytes/1024/1024) | rename sparkline AS distribution | rename vsys AS VSYS | rename count as Sessions | table app app:category app:subcategory Sessions "Vol in MB" distribution</query>
+          <query>| stats sparkline count sum(bytes) AS sbytes by app app:category app:subcategory | sort -sbytes | head 8 | eval "Vol in MB"=round(sbytes/1024/1024) | rename sparkline AS distribution | rename vsys AS VSYS | rename count as Sessions | table app app:category app:subcategory Sessions "Vol in MB" distribution</query>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
@@ -224,7 +224,7 @@
       <title>SaaS Statistics</title>
       <table>
         <search base="basesearch">
-          <query>stats sum(bytes) AS sbytes count as Sessions dc(user) as Users by app:is_sanctioned_saas | replace no with Non-sanctioned in app:is_sanctioned_saas | replace yes with Sanctioned in app:is_sanctioned_saas | sort -sbytes | eval "Megabytes"=round(sbytes/1024/1024) | rename app:is_sanctioned_saas as SaaS | table SaaS Users Megabytes Sessions</query>
+          <query>| stats sum(bytes) AS sbytes count as Sessions dc(user) as Users by app:is_sanctioned_saas | replace no with Non-sanctioned in app:is_sanctioned_saas | replace yes with Sanctioned in app:is_sanctioned_saas | sort -sbytes | eval "Megabytes"=round(sbytes/1024/1024) | rename app:is_sanctioned_saas as SaaS | table SaaS Users Megabytes Sessions</query>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
@@ -280,7 +280,7 @@
       <title>% SaaS Distribution</title>
       <chart>
         <search base="basesearch">
-          <query>stats count by app:is_sanctioned_saas | replace no with Non-sanctioned in app:is_sanctioned_saas | replace yes with Sanctioned in app:is_sanctioned_saas | sort -count</query>
+          <query>| stats count by app:is_sanctioned_saas | replace no with Non-sanctioned in app:is_sanctioned_saas | replace yes with Sanctioned in app:is_sanctioned_saas | sort -count</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -315,10 +315,8 @@
     <panel>
       <title>Top File Sharing SaaS Apps</title>
       <chart>
-        <search>
-          <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) AS log.action count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.type), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
-| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * | eval tbytes= bytes_in + bytes_out | stats sum(tbytes) AS total_bytes by app | sort -total_bytes</query>
+        <search base="basesearch">
+          <query>| eval tbytes= bytes_in + bytes_out | stats sum(tbytes) AS total_bytes by app | sort -total_bytes</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>

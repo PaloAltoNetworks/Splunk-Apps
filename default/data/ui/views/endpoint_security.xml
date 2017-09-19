@@ -1,12 +1,12 @@
 <form>
   <label>Endpoint Security</label>
   <search id="basesearch">
-    <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.signature | rename log.* AS *</query>
+    <query>| tstats values(log.dest_ip) AS log.dest_ip, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.signature log.user | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
   <search id="prevention">
-    <query>| `pan_tstats` count FROM `ep_node(log.attacks)` log.log_subtype="Prevention Event" $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.dest log.dest_ip log.severity log.file_name log.user log.signature log.file_hash | rename log.* AS *</query>
+    <query>| tstats count FROM datamode="pan_endpoint" WHERE nodename="log.attacks" log.log_subtype="Prevention Event" GROUPBY _time log.log_subtype log.dest log.dest_ip log.severity log.file_name log.user log.signature log.file_hash | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -119,7 +119,7 @@
     <panel>
       <title>Top Endpoint Security Event Types</title>
       <chart>
-        <search>
+        <search base="basesearch">
           <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.log_subtype)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
@@ -154,7 +154,7 @@
     <panel>
       <title>Top Endpoint Protection Modules</title>
       <chart>
-        <search>
+        <search base="basesearch">
           <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.signature)`</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
@@ -191,7 +191,7 @@
     <panel>
       <title>Prevention Events</title>
       <table>
-        <search base="prevention">
+        <search base="basesearch">
           <query>| search log_subtype="Prevention event" | eval autofocus="Open in Autofocus" | table _time dest_ip user file_name signature autofocus file_hash</query>
         </search>
         <fields>_time dest_ip user file_name signature autofocus</fields>
@@ -213,7 +213,7 @@
     <panel>
       <title>Most Vulnerable Machines</title>
       <table>
-        <search base="prevention">
+        <search base="basesearch">
           <query>| top limit=100 dest</query>
         </search>
         <option name="drilldown">row</option>
@@ -226,7 +226,7 @@
     <panel>
       <title>Targeted Users</title>
       <table>
-        <search base="prevention">
+        <search base="basesearch">
           <query>| top limit=100 user</query>
         </search>
         <option name="drilldown">row</option>
@@ -239,7 +239,7 @@
     <panel>
       <title>Most Vulnerable Applications</title>
       <table>
-        <search base="prevention">
+        <search base="basesearch">
           <query>| top limit=100 file_name</query>
         </search>
         <option name="drilldown">row</option>
