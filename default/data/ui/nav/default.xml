@@ -9,7 +9,6 @@
   </collection>
   
   <collection label="Activity">
-    <view name="activity_summary" />
     <view name="user_behavior" />
     <view name="saas_activity" />
     <view name="file_activity" />
