@@ -4,7 +4,7 @@
   <search id="basesearch">
     <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
 | tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
-| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * </query>
+| stats values AS * by _time log.app log.src_ip log.user | rename log.* as *</query>
     <earliest>$earliest$</earliest>
     <latest>$latest$</latest>
   </search>
@@ -94,24 +94,20 @@
         <option name="charting.axisY.scale">linear</option>
         <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">area</option>
+        <option name="charting.chart">column</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
         <option name="charting.chart.nullValueMode">gaps</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.chart.style">shiny</option>
         <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
-    ]]>
-          </link>
+          <set token="form.app">$click.name2$</set>
         </drilldown>
       </chart>
     </panel>
@@ -147,11 +143,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
-    ]]>
-          </link>
+          <set token="form.action">$click.name2$</set>
         </drilldown>
       </chart>
     </panel>
