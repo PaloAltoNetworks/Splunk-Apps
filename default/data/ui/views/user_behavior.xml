@@ -10,7 +10,7 @@
     <input type="time" searchWhenChanged="true" token="time">
       <label></label>
       <default>
-        <earliest>-4h@m</earliest>
+        <earliest>-1h@m</earliest>
         <latest>now</latest>
       </default>
       <!--change>
@@ -46,7 +46,7 @@
       <prefix>log.app="</prefix>
       <suffix>"</suffix>
       <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.app)`</populatingSearch>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic, log.app)`</populatingSearch>
     </input>
     <input type="dropdown" token="category">
       <label>Categories</label>
@@ -62,7 +62,7 @@
       <prefix>log.vsys="</prefix>
       <suffix>"</suffix>
       <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.vsys)`</populatingSearch>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic, log.vsys)`</populatingSearch>
     </input>
   </fieldset>
   <row>

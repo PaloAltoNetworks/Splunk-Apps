@@ -1,4 +1,4 @@
-<form>
+<form stylesheet="tooltip.css" script="tooltip.js">
   <label>Adversary Scoreboard</label>
   <search id="basesearch">
     <query>
@@ -31,8 +31,16 @@
       </default>
     </input>
   </fieldset>
+  <row id="tooltip_row">
+    <html>
+      <i class="icon-info-circle tooltip_icon"></i>
+      <div id="tooltip_txt">
+        "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      </div>
+    </html>
+  </row>
   <row>
-    <panel>
+    <panel id="threat_actors_panel">
       <title>Cyber Attack Lifecycle</title>
       <html>
         <div style="text-align: center;">
@@ -93,7 +101,7 @@
     </panel>
   </row>
   <row>
-    <panel>
+    <panel id="malware_panel">
       <title>Malware Families</title>
       <table>
         <search base="basesearch">
@@ -139,7 +147,7 @@
     </panel>
   </row>
   <row>
-    <panel>
+    <panel id="adversary_malware_product_panel">
       <title>Adversary and Malware Events By Product</title>
       <chart>
         <search base="basesearch">
@@ -174,7 +182,7 @@
         <option name="trellis.size">medium</option>
       </chart>
     </panel>
-    <panel>
+    <panel id="adversary_malware_action_panel">
       <title>Adversary and Malware Events By Action</title>
       <chart>
         <search base="basesearch">
