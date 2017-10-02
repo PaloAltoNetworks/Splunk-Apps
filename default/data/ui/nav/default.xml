@@ -12,7 +12,7 @@
     <view name="saas_activity" />
     <view name="file_activity" />
     <view name="web_activity" />
-    <view name="globalprotect_overview" />
+    <view name="globalprotect" />
     <view name="executive_overview" />
   </collection>
   
@@ -30,8 +30,8 @@
   <collection label="Operations">
     <view name="threat_intelligence" />
     <view name="endpoint_operations" />
-    <view name="system_overview" />
-    <view name="config_overview" />
+    <view name="firewall_system" />
+    <view name="firewall_configuration" />
     <view name="data_model_audit" />
     <view name="realtime_event_feed"/>
   </collection>
