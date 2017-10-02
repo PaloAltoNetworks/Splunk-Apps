@@ -55,8 +55,14 @@
         <search base="basesearch">
           <query>stats dc(app)</query>
         </search>
-        <option name="drilldown">none</option>
         <option name="underLabel">SaaS Applications</option>
+        <drilldown>
+          <link>
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` dest_name=$click.value|s$&earliest=$earliest$&latest=$latest$
+    ]]>
+          </link>
+        </drilldown>
       </single>
     </panel>
     <panel>

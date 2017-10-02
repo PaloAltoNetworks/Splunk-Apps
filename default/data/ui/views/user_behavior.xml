@@ -136,7 +136,7 @@
       <table>
         <title>Web Hits</title>
         <search base="basesearch">
-          <query>| where log_subtype="url" | stats sum(count) by dest_name</query>
+          <query>| where log_subtype="url" | stats sum(count) by dest_name | sort - count</query>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>

@@ -57,7 +57,7 @@
       <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.file, log.direction)`</populatingSearch>
     </input>
     <input type="dropdown" token="action">
-      <label>File Direction</label>
+      <label>Action</label>
       <default></default>
       <prefix>log.action="</prefix>
       <suffix>"</suffix>
