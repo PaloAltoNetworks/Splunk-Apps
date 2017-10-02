@@ -1,9 +1,8 @@
 <nav search_view="search" color="#004f82">
 
   <collection label="Palo Alto Networks">
-    <view name="overview" default="true"/>
+    <a href="app/Splunk_TA_paloalto">Configuration</a>
     <divider />
-    <a href="/manager/Splunk_TA_paloalto/apps/local/Splunk_TA_paloalto/setup?action=edit">Configuration</a>
     <a href="http://pansplunk.readthedocs.io" target="_blank">Documentation</a>
     <a href="http://answers.splunk.com/ask/?appid=491" target="_blank">Send Feedback</a>
   </collection>
@@ -14,11 +13,12 @@
     <view name="file_activity" />
     <view name="web_activity" />
     <view name="globalprotect_overview" />
+    <view name="executive_overview" />
   </collection>
   
   <collection label="Threats">
     <view name="adversary_scoreboard" />
-    <view name="incident_feed" />
+    <view name="incident_feed" default="true" />
     <view name="malware" />
     <view name="network_security" />
     <view name="endpoint_security" />
@@ -29,10 +29,11 @@
   
   <collection label="Operations">
     <view name="threat_intelligence" />
+    <view name="endpoint_operations" />
     <view name="system_overview" />
     <view name="config_overview" />
     <view name="data_model_audit" />
-    <view name="realtime_event_feed" />
+    <view name="realtime_event_feed"/>
   </collection>
 
   <view name="search" stylesheet="application.css"/>

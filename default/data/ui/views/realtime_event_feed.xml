@@ -43,6 +43,24 @@
         <option name="useColors">1</option>
       </single>
     </panel>
+    <panel>
+      <single>
+        <search>
+          <query>`pan_aperture`
+| stats count</query>
+          <earliest>rt-5m</earliest>
+          <latest>rt</latest>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="underLabel">Aperture Logs</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
   </row>
   <row>
     <panel>

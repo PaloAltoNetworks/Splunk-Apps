@@ -6,7 +6,7 @@
     [| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.src_ip log.user log.object log.action
     | rename log.src_ip AS log.client_ip | rename log.object AS log.threat_name ]
 | append 
-    [| tstats summariesonly=t values(log.dest) as log.client_ip values(log.file_name) AS log.file_name count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.user log.action log.signature
+    [| tstats summariesonly=t values(log.dest) as log.client_ip, values(log.file_name) AS log.file_name, values(log.file_hash) as log.file_hash, count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.user log.action log.signature
     |rename log.signature AS log.threat_name]
 | rename log.* AS *
 | eval severity=case(severity=="critical","critical", severity=="high","high", severity=="medium","medium", severity=="low","low", severity=="informational","informational")
@@ -86,8 +86,8 @@
       <label>Autofocus Tag</label>
       <default></default>
       <choice value="">ANY</choice>
-      <prefix>| search autofocus_tags="</prefix>
-      <suffix>"</suffix>
+      <prefix>search autofocus_tags="</prefix>
+      <suffix>" |</suffix>
       <search base="basesearch">
         <query>| stats count by autofocus_tags</query>
       </search>
@@ -112,9 +112,11 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t prestats=t latest(_time) AS latest_time, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" GROUPBY `session`
-| eval _time=replace(psrsvd_lt__time, "^(\d*);.*$", "\1")
-| timechart span=1h count | append [| makeresults] | head 25</query>
+          <query>| tstats summariesonly=t latest(_time) AS latest_time, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" GROUPBY _time span=1h `session`
+| timechart span=1h count
+| append [| makeresults] | head 25</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">none</option>
@@ -140,6 +142,20 @@
       </single>
       <single>
         <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_aperture" WHERE nodename="log.incident" GROUPBY _time span=1h | append [| makeresults] | head 25</query>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="drilldown">all</option>
+        <option name="height">143</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="underLabel">Aperture SaaS Incidents Per Hour</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_security?form.time.earliest=$earliest$&amp;form.time.latest=$latest$</link>
+        </drilldown>
+      </single>
+      <single>
+        <search>
           <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.wildfire.malicious" GROUPBY _time span=1h | append [| makeresults] | head 25</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
@@ -161,7 +177,7 @@
       <title>Threat Subtypes Over Time</title>
       <chart>
         <search base="basesearch">
-          <query>$autofocus_tags$ | timechart count by log_subtype</query>
+          <query>| $autofocus_tags$ timechart count by log_subtype</query>
         </search>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.chart">column</option>
@@ -177,7 +193,7 @@
       <title>Threat Severity Over Time</title>
       <chart>
         <search base="basesearch">
-          <query>$autofocus_tags$ | timechart count by severity</query>
+          <query>| $autofocus_tags$ timechart count by severity</query>
         </search>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.chart">column</option>
@@ -197,7 +213,7 @@
       <title>Incident Investigation Feed</title>
       <table>
         <search base="basesearch">
-          <query>$autofocus_tags$ | eval time_in_seconds=_time | eval drilldown_token=if(sourcetype=="pan:endpoint","endpoint_event","network_event") | table _time log_subtype threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags | sort -_time</query>
+          <query>| $autofocus_tags$ eval time_in_seconds=_time | eval drilldown_token=if(sourcetype=="pan:endpoint","endpoint_event","network_event") | table _time log_subtype threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags | sort -_time</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>

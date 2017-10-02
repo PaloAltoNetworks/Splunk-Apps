@@ -93,13 +93,13 @@
 | head 20
 | eval open_in=if(eventtype="pan_threat" OR (eventtype="pan_wildfire" AND verdict="malicious"),"Open in...",null())
 | eval category=if(category=="any",null(),category)
-| table _time log_subtype user client_ip server_ip vendor_action direction filename category open_in file_hash serial_number threat_id pcap_id</query>
+| table _time log_subtype user client_ip server_ip vendor_action direction file_name category open_in file_hash serial_number threat_id pcap_id</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
         <option name="drilldown">cell</option>
         <option name="wrap">false</option>
-        <fields>["_time","log_subtype","user","client_ip","server_ip","vendor_action","direction","filename","category","open_in"]</fields>
+        <fields>["_time","log_subtype","user","client_ip","server_ip","vendor_action","direction","file_name","category","open_in"]</fields>
         <drilldown>
           <condition field="client_ip">
             <unset token="inc-open_in"></unset>
@@ -139,28 +139,33 @@
         </drilldown>
       </table>
       <html depends="$inc-open_in$">
-        <div class="splunk-view splunk-single" style="width: 50%; float: left; display: $inc-open-show-virustotal$;">
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-virustotal$;">
           <a href="https://www.virustotal.com/en/file/$inc-file_hash$/analysis/" target="virustotal" class="single-drilldown custom-drilldown">
             <text class="single-result custom-single-result">VirusTotal</text>
           </a>
         </div>
-        <div class="splunk-view splunk-single" style="width: 50%; float: left; display: $inc-open-show-autofocus$;">
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-autofocus$;">
           <a href="https://autofocus.paloaltonetworks.com/#/sample/$inc-file_hash$" target="autofocus" class="single-drilldown custom-drilldown">
             <text class="single-result custom-single-result">Autofocus</text>
           </a>
         </div>
-        <div class="splunk-view splunk-single" style="width: 50%; float: left; display: $inc-open-show-threatvault$;">
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-threatvault$;">
           <a href="https://threatvault.paloaltonetworks.com/?query=$inc-threat_id$&amp;type=" target="threatvault" class="single-drilldown custom-drilldown">
             <text class="single-result custom-single-result">Threat Vault</text>
           </a>
         </div>
-        <div class="splunk-view splunk-single" style="width: 50%; float: left; display: $inc-open-show-pcap-available$;">
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-pcap-available$;">
           <a href="#" target="pcap" class="single-drilldown custom-drilldown">
             <text class="single-result custom-single-result">Download pcap</text>
           </a>
         </div>
-        <div class="splunk-view splunk-single" style="width: 50%; float: left; display: $inc-open-show-pcap-notavailable$;">
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-pcap-notavailable$;">
           <text class="single-result custom-single-result" style="color: #DDD">Download pcap</text>
+        </div>
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left;">
+          <a href="search?q=`pan_logs` session_id=$session_id$ serial_number=$serial_number$ client_ip=$client_ip$ server_ip=$server_ip$&amp;earliest=$earliest$&amp;latest=$latest$" target="searchbar" class="single-drilldown custom-drilldown">
+            <text class="single-result custom-single-result">Search bar</text>
+          </a>
         </div>
       </html>
     </panel>
@@ -520,7 +525,7 @@
             </condition>
           </done>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">row</option>
       </table>
     </panel>
   </row>

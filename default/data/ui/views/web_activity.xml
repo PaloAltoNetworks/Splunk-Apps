@@ -2,7 +2,7 @@
   <label>Web Activity</label>
   <description>Add a 'decrypted traffic' panel or other action flags, Add Content Type</description>
   <search id="basesearch">
-    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial_number$ $vsys$ $src_ip$ $dest_name$ "$user|s$" $category$ $action$ GROUPBY _time log.dest_name log.category log.app log.action log.content_type log.vendor_action | rename log.* AS *</query>
+    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" (log.serial_number="*") (log.vsys="*")   """"  (log.action="*") GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -113,7 +113,7 @@
       <title>Categories</title>
       <chart>
         <search base="basesearch">
-          <query>| stats count BY category
+          <query>|  stats count BY app:category
 | sort -count</query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>

@@ -1,5 +1,5 @@
 <form>
-  <label>Endpoint Operations Dashboard</label>
+  <label>Endpoint Operations</label>
   <search id="basesearch">
     <query>| tstats values(log.dest) AS log.dest, values(log.src) AS log.src FROM datamodel="pan_endpoint" WHERE nodename="log.operations" $user|s$ $dest$ $file_name$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.user | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
@@ -68,16 +68,16 @@
   </fieldset>
   <row>
     <panel>
+      <title>Total Endpoints Reporting</title>
       <single>
-        <title>Total Endpoints Reporting</title>
         <search base="basesearch">
           <query>| stats count(count) by dest</query>
         </search>
       </single>
     </panel>
     <panel>
+      <title>Content Version</title>
       <single>
-        <title>Content Version</title>
         <search base="basesearch">
           <query>`pan_endpoint` log_subtype="Server Content Update Success" OR log_subtype="Server Content Revert Success" | sort _time DESC | table content_version | head 1 | rename content_version AS "Content Version"</query>
           <earliest>0</earliest>
@@ -87,8 +87,8 @@
       </single>
     </panel>
     <panel>
+      <title>Protection Status</title>
       <single>
-        <title>Protection Status</title>
         <search base="basesearch">
           <query>`pan_endpoint` log_subtype="Protection Enabled" OR log_subtype="Protection Disabled" | sort _time DESC | head 1 | table log_subtype</query>
           <earliest>-24h@h</earliest>
@@ -100,8 +100,8 @@
   </row>
   <row>
     <panel>
+      <title>Management Events</title>
       <chart>
-        <title>Management Events</title>
         <search base="basesearch">
           <query>| `pan_tstats` count FROM `ep_node(log.operations)` $user|s$ $src$ $device_ip|s$ $severity$ GROUPBY _time log.log_subtype | rename log.log_subtype AS subtype | timechart count by subtype</query>
           <earliest>$earliest$</earliest>
@@ -143,8 +143,8 @@
   </row>
   <row>
     <panel>
+      <title>Logs by Type</title>
       <chart>
-        <title>Logs by Type</title>
         <search base="basesearch">
           <query>| `pan_tstats` count FROM `ep_node` "$user|s$" $src$ $device_ip|s$ $severity$ `groupby(_time log.type)` | timechart values(count) by type</query>
           <earliest>$earliest$</earliest>
@@ -157,7 +157,7 @@
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.axisX.scale">linear</option>
         <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
         <option name="charting.chart">column</option>
         <option name="charting.chart.nullValueMode">gaps</option>
@@ -178,8 +178,8 @@
       </chart>
     </panel>
     <panel>
+      <title>Logs by Severity (24 hours)</title>
       <chart>
-        <title>Logs by Severity (24 hours)</title>
         <search base="basesearch">
           <query>| `pan_tstats` count FROM `ep_node` "$user|s$" $src$ $device_ip|s$ $severity$ `groupby(_time log.severity)` | timechart values(count) by severity</query>
           <earliest>-24h</earliest>

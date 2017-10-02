@@ -1,7 +1,7 @@
 <form>
   <label>Endpoint Security</label>
   <search id="basesearch">
-    <query>| tstats values(log.dest_ip) AS log.dest_ip, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.signature log.user | rename log.* AS *</query>
+    <query>| tstats values(log.dest_ip) AS log.dest_ip, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.signature log.user log.file_name log.dest | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -120,9 +120,7 @@
       <title>Top Endpoint Security Event Types</title>
       <chart>
         <search base="basesearch">
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.log_subtype)`</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+          <query>| stats count(count) by log_subtype</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -155,9 +153,7 @@
       <title>Top Endpoint Protection Modules</title>
       <chart>
         <search base="basesearch">
-          <query>| `pan_tstats` count FROM `ep_node(log.attacks)` $file_name$ "$user|s$" $src$ $device_ip|s$ $signature$ $severity$ $action$ `groupby(log.signature)`</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+          <query>| stats count(count) by signature</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
