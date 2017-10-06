@@ -1,7 +1,7 @@
 <nav search_view="search" color="#004f82">
 
   <collection label="Palo Alto Networks">
-    <a href="app/Splunk_TA_paloalto">Configuration</a>
+    <a href="/app/Splunk_TA_paloalto/configuration">Configuration</a>
     <divider />
     <a href="http://pansplunk.readthedocs.io" target="_blank">Documentation</a>
     <a href="http://answers.splunk.com/ask/?appid=491" target="_blank">Send Feedback</a>
