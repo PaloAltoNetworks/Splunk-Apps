@@ -28,7 +28,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -36,6 +36,9 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=| `mm_indicators` | search splunk_source="$click.value$"&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -65,7 +68,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -73,12 +76,15 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=| `mm_indicators($click.value$)`&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
       </chart>
     </panel>
   </row>
   <row>
     <panel>
-      <title>Indicators by Source (24 Hours)</title>
+      <title>Average Indicators by Source (24 Hours)</title>
       <chart>
         <search>
           <query>`mm_stats` | timechart avg(indicators) BY input_name</query>
@@ -104,7 +110,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -112,6 +118,9 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=`mm_stats` earliest = $click.value$ [| stats count | eval latest = $click.value$ %2b 1200 | fields latest] | search input_name=$click.name2|s$&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
       </chart>
     </panel>
   </row>

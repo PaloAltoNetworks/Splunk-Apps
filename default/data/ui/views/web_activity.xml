@@ -2,7 +2,7 @@
   <label>Web Activity</label>
   <description>Add a 'decrypted traffic' panel or other action flags, Add Content Type</description>
   <search id="basesearch">
-    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" (log.serial_number="*") (log.vsys="*")   """"  (log.action="*") GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
+    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial_number$ $vsys$ $src_ip$ $dest_name$ $user$ $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -22,6 +22,7 @@
       <search>
         <query>| inputlookup pan_devices_lookup 
 | eval serial_host=if(!isnull(dvc_host),serial_number." : ".dvc_host,serial_number) 
+| dedup serial_number
 | stats count by serial_number serial_host</query>
       </search>
       <choice value="*">All</choice>
@@ -63,11 +64,42 @@
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="text" token="category">
+    <input type="dropdown" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+      <fieldForLabel>field_with_count</fieldForLabel>
+      <fieldForValue>field</fieldForValue>
+      <search>
+        <query>
+        | `_pan_dropdown(log.traffic.end, log.app)`
+        </query>
+      </search>
+    </input>
+    <input type="dropdown" token="category">
       <label>Category</label>
       <default></default>
       <prefix>log.category="</prefix>
       <suffix>"</suffix>
+      <fieldForLabel>field_with_count</fieldForLabel>
+      <fieldForValue>field</fieldForValue>
+      <search>
+        <query>
+        | `_pan_dropdown(log.traffic.end, log.app:category)`
+        </query>
+      </search>
+    </input>
+    <input type="dropdown" token="content">
+      <label>Content Type</label>
+      <default></default>
+      <prefix>log.content_type="</prefix>
+      <suffix>"</suffix>
+      <fieldForLabel>field_with_count</fieldForLabel>
+      <fieldForValue>field</fieldForValue>
+      <search>
+        <query>| `_pan_dropdown(log.url, log.content_type)`</query>
+      </search>
     </input>
     <input type="multiselect" token="action">
       <label>Action</label>
@@ -103,7 +135,7 @@
         <option name="rowNumbers">true</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">search?q=`pan_url` $click.name$=$click.value|s$ $click.name2$=$click.value2|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_url` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -180,7 +212,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.app=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.content=$click.value$</link>
         </drilldown>
       </chart>
     </panel>
@@ -198,7 +230,7 @@
         <option name="charting.drilldown">all</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link target="_self">search?q=`pan_url` action=$click.name2$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_url` action=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -230,7 +262,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -238,6 +270,9 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` method=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=&amp;latest=</link>
+        </drilldown>
       </chart>
     </panel>
   </row>
@@ -258,6 +293,9 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` vendor_action="block-continue" dest_name=$row.dest_name|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
     <panel>
@@ -279,6 +317,9 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.dest_name=$row.http_referrer_name$</link>
+        </drilldown>
       </table>
     </panel>
     <panel>
@@ -300,6 +341,10 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` http_method=="GET" 
+file_name=$row.file_name|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -315,11 +360,14 @@
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
+        <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` flags="decrypted"&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
   </row>

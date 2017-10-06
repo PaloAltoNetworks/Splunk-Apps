@@ -13,78 +13,6 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="multiselect" token="serial_number">
-      <label>Serial Number</label>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <fieldForLabel>serial_host</fieldForLabel>
-      <fieldForValue>serial_number</fieldForValue>
-      <search>
-        <query>| inputlookup pan_devices_lookup 
-| eval serial_host=if(!isnull(dvc_host),serial_number." : ".dvc_host,serial_number) 
-| stats count by serial_number serial_host</query>
-      </search>
-      <choice value="*">All</choice>
-      <valuePrefix>log.serial_number="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <default>*</default>
-    </input>
-    <input type="multiselect" token="virtual_system">
-      <label>Vsys</label>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <fieldForLabel>vsys</fieldForLabel>
-      <fieldForValue>vsys</fieldForValue>
-      <search>
-        <query>| inputlookup pan_devices_lookup
-| stats count by vsys</query>
-      </search>
-      <choice value="*">All</choice>
-      <valuePrefix>log.virtual_system="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <default>*</default>
-    </input>
-    <input type="text" token="src_ip">
-      <label>Source IP</label>
-      <default></default>
-      <prefix>log.src_ip="</prefix>
-      <suffix>"</suffix>
-    </input>
-    <input type="text" token="dest_ip">
-      <label>Destination IP</label>
-      <default></default>
-      <prefix>log.dest_ip="</prefix>
-      <suffix>"</suffix>
-    </input>
-    <input type="text" token="file_name">
-      <label>Filename</label>
-      <default></default>
-      <prefix>log.file_name="</prefix>
-      <suffix>"</suffix>
-    </input>
-    <input type="text" token="user">
-      <label>User</label>
-      <default></default>
-      <prefix>log.user=</prefix>
-    </input>
-    <input type="multiselect" token="app">
-      <label>Application</label>
-      <default>*</default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <choice value="*">All</choice>
-      <valuePrefix>log.app="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <fieldForLabel>app</fieldForLabel>
-      <fieldForValue>app</fieldForValue>
-      <search>
-        <query>| inputlookup app_list.csv
-| fields app</query>
-      </search>
-    </input>
   </fieldset>
   <row>
     <panel>
@@ -187,6 +115,9 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=eventtype="pan:emails" OR eventtype="pan_email" src_ip=$row.src_ip|s$ threat_name=$row.threat_name|s$ app=$row.app|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
     <panel>
@@ -204,6 +135,9 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=eventtype="pan:emails" OR eventtype="pan_email" src_ip=$row.src_ip|s$ sender=$row.sender|s$ bytes_out=$row.bytes_out|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -229,28 +163,10 @@
         <option name="charting.fieldColors">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</option>
         <option name="charting.legend.labels">[critical,high,medium,low,informational]</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/threat_detail?form.$click.name$=$click.value$&earliest=$earliest$&latest=$latest$
-    ]]>
-          </link>
+          <link target="_self">search?q=`pan_threat` eventtype="pan:emails" OR eventtype="pan_email" app=$click.value$ severity=$click.name2$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
-    <panel>
-      <chart>
-        <title>Emails without file, emails with file, emails with threat, emails with file and threat</title>
-        <search>
-          <query>test</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="charting.chart">pie</option>
-        <option name="charting.drilldown">none</option>
-      </chart>
-    </panel>
-  </row>
-  <row>
     <panel>
       <title>Threats By Source Location</title>
       <map>

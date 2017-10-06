@@ -1,12 +1,7 @@
 <form>
   <label>Endpoint Security</label>
   <search id="basesearch">
-    <query>| tstats values(log.dest_ip) AS log.dest_ip, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user|s$ $dest$ $dest_ip$ $file_name$ $signature$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.signature log.user log.file_name log.dest | rename log.* AS *</query>
-    <earliest>$time.earliest$</earliest>
-    <latest>$time.latest$</latest>
-  </search>
-  <search id="prevention">
-    <query>| tstats count FROM datamode="pan_endpoint" WHERE nodename="log.attacks" log.log_subtype="Prevention Event" GROUPBY _time log.log_subtype log.dest log.dest_ip log.severity log.file_name log.user log.signature log.file_hash | rename log.* AS *</query>
+    <query>| tstats values(log.dest_ip) AS log.dest_ip, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user$ $dest$ $dest_ip$ $file_name$ $signature$ $action$ $log_subtype$ GROUPBY _time log.log_subtype log.severity log.signature log.user log.file_name log.dest | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -17,6 +12,21 @@
         <earliest>-60m</earliest>
         <latest>now</latest>
       </default>
+    </input>
+    <input type="multiselect" token="log_subtype">
+      <label>Event Type</label>
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <search>
+        <query>`pan_endpoint` | dedup log_subtype | table log_subtype</query>
+      </search>
+      <fieldForLabel>log_subtype</fieldForLabel>
+      <fieldForValue>log_subtype</fieldForValue>
+      <choice value="*">All</choice>
+      <valuePrefix>log.log_subtype="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
     </input>
     <input type="text" token="user">
       <label>User</label>
@@ -46,23 +56,6 @@
       <default></default>
       <prefix>log.signature="</prefix>
       <suffix>"</suffix>
-    </input>
-    <input type="multiselect" token="severity">
-      <label>Severity</label>
-      <default>*</default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <search>
-        <query>| inputlookup endpoint_severity_lookup 
-| fields severity
-| dedup severity</query>
-      </search>
-      <fieldForLabel>severity</fieldForLabel>
-      <fieldForValue>severity</fieldForValue>
-      <choice value="*">All</choice>
-      <valuePrefix>log.severity="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
     </input>
     <input type="multiselect" token="action">
       <label>Action</label>
@@ -96,7 +89,7 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>
+          <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -110,7 +103,7 @@
         <option name="charting.chart">column</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>
+          <link target="_self">search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -141,11 +134,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_blank">/app/SplunkforPaloAltoNetworks/endpoint_security?form.log_subtype=$click.value|s$</link>
         </drilldown>
       </chart>
     </panel>
@@ -174,11 +163,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` $click.name$=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.signature=$click.value|s$</link>
         </drilldown>
       </chart>
     </panel>
@@ -210,12 +195,12 @@
       <title>Most Vulnerable Machines</title>
       <table>
         <search base="basesearch">
-          <query>| top limit=100 dest</query>
+          <query>| top limit=100 dest_ip</query>
         </search>
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.dest_ip=$row.dest_ip$</link>
         </drilldown>
       </table>
     </panel>
@@ -228,12 +213,12 @@
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.user=$row.user|s$</link>
         </drilldown>
       </table>
     </panel>
     <panel>
-      <title>Most Vulnerable Applications</title>
+      <title>Most Vulnerable Files</title>
       <table>
         <search base="basesearch">
           <query>| top limit=100 file_name</query>

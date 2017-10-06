@@ -3,14 +3,15 @@
   <search id="basesearch">
     <query>| tstats summariesonly=t latest(log.event_id) AS latest_event, values(log.agent_message) AS log.agent_message, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_firewall" WHERE nodename="log.system.globalprotect" $src_ip$ "$user|s$" $object$ groupby _time log.event_id log.user
       | rename log.* as *</query>
-    <earliest>$earliest$</earliest>
-    <latest>$latest$</latest>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
   </search>
   <fieldset autoRun="true" submitButton="true">
-    <input type="time" searchWhenChanged="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
       <default>
-        <earliestTime>-60m</earliestTime>
-        <latestTime>now</latestTime>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
       </default>
     </input>
     <input type="text" token="src_ip">
@@ -65,11 +66,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-          /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` (event_id="globalprotectgateway-logout-succ" OR event_id="globalprotectgateway-regist-succ") earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] | where ($click.name2|s$=="Login" AND event_id=="globalprotectgateway-regist-succ") OR ($click.name2|s$=="Logout" AND event_id=="globalprotectgateway-logout-succ")
-      ]]>
-          </link>
+          <link target="_self">search?q=`pan_globalprotect` (event_id="globalprotectgateway-logout-succ" OR event_id="globalprotectgateway-regist-succ") earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] | where ($click.name2|s$=="Login" AND event_id=="globalprotectgateway-regist-succ") OR ($click.name2|s$=="Logout" AND event_id=="globalprotectgateway-logout-succ")&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -105,11 +102,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` user=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_globalprotect` user=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -145,11 +138,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` src_ip=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/globalprotect?form.src_ip=$click.value|s$</link>
         </drilldown>
       </chart>
     </panel>
@@ -187,11 +176,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` event_id="*fail*" user=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_globalprotect` event_id="*fail*" user=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -238,11 +223,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` event_id="globalprotectgateway-agent-msg" agent_message="Agent Disable" user=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_globalprotect` event_id="globalprotectgateway-agent-msg" agent_message="Agent Disable" user=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -281,11 +262,7 @@
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` event_id="globalprotectgateway-auth-succ" user=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_globalprotect` event_id="globalprotectgateway-auth-succ" user=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -328,11 +305,7 @@
         <option name="rowNumbers">false</option>
         <option name="wrap">true</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` user=$click.value|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/globalprotect?form.user=$click.value|s$</link>
         </drilldown>
       </table>
     </panel>
@@ -366,11 +339,7 @@
         <option name="mapping.tileLayer.tileOpacity">1</option>
         <option name="mapping.type">marker</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_globalprotect` src_ip=$click.name$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_globalprotect` user=$click.name$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </map>
     </panel>
