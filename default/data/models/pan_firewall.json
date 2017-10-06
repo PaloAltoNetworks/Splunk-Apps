@@ -722,7 +722,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -730,7 +730,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -1733,7 +1733,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -1741,7 +1741,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -2767,7 +2767,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -2775,7 +2775,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -3778,7 +3778,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -3786,7 +3786,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -4789,7 +4789,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -4797,7 +4797,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -5800,7 +5800,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -5808,7 +5808,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -6811,7 +6811,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -6819,7 +6819,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -7822,7 +7822,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -7830,7 +7830,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -8821,7 +8821,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -8829,7 +8829,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -9832,7 +9832,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -9840,7 +9840,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -10843,7 +10843,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -10851,7 +10851,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -11854,7 +11854,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -11862,7 +11862,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -12865,7 +12865,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -12873,7 +12873,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -13876,7 +13876,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -13884,7 +13884,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -14887,7 +14887,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -14895,7 +14895,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -15898,7 +15898,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -15906,7 +15906,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -16909,7 +16909,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -16917,7 +16917,7 @@
                     "multivalue": false,
                     "hidden": true,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
@@ -17920,7 +17920,7 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dvc_host",
+                    "fieldName": "dvc_name",
                     "owner": "log",
                     "type": "string",
                     "fieldSearch": "",
@@ -17928,7 +17928,7 @@
                     "multivalue": false,
                     "hidden": false,
                     "editable": true,
-                    "displayName": "dvc_host",
+                    "displayName": "dvc_name",
                     "comment": ""
                 },
                 {
