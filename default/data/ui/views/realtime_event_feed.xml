@@ -134,11 +134,7 @@
         <option name="charting.legend.placement">right</option>
         <option name="height">241</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` sourcetype="pan:*" log_subtype=$click.name2|s$&earliest=-5m&latest=now
-              ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/search?q=`pan_logs` sourcetype="pan:*" log_subtype=$click.name2|s$&amp;earliest=-5m&amp;latest=now</link>
         </drilldown>
       </chart>
     </panel>
@@ -172,7 +168,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -180,6 +176,9 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">small</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` | search dvc="$click.value$"&amp;earliest=rt-5m&amp;latest=rt</link>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -210,7 +209,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -218,6 +217,9 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">small</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` | search dvc_host="$click.name2$"&amp;earliest=rt-5m&amp;latest=rt</link>
+        </drilldown>
       </chart>
     </panel>
   </row>

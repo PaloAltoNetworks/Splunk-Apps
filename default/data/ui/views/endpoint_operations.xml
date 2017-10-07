@@ -1,11 +1,11 @@
 <form>
   <label>Endpoint Operations</label>
   <search id="basesearch">
-    <query>| tstats values(log.dest) AS log.dest, values(log.src) AS log.src FROM datamodel="pan_endpoint" WHERE nodename="log.operations" $user|s$ $dest$ $file_name$ $severity$ $action$ GROUPBY _time log.log_subtype log.severity log.user | rename log.* AS *</query>
+    <query>| tstats values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest) AS log.dest, values(log.src) AS log.src count FROM datamodel="pan_endpoint" WHERE nodename="log.operations" $user$ $dest$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
- <fieldset submitButton="true" autoRun="true">
+  <fieldset submitButton="true" autoRun="true">
     <input type="time" searchWhenChanged="true" token="time">
       <label></label>
       <default>
@@ -30,7 +30,7 @@
       <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
-      <input type="multiselect" token="severity">
+    <input type="multiselect" token="severity">
       <label>Severity</label>
       <default>*</default>
       <prefix>(</prefix>
@@ -71,7 +71,7 @@
       <title>Total Endpoints Reporting</title>
       <single>
         <search base="basesearch">
-          <query>| stats count(count) by dest</query>
+          <query>| dedup dest | stats dc(dest)</query>
         </search>
       </single>
     </panel>
@@ -79,10 +79,7 @@
       <title>Content Version</title>
       <single>
         <search base="basesearch">
-          <query>`pan_endpoint` log_subtype="Server Content Update Success" OR log_subtype="Server Content Revert Success" | sort _time DESC | table content_version | head 1 | rename content_version AS "Content Version"</query>
-          <earliest>0</earliest>
-          <latest></latest>
-          <sampleRatio>1</sampleRatio>
+          <query>| search log_subtype="Server Content Update Success" OR log_subtype="Server Content Revert Success" | sort _time DESC | table content_version | head 1 | rename content_version AS "Content Version"</query>
         </search>
       </single>
     </panel>
@@ -90,10 +87,7 @@
       <title>Protection Status</title>
       <single>
         <search base="basesearch">
-          <query>`pan_endpoint` log_subtype="Protection Enabled" OR log_subtype="Protection Disabled" | sort _time DESC | head 1 | table log_subtype</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
+          <query>| search log_subtype="Protection Enabled" OR log_subtype="Protection Disabled" | sort _time DESC | head 1 | table log_subtype</query>
         </search>
       </single>
     </panel>
@@ -103,10 +97,7 @@
       <title>Management Events</title>
       <chart>
         <search base="basesearch">
-          <query>| `pan_tstats` count FROM `ep_node(log.operations)` $user|s$ $src$ $device_ip|s$ $severity$ GROUPBY _time log.log_subtype | rename log.log_subtype AS subtype | timechart count by subtype</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-          <sampleRatio>1</sampleRatio>
+          <query>| rename log_subtype AS subtype | timechart count by subtype</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -132,11 +123,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-            ]]>
-          </link>
+          <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -146,9 +133,7 @@
       <title>Logs by Type</title>
       <chart>
         <search base="basesearch">
-          <query>| `pan_tstats` count FROM `ep_node` "$user|s$" $src$ $device_ip|s$ $severity$ `groupby(_time log.type)` | timechart values(count) by type</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+          <query>| timechart count by type</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -169,11 +154,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-            ]]>
-          </link>
+          <link target="_self">search?q=`pan_endpoint` type=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -181,9 +162,7 @@
       <title>Logs by Severity (24 hours)</title>
       <chart>
         <search base="basesearch">
-          <query>| `pan_tstats` count FROM `ep_node` "$user|s$" $src$ $device_ip|s$ $severity$ `groupby(_time log.severity)` | timechart values(count) by severity</query>
-          <earliest>-24h</earliest>
-          <latest>now</latest>
+          <query>| timechart count by severity</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -204,11 +183,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 1800 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>

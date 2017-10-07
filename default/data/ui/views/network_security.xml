@@ -1,7 +1,7 @@
 <form>
   <label>Network Security</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") OR nodename="log.data" $log_subtype$ $severity$ GROUPBY _time sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action log.src_zone log.dest_zone | rename log.* AS *
+    <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") OR nodename="log.data" $log_subtype$ $severity$ $app$ $dest_ip$ $threat_name$ $vsys$ GROUPBY _time sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action log.src_zone log.dest_zone | rename log.* AS *
 | eval victim_ip=if(isnull(direction) OR direction="client-to-server", server_ip, client_ip)
 | lookup minemeldfeeds_lookup indicator AS client_ip OUTPUT value.autofocus_tags AS autofocus_tags
 | lookup minemeldfeeds_lookup indicator AS server_ip OUTPUT value.autofocus_tags AS autofocus_tags
@@ -84,6 +84,9 @@
         <search base="correlation">
           <query>| stats sum(count) AS count by evidence object severity</query>
         </search>
+        <drilldown>
+          <link target="_self">search?q=`pan_threat` log_subtype=correlation evidence=$row.evidence|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -109,6 +112,9 @@
           <query>| search log_subtype="virus" OR log_subtype="*virus*" | stats count by file_name log_subtype user client_ip server_ip | sort - count</query>
         </search>
         <option name="drilldown">row</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_threat` log_subtype="virus" OR log_subtype="*virus*"  file_name="UodxeipTEaQ.eXe" log_subtype="wildfire-virus" user=$row.user|s$ client_ip=$row.client_ip|s$ server_ip=$row.server_ip|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -127,11 +133,14 @@
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
+        <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` vendor_action="sinkhole" client_ip=$row.client_ip|s$ user=$row.user|s$ file_name=$row.file_name|s$ src_zone=$src_zone|s$ dest_zone=$dest_zone|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -157,11 +166,7 @@
         <option name="charting.fieldColors">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</option>
         <option name="charting.legend.labels">[critical,high,medium,low,informational]</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/threat_detail?form.$click.name$=$click.value$&earliest=$earliest$&latest=$latest$
-    ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/network_security?form.app=$click.value$&amp;form.severity=$click.name2$</link>
         </drilldown>
       </chart>
     </panel>
@@ -171,7 +176,7 @@
         <search base="basesearch">
           <query>| iplocation client_ip | geostats sum(count) by log_subtype</query>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">all</option>
         <option name="mapping.type">marker</option>
       </map>
     </panel>

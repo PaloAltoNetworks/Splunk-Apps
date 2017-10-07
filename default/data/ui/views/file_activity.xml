@@ -2,7 +2,7 @@
   <label>File Activity</label>
   <description></description>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.direction) AS log.direction, values(log.src_zone) AS log.src_zone, values(log.dest_zone) AS log.dest_zone, values(log.action) AS log.action, count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.file") $src_ip$ $dest_ip$ $log_subtype$ $app$ $file_direction$ $action$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip | rename log.* AS *</query>
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.direction) AS log.direction, values(log.src_zone) AS log.src_zone, values(log.dest_zone) AS log.dest_zone, values(log.action) AS log.action, count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" OR nodename="log.file" $src_ip$ $dest_ip$ $log_subtype$ $direction$ $app$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -40,29 +40,21 @@
       <prefix>log.log_subtype="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="dropdown" token="app">
-      <label>Application</label>
-      <default></default>
-      <prefix>log.app="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.file, log.app)`</populatingSearch>
-    </input>
-    <input type="dropdown" token="file_direction">
-      <label>File Direction</label>
+    <input type="dropdown" token="direction" searchWhenChanged="true">
+      <label>Direction</label>
       <default></default>
       <prefix>log.direction="</prefix>
       <suffix>"</suffix>
       <choice value="">ANY</choice>
       <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.file, log.direction)`</populatingSearch>
     </input>
-    <input type="dropdown" token="action">
-      <label>Action</label>
+    <input type="dropdown" token="app">
+      <label>Application</label>
       <default></default>
-      <prefix>log.action="</prefix>
+      <prefix>log.app="</prefix>
       <suffix>"</suffix>
       <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.file, log.action)`</populatingSearch>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.app)`</populatingSearch>
     </input>
     <input type="dropdown" token="vsys">
       <label>Virtual System</label>
@@ -70,7 +62,7 @@
       <prefix>log.vsys="</prefix>
       <suffix>"</suffix>
       <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.file, log.vsys)`</populatingSearch>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.vsys)`</populatingSearch>
     </input>
   </fieldset>
   <row>
@@ -127,7 +119,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -135,16 +127,16 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` log_subtype="file" action=$click.name2$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
       </chart>
     </panel>
     <panel>
       <title>Bytes Transfered Over Time</title>
       <chart>
         <search base="basesearch">
-          <query>| search bytes_out&gt;0 OR bytes_in&gt;0 | table _time bytes_in bytes_out</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
+          <query>| search bytes_out&gt;0 OR bytes_in&gt;0 | timechart per_minute(bytes_in) as bytes_in,  per_minute(bytes_out) AS bytes_out</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -155,7 +147,7 @@
         <option name="charting.axisY.scale">linear</option>
         <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">line</option>
+        <option name="charting.chart">area</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
@@ -164,7 +156,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -172,6 +164,9 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` log_subtype="end" OR log_subtype="file" $click.name2$&gt;0 earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
       </chart>
     </panel>
   </row>
@@ -209,7 +204,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <set token="form.file_direction">$click.value$</set>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.direction=$click.value$</link>
         </drilldown>
       </chart>
     </panel>
@@ -234,7 +229,7 @@
         <option name="drilldown">row</option>
         <option name="refresh.display">preview</option>
         <drilldown>
-          <set token="form.app">$click.value$</set>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.app=$row.app$</link>
         </drilldown>
       </table>
     </panel>
@@ -244,7 +239,7 @@
       <title>File Activity</title>
       <table>
         <search base="basesearch">
-          <query>| eval time_in_seconds=_time | table _time threat_name severity action app client_ip server_ip user file_name session_id serial_number src_zone dest_zone victim_ip count | sort -_time</query>
+          <query>| where log_subtype="file" | eval time_in_seconds=_time | table _time action app client_ip server_ip user file_name session_id serial_number src_zone dest_zone count | sort -_time</query>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
@@ -253,9 +248,8 @@
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
-        <fields>["_time","threat_name","severity","action","app","client_ip","server_ip","user","file_name"]</fields>
         <drilldown>
-          <link target="_self">search?q=| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.direction) AS log.direction, values(log.src_zone) AS log.src_zone, values(log.dest_zone) AS log.dest_zone, values(log.action) AS log.action, count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.file") $src_ip$ $dest_ip$ $log_subtype$ $app$ $file_direction$ $action$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip | rename log.* AS * |  eval time_in_seconds=_time | table _time threat_name severity action app client_ip server_ip user file_name session_id serial_number src_zone dest_zone victim_ip count | sort -_time&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_logs` action=$row.action$ app=$row.app|s$ client_ip=$row.client_ip$ server_ip=$row.server_ip$ user=$row.user|s$ file_name=$row.file_name|s$ session_id=$row.session_id$ serial_number=$row.serial_number$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>

@@ -102,11 +102,7 @@
         </search>
         <option name="drilldown">cell</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
-    ]]>
-          </link>
+          <link target="_self">search?q=`pan_logs` log_subtype="malicious" file_name="$row.file_name|s$ user="$row.user|s$ app=$row.app|s$&amp;earliest=$undefined.earliest$&amp;latest=$undefined.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -141,11 +137,7 @@
         <option name="charting.legend.placement">right</option>
         <option name="height">321</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
-    ]]>
-          </link>
+          <link target="_self">search?q=`pan_logs` "app:is_saas"=yes OR log_subtype="incident" app=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -177,11 +169,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
-    ]]>
-          </link>
+          <link target="_self">search?q=`pan_logs` "app:is_saas"=yes OR log_subtype="incident" log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>

@@ -2,14 +2,15 @@
   <label>SaaS Activity</label>
   <description></description>
   <search id="basesearch">
-    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
+    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action), values(log.file_name) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" $src_ip$ $dst_ip$ $user$ $app$ $category$ $action$ GROUPBY _time log.src_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature), values(log.file_name) count from datamodel="pan_aperture" WHERE nodename="log.activity_monitoring" $src_ip$ $dst_ip$ $user$ $app$ $category$ $action$ GROUPBY _time  log.src_ip log.user log.app
 | stats values AS * by _time log.app log.src_ip log.user | rename log.* as * </query>
-    <earliest>$earliest$</earliest>
-    <latest>$latest$</latest>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
   </search>
   <fieldset autoRun="true" submitButton="true">
-    <input type="time" searchWhenChanged="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
       <default>
         <earliest>-60m</earliest>
         <latest>now</latest>
@@ -40,6 +41,14 @@
       <choice value="">ANY</choice>
       <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.app)`</populatingSearch>
     </input>
+    <input type="dropdown" token="category">
+      <label>Category</label>
+      <default></default>
+      <prefix>log.categories="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.app:category)`</populatingSearch>
+    </input>
     <input type="dropdown" token="action">
       <label>Action</label>
       <default></default>
@@ -55,13 +64,12 @@
         <search base="basesearch">
           <query>stats dc(app)</query>
         </search>
+        <option name="drilldown">all</option>
         <option name="underLabel">SaaS Applications</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` dest_name=$click.value|s$&earliest=$earliest$&latest=$latest$
-    ]]>
-          </link>
+          <link target="_self">search?q=| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
+| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * | table app | dedup app&amp;earliest=&amp;latest=</link>
         </drilldown>
       </single>
     </panel>
@@ -70,8 +78,13 @@
         <search base="basesearch">
           <query>stats dc(user)</query>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">all</option>
         <option name="underLabel">Users</option>
+        <drilldown>
+          <link target="_self">search?q=| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
+| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * | table user | dedup user&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
       </single>
     </panel>
     <panel>
@@ -100,20 +113,20 @@
         <option name="charting.axisY.scale">linear</option>
         <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">column</option>
+        <option name="charting.chart">area</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
         <option name="charting.chart.nullValueMode">gaps</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
         <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <set token="form.app">$click.name2$</set>
+          <link target="_self">search?q=`pan_logs` log_subtype="end" OR log_subtype="activity_monitoring" app:is_saas="yes" app=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -122,10 +135,8 @@
     <panel>
       <title>SaaS Actions</title>
       <chart>
-        <search>
-          <query>`pan_aperture` log_type="activity_monitoring" | stats count by _time action | timechart values(count) by action</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+        <search base="basesearch">
+          <query>| timechart count by action</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -149,7 +160,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <set token="form.action">$click.name2$</set>
+          <link target="_self">search?q=`pan_logs` log_subtype="end" OR log_subtype="activity_monitoring" app:is_saas="yes" action=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -157,17 +168,11 @@
       <title>SaaS Latest File Actions</title>
       <table>
         <search base="basesearch">
-          <query>| where log_subtype="activity_monitoring" | table _time item_name action</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
+          <query>| where log_subtype="activity_monitoring" | table _time file_name action</query>
         </search>
         <option name="drilldown">cell</option>
         <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$
-    ]]>
-          </link>
+          <link target="_self">search?q=`pan_logs` log_subtype="activity_monitoring" file_name=$row.file_name|s$ action=$row.action$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -177,7 +182,7 @@
       <title>SaaS Distribution</title>
       <table>
         <search base="basesearch">
-          <query>| stats sparkline count sum(bytes) AS sbytes by app app:category app:subcategory | sort -sbytes | head 8 | eval "Vol in MB"=round(sbytes/1024/1024) | rename sparkline AS distribution | rename vsys AS VSYS | rename count as Sessions | table app app:category app:subcategory Sessions "Vol in MB" distribution</query>
+          <query>| stats sparkline count sum(bytes) AS sbytes by app app:category app:subcategory | sort -sbytes | head 8 | eval "Vol in MB"=round(sbytes/1024/1024) | rename sparkline AS distribution | rename vsys AS VSYS | rename count as sessions app:category AS category app:subcategory AS subcategory | table app category subcategory sessions "Vol in MB" distribution</query>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
@@ -185,36 +190,7 @@
         <option name="rowNumbers">false</option>
         <option name="wrap">true</option>
         <drilldown>
-          <link field="app">
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
-          <link field="app:category">
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app:category=$row.app:category|s$&earliest=$earliest$&latest=$latest$
-            ]]>
-          </link>
-          <link field="app:subcategory">
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-            ]]>
-          </link>
-          <link field="Sessions">
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$ app:category=$row.app:category|s$ app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-            ]]>
-          </link>
-          <link field="Vol in MB">
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$ app:category=$row.app:category|s$ app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-      ]]>
-          </link>
-          <link field="distribution">
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` app=$row.app|s$ app:category=$row.app:category|s$ app:subcategory=$row.app:subcategory|s$&earliest=$earliest$&latest=$latest$
-      ]]>
-          </link>
+          <link target="_self">search?q=`pan_logs` app=$row.app|s$ app:category=$row.category|s$ app:subcategory=$row.subcategory|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -230,11 +206,7 @@
         <option name="rowNumbers">false</option>
         <option name="wrap">true</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas="yes" | where $app:is_sanctioned_saas$=if("Sanctioned"=$row.SaaS|s$,"yes","no")&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_traffic` log_subtype=end app:is_saas="yes" OR log_subtype="activity_monitoring" | where $app:is_sanctioned_saas$=if("Sanctioned"=$row.SaaS|s$,"yes","no")&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -248,11 +220,7 @@
         </search>
         <option name="drilldown">cell</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$row.app$</link>
         </drilldown>
       </table>
     </panel>
@@ -264,11 +232,7 @@
         </search>
         <option name="drilldown">cell</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$row.app$</link>
         </drilldown>
       </table>
     </panel>
@@ -302,11 +266,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas="yes" | where $app:is_sanctioned_saas$=if("Sanctioned"=$click.value|s$,"yes","no")&earliest=$earliest$&latest=$latest$
-        ]]>
-          </link>
+          <link target="_self">search?q=`pan_traffic` log_subtype=end app:is_saas="yes" $click.value$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -337,7 +297,7 @@
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
         <option name="charting.chart.stackMode">default</option>
         <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -345,6 +305,9 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$click.value$</link>
+        </drilldown>
       </chart>
     </panel>
   </row>
@@ -377,11 +340,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">none</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas=yes app.category=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.category=$click.value$</link>
         </drilldown>
       </chart>
     </panel>
@@ -413,11 +372,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">none</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_traffic` log_subtype=end app:is_saas=yes app.category=$click.value$&earliest=$earliest$&latest=$latest$
-          ]]>
-          </link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.category=$click.value$</link>
         </drilldown>
       </chart>
     </panel>

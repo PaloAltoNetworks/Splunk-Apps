@@ -1,7 +1,7 @@
 <form>
   <label>WildFire Submissions</label>
   <search id="basesearch">
-    <query>| `pan_tstats` count FROM `node(log.wildfire)` $src_ip$ $dest_ip$ "$user|s$" $file_name$ $app$ groupby _time log.rule log.src_ip log.dest_ip log.verdict log.file_name log.file_type log.user log.app log.file_hash log.src_location| rename log.* AS *</query>
+    <query>| `pan_tstats` count FROM `node(log.wildfire)` $src_ip$ $dest_ip$ "$user|s$" $src_location$ $file_name$ $file_type$ $app$ groupby _time log.rule log.src_ip log.dest_ip log.verdict log.file_name log.file_type log.user log.app log.file_hash log.src_location| rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -64,10 +64,21 @@
       <prefix>log.file_name="</prefix>
       <suffix>"</suffix>
     </input>
+    <input type="text" token="file_type">
+      <label>File Type</label>
+      <default></default>
+      <prefix>log.file_type="</prefix>
+      <suffix>"</suffix>
+    </input>
     <input type="text" token="user">
       <label>User</label>
       <default></default>
       <prefix>log.user=</prefix>
+    </input>
+    <input type="text" token="src_location">
+      <label>Location</label>
+      <default></default>
+      <prefix>log.src_location=</prefix>
     </input>
     <input type="multiselect" token="app">
       <label>Application</label>
@@ -169,7 +180,7 @@
         <option name="charting.chart">pie</option>
         <option name="charting.drilldown">all</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.$click.name$=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.file_type=$click.value$</link>
         </drilldown>
       </chart>
     </panel>
@@ -182,7 +193,7 @@
         <option name="charting.chart">pie</option>
         <option name="charting.drilldown">all</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.$click.name$=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.src_location=$click.value|s$</link>
         </drilldown>
       </chart>
     </panel>
