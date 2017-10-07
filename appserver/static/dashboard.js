@@ -37,7 +37,6 @@ require([
 
   // Only check if the TA is install once per a session.
   if (!checkTA) {
-    console.log('BEGIN TA CHECK');
     $.ajax({
       url: '/en-US/splunkd/__raw/servicesNS/admin/SplunkforPaloAltoNetworks/configs/conf-app/install',
       data: {
