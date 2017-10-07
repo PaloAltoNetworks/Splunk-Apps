@@ -1,3 +1,23 @@
+// Function to deploy the modal.
+function deployModal(title, message) {
+  var htmlData = '<div class="modal fade" role="dialog" tabindex="-1" id="pan_message"> \
+  <div class="modal-dialog" role="document"> \
+  <div class="modal-content"> \
+  <div class="modal-header"> \
+  <h4 class="modal-title">' + title + '</h4> \
+  </div> \
+  <div class="modal-body"> \
+  ' + message + ' \
+  </div> \
+  <div class="modal-footer"> \
+  <button type="button" class="btn btn-default" data-dismiss="modal" id="ta_check_close">Close</button> \
+  </div> \
+  </div> \
+  </div>';
+
+  $('body').append(htmlData);
+  $('#pan_message').modal('show');
+}
 require([
   'splunkjs/ready!',
   'underscore',
@@ -14,41 +34,23 @@ require([
   var checkTA = sessionStorage.checked_ta;
   var service = mvc.createService();
   var i;
-  $.ajax({
-    url: '/en-US/splunkd/__raw/servicesNS/admin/SplunkforPaloAltoNetworks/configs/conf-app/install',
-    data: {
-      output_mode: 'json'
-    },
-    type: 'GET',
-    dataType: 'json'
-  }).done(function (response) {
-    for (i = 0; i < response.entry.length; i += 1) {
-      dependencyVersion = response.entry[i].content.ta_dependency_version;
-    }
-  });
 
-  // Function to deploy the modal.
-  function deployModal(title, message) {
-    var htmlData = '<div class="modal fade" role="dialog" tabindex="-1" id="pan_message"> \
-    <div class="modal-dialog" role="document"> \
-    <div class="modal-content"> \
-    <div class="modal-header"> \
-    <h4 class="modal-title">' + title + '</h4> \
-    </div> \
-    <div class="modal-body"> \
-    ' + message + ' \
-    </div> \
-    <div class="modal-footer"> \
-    <button type="button" class="btn btn-default" data-dismiss="modal" id="ta_check_close">Close</button> \
-    </div> \
-    </div> \
-    </div>';
-
-    $('body').append(htmlData);
-    $('#pan_message').modal('show');
-  }
   // Only check if the TA is install once per a session.
   if (!checkTA) {
+    console.log('BEGIN TA CHECK');
+    $.ajax({
+      url: '/en-US/splunkd/__raw/servicesNS/admin/SplunkforPaloAltoNetworks/configs/conf-app/install',
+      data: {
+        output_mode: 'json'
+      },
+      type: 'GET',
+      dataType: 'json'
+    }).done(function (response) {
+      for (i = 0; i < response.entry.length; i += 1) {
+        dependencyVersion = response.entry[i].content.ta_dependency_version;
+      }
+    });
+
     service.apps()
     .fetch(function (err, apps) {
       var title;
