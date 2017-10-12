@@ -51,16 +51,16 @@
     values(file_name) AS "File Name"
     values(file_hash) AS "File Hash"
     values(verdict) AS "WildFire Verdict"
-    values(autofocus_tags) AS "Autofocus Tags"
+    values(autofocus_tags) AS "AutoFocus Tags"
     values(flags) AS "Session Properties"
 | append 
     [| makeresults
-    | eval map=mvappend("URL Hostname:URL Filtering","URL Category:URL Filtering","Threat Name:Threat Prevention","Threat Category:Threat Prevention","File Hash:WildFire","WildFire Verdict:WildFire","Autofocus Tags:Autofocus")
+    | eval map=mvappend("URL Hostname:URL Filtering","URL Category:URL Filtering","Threat Name:Threat Prevention","Threat Category:Threat Prevention","File Hash:WildFire","WildFire Verdict:WildFire","AutoFocus Tags:AutoFocus")
     | mvexpand map
     | rex field=map "^(?&lt;headers&gt;[^:]*):(?&lt;values&gt;.*)$"
     | xyseries _time headers values
     | fields - _time]
-| table "Log Subtypes" "Client IP" "Server IP" "Users" "Application" "URL Hostname" "URL Category" "Threat Name" "Threat Category" "File Name" "File Hash" "WildFire Verdict" "Autofocus Tags" "Session Properties"
+| table "Log Subtypes" "Client IP" "Server IP" "Users" "Application" "URL Hostname" "URL Category" "Threat Name" "Threat Category" "File Name" "File Hash" "WildFire Verdict" "AutoFocus Tags" "Session Properties"
 | transpose
 | rename column AS Fields, "row 1" AS Values, "row 2" AS Source</query>
           <earliest>$earliest$</earliest>
@@ -146,7 +146,7 @@
         </div>
         <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-autofocus$;">
           <a href="https://autofocus.paloaltonetworks.com/#/sample/$inc-file_hash$" target="autofocus" class="single-drilldown custom-drilldown">
-            <text class="single-result custom-single-result">Autofocus</text>
+            <text class="single-result custom-single-result">AutoFocus</text>
           </a>
         </div>
         <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-threatvault$;">
@@ -241,7 +241,7 @@
       </table>
     </panel>
     <panel rejects="$hide_autofocus_tags$">
-      <title>Related Autofocus Tags</title>
+      <title>Related AutoFocus Tags</title>
       <table>
         <search>
           <query>eventtype="pan" session_id="$session_id$" serial_number="$serial_number$" client_ip="$client_ip$" server_ip="$server_ip$"
@@ -440,7 +440,7 @@
         </div>
         <div class="splunk-view splunk-single" style="width: 50%; float: left; display: $net-open-show-autofocus$;">
           <a href="https://autofocus.paloaltonetworks.com/#/sample/$net-file_hash$" target="autofocus" class="single-drilldown custom-drilldown">
-            <text class="single-result custom-single-result">Autofocus</text>
+            <text class="single-result custom-single-result">AutoFocus</text>
           </a>
         </div>
         <div class="splunk-view splunk-single" style="width: 50%; float: left; display: $net-open-show-threatvault$;">

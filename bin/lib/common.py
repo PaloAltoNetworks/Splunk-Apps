@@ -125,14 +125,14 @@ def get_wildfire_apikey(session_key):
             logger.debug('Password exist')
             return api_key
         else:
-            exit_with_error("No Wildfire API key is set, "
+            exit_with_error("No WildFire API key is set, "
                             "set apikey in App configuration.")
     else:
         logger.warn(
             "There are Palo Alto Networks WildFire malware events, "
             "but no WildFire API Key found, please set the API key "
             "in the Splunk_TA_paloalto App set up page")
-        exit_with_error("No Wildfire API key is set, "
+        exit_with_error("No WildFire API key is set, "
                         "set apikey in App configuration.")
 
 

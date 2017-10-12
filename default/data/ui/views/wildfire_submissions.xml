@@ -203,7 +203,7 @@
       <title>Recent WildFire Submissions</title>
       <table>
         <search base="basesearch">
-          <query>| search verdict!="benign" | eval autofocus="Open in Autofocus" | table _time verdict rule file_name file_type app src_ip dest_ip user autofocus file_hash | sort -_time</query>
+          <query>| search verdict!="benign" | eval autofocus="Open in AutoFocus" | table _time verdict rule file_name file_type app src_ip dest_ip user autofocus file_hash | sort -_time</query>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>

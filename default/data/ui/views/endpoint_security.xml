@@ -173,7 +173,7 @@
       <title>Prevention Events</title>
       <table>
         <search base="basesearch">
-          <query>| search log_subtype="Prevention event" | eval autofocus="Open in Autofocus" | table _time dest_ip user file_name signature autofocus file_hash</query>
+          <query>| search log_subtype="Prevention event" | eval autofocus="Open in AutoFocus" | table _time dest_ip user file_name signature autofocus file_hash</query>
         </search>
         <fields>_time dest_ip user file_name signature autofocus</fields>
         <option name="count">20</option>

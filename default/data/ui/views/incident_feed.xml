@@ -83,7 +83,7 @@
       <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.vsys)`</populatingSearch>
     </input>
     <input type="dropdown" token="autofocus_tags" searchWhenChanged="true">
-      <label>Autofocus Tag</label>
+      <label>AutoFocus Tag</label>
       <default></default>
       <choice value="">ANY</choice>
       <prefix>search autofocus_tags="</prefix>
@@ -164,7 +164,7 @@
         <option name="drilldown">all</option>
         <option name="height">143</option>
         <option name="trendColorInterpretation">inverse</option>
-        <option name="underLabel">Malicious Wildfire Submissions Per Hour</option>
+        <option name="underLabel">Malicious WildFire Submissions Per Hour</option>
         <option name="useColors">1</option>
         <drilldown>
           <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.time.earliest=$earliest$&amp;form.time.latest=$latest$</link>

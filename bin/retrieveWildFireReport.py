@@ -56,7 +56,7 @@ def get_cli_args():
     This function is not used if script run from Splunk searchbar
     """
     # Setup the argument parser
-    parser = argparse.ArgumentParser(description="Download a Wildfire Report using the Wildfire API")
+    parser = argparse.ArgumentParser(description="Download a WildFire Report using the WildFire API")
     # parser.add_argument('-v', '--verbose', action='store_true', help="Verbose")
     parser.add_argument('apikey', help="API Key from https://wildfire.paloaltonetworks.com")
     parser.add_argument('file_digest', help="Hash of the file for the report")
@@ -110,15 +110,15 @@ def main_splunk():
         splunk.Intersplunk.outputResults(results)
         sys.exit(0)
 
-    logger.debug("Getting Wildfire APIKey from encrypted store")
+    logger.debug("Getting WildFire APIKey from encrypted store")
     wf_apikey = common.get_wildfire_apikey(sessionKey)
 
     # Get a wildfire report for each row
-    logger.debug("Getting Wildfire reports for %s search results" % len(results))
+    logger.debug("Getting WildFire reports for %s search results" % len(results))
     for idx, result in enumerate(results):
         # Check to see if the result has the necessary fields
         if 'file_digest' in result:
-            logger.debug("Getting Wildfire report for result # %s with file_digest: %s" % (idx, result['file_digest']))
+            logger.debug("Getting WildFire report for result # %s with file_digest: %s" % (idx, result['file_digest']))
             try:
                 # Get the report
                 wfReportXml = retrieveWildFireData(wf_apikey, result['file_digest']).strip()
