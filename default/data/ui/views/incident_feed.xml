@@ -1,16 +1,48 @@
-<form>
+<form stylesheet="tooltip.css" script="tooltip.js">
   <label>All Incidents</label>
+  <search id="tokensetter">
+    <query>| makeresults count=0</query>
+    <done>
+      <set token="results-1">0</set>
+      <set token="results-2">0</set>
+      <set token="results-3">0</set>
+      <set token="results-4">0</set>
+      <set token="results-5">0</set>
+    </done>
+  </search>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR nodename="log.wildfire.malicious") $log_subtype$ $severity$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action
-| append
-    [| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.src_ip log.user log.object log.action
-    | rename log.src_ip AS log.client_ip | rename log.object AS log.threat_name ]
-| append 
-    [| tstats summariesonly=t values(log.dest) as log.client_ip, values(log.file_name) AS log.file_name, values(log.file_hash) as log.file_hash, count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $log_subtype$ $severity$ GROUPBY _time span=1s sourcetype log.log_subtype log.severity log.user log.action log.signature
-    |rename log.signature AS log.threat_name]
+    <query>| tstats summariesonly=t prestats=t latest(_time), values(log.log_subtype), values(log.severity), values(log.app), values(log.user), values(log.threat_name), values(log.file_name), values(log.file_hash), values(log.url), values(log.dest_name), count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR nodename="log.wildfire.malicious") $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype `session` log.direction log.action
+| tstats summariesonly=t prestats=t append=t latest(_time), values(log.log_subtype), values(log.severity), values(log.threat_name), values(log.user), count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype log.serial_number log.log_subtype log.client_ip log.action
+| tstats summariesonly=t prestats=t append=t latest(_time), values(log.log_subtype), values(log.severity), values(log.file_name), values(log.file_hash), values(log.user), values(log.threat_name), count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype log.log_subtype log.client_ip log.action
+| tstats summariesonly=t prestats=t append=t latest(_time), latest(log.incident_id), values(log.log_subtype), values(log.app), values(log.user), values(log.threat_name), values(log.client_ip), count FROM datamodel="pan_aperture" WHERE nodename="log.incident" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ GROUPBY sourcetype log.threat_name log.file_name
+| fillnull value="" log.client_ip log.server_ip log.serial_number log.session_id log.direction log.action log.file_name log.threat_name
+| stats latest(_time) AS _time, latest(log.incident_id) AS log.incident_id, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name_values, values(log.file_name) AS log.file_name_values, values(log.client_ip) AS log.client_ip_values, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, count BY sourcetype `session` log.direction log.action log.file_name log.threat_name
 | rename log.* AS *
-| eval severity=case(severity=="critical","critical", severity=="high","high", severity=="medium","medium", severity=="low","low", severity=="informational","informational")
-| eval victim_ip=if(isnull(direction) OR direction="client-to-server", server_ip, client_ip)
+| fillnull value="high" severity
+| eval action=if(action=="", "allowed", action)
+| eval severity=case(severity=="critical","critical", severity=="high","high", severity=="medium","medium", severity=="low","low", severity=="informational","informational", sourcetype=="pan:aperture","high")
+| eval victim_ip=if(direction=="" OR direction=="client-to-server", if(server_ip!="",server_ip,client_ip), client_ip)
+| eval file_name=if(file_name=="", file_name_values, file_name)
+| eval threat_name=if(threat_name=="", threat_name_values, threat_name)
+| eval client_ip=if(client_ip=="", client_ip_values, client_ip)
+| lookup minemeldfeeds_lookup indicator AS client_ip OUTPUT value.autofocus_tags AS client_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS server_ip OUTPUT value.autofocus_tags AS server_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS file_hash OUTPUT value.autofocus_tags AS file_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS url OUTPUT value.autofocus_tags AS url_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS dest_name OUTPUT value.autofocus_tags AS domain_autofocus_tags
+| eval autofocus_tags=mvappend(client_autofocus_tags,server_autofocus_tags,file_autofocus_tags,url_autofocus_tags,domain_autofocus_tags)</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search id="timechart">
+    <query>| tstats summariesonly=t prestats=t values(log.file_hash), values(log.url), values(log.dest_name), count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR nodename="log.wildfire.malicious") $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY _time `session` log.direction log.action log.log_subtype log.severity
+| tstats summariesonly=t prestats=t append=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY _time log.serial_number log.client_ip log.action log.log_subtype log.severity
+| tstats summariesonly=t prestats=t append=t values(log.file_hash), count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY _time log.client_ip log.action log.log_subtype log.severity
+| tstats summariesonly=t prestats=t append=t count FROM datamodel="pan_aperture" WHERE nodename="log.incident" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ GROUPBY _time log.threat_name log.file_name log.log_subtype
+| fillnull value="" log.client_ip log.server_ip log.serial_number log.session_id log.direction log.action
+| fillnull value="high" log.severity
+| stats values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, count BY _time `session` log.direction log.action log.log_subtype log.severity
+| rename log.* AS *
 | lookup minemeldfeeds_lookup indicator AS client_ip OUTPUT value.autofocus_tags AS client_autofocus_tags
 | lookup minemeldfeeds_lookup indicator AS server_ip OUTPUT value.autofocus_tags AS server_autofocus_tags
 | lookup minemeldfeeds_lookup indicator AS file_hash OUTPUT value.autofocus_tags AS file_autofocus_tags
@@ -27,31 +59,34 @@
         <earliest>-4h@m</earliest>
         <latest>now</latest>
       </default>
-      <!--change>
-        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
-        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
-        <eval token="timediff">'latest_n'-'earliest_n'</eval>
-        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
-        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
-        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
-      </change-->
     </input>
-    <input type="text" token="src_ip">
-      <label>Source IP</label>
+    <input type="dropdown" token="sourcetype" searchWhenChanged="true">
+      <label>Product</label>
       <default></default>
-      <prefix>log.src_ip="</prefix>
+      <choice value="">ANY</choice>
+      <choice value="pan:threat">Firewall</choice>
+      <choice value="pan:endpoint">Endpoint</choice>
+      <choice value="pan:aperture">Aperture</choice>
+      <choice value="pan:correlation">Correlation</choice>
+      <prefix>sourcetype="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="dest_ip">
-      <label>Destination IP</label>
+    <input type="text" token="vsys">
+      <label>Vsys</label>
       <default></default>
-      <prefix>log.dest_ip="</prefix>
+      <prefix>log.vsys="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="threat_name">
-      <label>Threat</label>
+    <input type="text" token="client_ip">
+      <label>Client IP</label>
       <default></default>
-      <prefix>log.threat_name="</prefix>
+      <prefix>log.client_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="server_ip">
+      <label>Server IP</label>
+      <default></default>
+      <prefix>log.server_ip="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="log_subtype" searchWhenChanged="true">
@@ -60,27 +95,35 @@
       <prefix>log.log_subtype="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="severity" searchWhenChanged="true">
+    <input type="dropdown" token="severity" searchWhenChanged="true">
       <label>Severity</label>
       <default></default>
       <prefix>log.severity="</prefix>
       <suffix>"</suffix>
-    </input>
-    <input type="dropdown" token="app">
-      <label>Application</label>
-      <default></default>
-      <prefix>log.app="</prefix>
-      <suffix>"</suffix>
       <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.app)`</populatingSearch>
+      <choice value="critical">Critical</choice>
+      <choice value="high">High</choice>
+      <choice value="medium">Medium</choice>
+      <choice value="low">Low</choice>
+      <choice value="informational">Informational</choice>
     </input>
-    <input type="dropdown" token="vsys">
-      <label>Virtual System</label>
-      <default></default>
-      <prefix>log.vsys="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.vsys)`</populatingSearch>
+    <input type="multiselect" token="action">
+      <label>Action</label>
+      <choice value="*">All</choice>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <search>
+        <query>| inputlookup pan_vendor_actions.csv 
+| fields action
+| dedup action
+| sort action</query>
+      </search>
+      <valuePrefix>log.action="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <default>*</default>
     </input>
     <input type="dropdown" token="autofocus_tags" searchWhenChanged="true">
       <label>AutoFocus Tag</label>
@@ -95,45 +138,91 @@
       <fieldForValue>autofocus_tags</fieldForValue>
     </input>
   </fieldset>
+  <row id="tooltip_row">
+    <panel>
+      <html>
+      <div id="tooltip_title">All Incidents</div>
+      <div id="tooltip_txt">
+<h4>Overview</h4>
+<p>The Incident Feed displays all incidents from all Palo Alto Networks products. An <span style="font-style: italic;">incident</span> is any event that may need attention or investigation.</p>
+<h4>Products Shown</h4>
+<ul>
+<li>Aperture</li>
+<li>AutoFocus</li>
+<li>Firewall or Panorama</li>
+<li>Traps Endpoint Protection</li>
+<li>WildFire</li>
+</ul>
+<p style="float: right; text-weight: bold;"><a target="_blank" href="REPLACEME">More...</a></p>
+      </div>
+    </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY _time span=1h | append [| makeresults] | head 25</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY _time span=1h | append [| makeresults count=$results-1$ | eval count=0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-        </search>
-        <option name="colorBy">trend</option>
-        <option name="drilldown">none</option>
-        <option name="height">143</option>
-        <option name="trendColorInterpretation">inverse</option>
-        <option name="underLabel">Correlated Incidents Per Hour</option>
-        <option name="useColors">1</option>
-      </single>
-      <single>
-        <search>
-          <query>| tstats summariesonly=t latest(_time) AS latest_time, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" GROUPBY _time span=1h `session`
-| timechart span=1h count
-| append [| makeresults] | head 25</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-        </search>
-        <option name="colorBy">trend</option>
-        <option name="drilldown">none</option>
-        <option name="height">143</option>
-        <option name="trendColorInterpretation">inverse</option>
-        <option name="trendInterval">$time.earliest$</option>
-        <option name="underLabel">Network Incidents Per Hour</option>
-        <option name="useColors">1</option>
-      </single>
-      <single>
-        <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" GROUPBY _time span=1h | append [| makeresults] | head 25</query>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-1">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-1' == 1">
+              <set token="results-1">0</set>
+            </condition>
+          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
         <option name="height">143</option>
         <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Correlated Incidents Per Hour</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.threat" GROUPBY _time span=1h `session` | timechart span=1h count | append [| makeresults count=$results-2$ | eval count=0]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-2">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-2' == 1">
+              <set token="results-2">0</set>
+            </condition>
+          </done>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="drilldown">all</option>
+        <option name="height">143</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Network Incidents Per Hour</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" GROUPBY _time span=1h | append [| makeresults count=$results-3$ | eval count=0]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-3">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-3' == 1">
+              <set token="results-3">0</set>
+            </condition>
+          </done>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="drilldown">all</option>
+        <option name="height">143</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
         <option name="underLabel">Endpoint Incidents Per Hour</option>
         <option name="useColors">1</option>
         <drilldown>
@@ -142,12 +231,23 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_aperture" WHERE nodename="log.incident" GROUPBY _time span=1h | append [| makeresults] | head 25</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_aperture" WHERE nodename="log.incident" GROUPBY _time span=1h | append [| makeresults count=$results-4$ | eval count=0]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-4">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-4' == 1">
+              <set token="results-4">0</set>
+            </condition>
+          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
         <option name="height">143</option>
         <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
         <option name="underLabel">Aperture SaaS Incidents Per Hour</option>
         <option name="useColors">1</option>
         <drilldown>
@@ -156,14 +256,23 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.wildfire.malicious" GROUPBY _time span=1h | append [| makeresults] | head 25</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.wildfire.malicious" GROUPBY _time span=1h | append [| makeresults count=$results-5$ | eval count=0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-5">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-5' == 1">
+              <set token="results-5">0</set>
+            </condition>
+          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
         <option name="height">143</option>
         <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
         <option name="underLabel">Malicious WildFire Submissions Per Hour</option>
         <option name="useColors">1</option>
         <drilldown>
@@ -176,8 +285,8 @@
     <panel>
       <title>Threat Subtypes Over Time</title>
       <chart>
-        <search base="basesearch">
-          <query>| $autofocus_tags$ timechart count by log_subtype</query>
+        <search base="timechart">
+          <query>| $autofocus_tags$ timechart sum(count) AS count by log_subtype</query>
         </search>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.chart">column</option>
@@ -192,8 +301,8 @@
     <panel>
       <title>Threat Severity Over Time</title>
       <chart>
-        <search base="basesearch">
-          <query>| $autofocus_tags$ timechart count by severity</query>
+        <search base="timechart">
+          <query>| $autofocus_tags$ timechart sum(count) AS count BY severity</query>
         </search>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.chart">column</option>
@@ -213,7 +322,7 @@
       <title>Incident Investigation Feed</title>
       <table>
         <search base="basesearch">
-          <query>| $autofocus_tags$ eval time_in_seconds=_time | eval drilldown_token=if(sourcetype=="pan:endpoint","endpoint_event","network_event") | table _time log_subtype threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags | sort -_time</query>
+          <query>| $autofocus_tags$ eval time_in_seconds=_time | eval drilldown_token=case(sourcetype=="pan:endpoint","endpoint_event", sourcetype=="pan:aperture","aperture_event", true(),"network_event") | table _time log_subtype threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags incident_id sourcetype | eval autofocus_tags=mvdedup(autofocus_tags) | sort -_time</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>
@@ -230,7 +339,12 @@
         </format>
         <fields>["_time","log_subtype","threat_name","severity","action","app","client_ip","server_ip","autofocus_tags","user","file_name"]</fields>
         <drilldown>
-          <link target="_blank">/app/SplunkforPaloAltoNetworks/incident_investigation?client_ip=$row.client_ip$&amp;server_ip=$row.server_ip$&amp;$row.drilldown_token$=t&amp;event_time=$row.time_in_seconds$&amp;session_id=$row.session_id$&amp;serial_number=$row.serial_number$&amp;victim_ip=$row.victim_ip$</link>
+          <condition match="'row.sourcetype' == &quot;pan:aperture&quot;">
+            <link target="_self">search?q=`pan_aperture` incident_id=$row.incident_id$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          </condition>
+          <condition>
+            <link>/app/SplunkforPaloAltoNetworks/incident_investigation?client_ip=$row.client_ip$&amp;server_ip=$row.server_ip$&amp;$row.drilldown_token$=t&amp;event_time=$row.time_in_seconds$&amp;session_id=$row.session_id$&amp;serial_number=$row.serial_number$&amp;victim_ip=$row.victim_ip$&amp;incident_id=$row.incident_id$</link>  
+          </condition>
         </drilldown>
       </table>
     </panel>
@@ -238,6 +352,7 @@
   <row>
     <panel depends="$debug$">
       <html>
+        <p>results-1: $results-1$</p>
         <p>time.earliest: $time.earliest$</p>
         <p>time.latest: $time.latest$</p>
         <p>timediff: $timediff$</p>

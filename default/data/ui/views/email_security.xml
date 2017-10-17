@@ -1,7 +1,8 @@
 <form>
   <label>Email Security</label>
   <search id="basesearch">
-    <query>| tstats count FROM datamodel="pan_firewall" WHERE eventtype="pan_email" `groupby(_time sourcetype log.app log.user log.src_ip log.threat_name log.severity)` | append [| search eventtype="pan:emails" | stats count by _time, sourcetype, bytes_in, bytes_out, src_ip, sender] | rename log.* AS * </query>
+    <query>| tstats summariesonly=t values(sourcetype) AS sourcetype, values(log.log_subtype) AS log.log_subtype,
+    values(log.threat_name) AS log.threat_name, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.sender) AS log.sender, values(log.user) AS log.user count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic.end" OR nodename="log.threat") (log.app:subcategory="email" OR log.sender=“*”)      $serial$ $vsys$ $client_ip$ $server_ip$ $user$ $app$ GROUPBY _time `session` | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -13,15 +14,47 @@
         <latest>now</latest>
       </default>
     </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="client_ip">
+      <label>Client IP</label>
+      <default></default>
+      <prefix>log.client_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="server_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.server_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>Source User</label>
+      <default></default>
+      <prefix>log.user=</prefix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
   </fieldset>
   <row>
     <panel>
       <single>
         <search base="basesearch">
-          <query>| search sourcetype="stream:smtp" bytes_in &gt; 0 | bucket _time span=1m | stats count by _time</query>
-          <earliest>rt$time.earliest$</earliest>
-          <latest>rtnow</latest>
-          <sampleRatio>1</sampleRatio>
+          <query>| search app=smtp AND bytes_in &gt; 0 | bucket _time span=1m | stats count by _time</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -37,7 +70,7 @@
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
         <option name="trendInterval">-1m</option>
-        <option name="underLabel">Inbound Emails per Minute</option>
+        <option name="underLabel">Inbound SMTP Emails per Minute</option>
         <option name="unitPosition">after</option>
         <option name="useColors">0</option>
         <option name="useThousandSeparators">1</option>
@@ -47,9 +80,6 @@
       <single>
         <search base="basesearch">
           <query>| search sourcetype="pan:threat" | bucket _time span=1m | stats count by _time</query>
-          <earliest>rt$time.earliest$</earliest>
-          <latest>rtnow</latest>
-          <sampleRatio>1</sampleRatio>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>
@@ -73,10 +103,7 @@
     <panel>
       <single>
         <search base="basesearch">
-          <query>| search sourcetype="stream:smtp" bytes_out &gt; 0 | bucket _time span=1m | stats count by _time</query>
-          <earliest>rt$time.earliest$</earliest>
-          <latest>rtnow</latest>
-          <sampleRatio>1</sampleRatio>
+          <query>| search app=smtp AND bytes_out &gt; 0 | bucket _time span=1m | stats count by _time</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -92,7 +119,7 @@
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
         <option name="trendInterval">-1m</option>
-        <option name="underLabel">Outbound Emails per Minute</option>
+        <option name="underLabel">Outbound SMTP Emails per Minute</option>
         <option name="unitPosition">after</option>
         <option name="useColors">0</option>
         <option name="useThousandSeparators">1</option>
@@ -101,12 +128,10 @@
   </row>
   <row>
     <panel>
-      <title>Top Email Sources</title>
+      <title>Top Email Threats Source</title>
       <table>
         <search base="basesearch">
-          <query>| stats count by src_ip threat_name app | sort -count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
+          <query>| stats count by client_ip user sender threat_name app | sort -count</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>
@@ -124,9 +149,7 @@
       <title>Large Email Senders</title>
       <table>
         <search base="basesearch">
-          <query>| search bytes_out &gt; 0 | table src_ip sender bytes_out count | sort -count</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
+          <query>| search bytes_out &gt; 0 | table client_ip sender user bytes_out count | sort -count</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>
@@ -171,7 +194,7 @@
       <title>Threats By Source Location</title>
       <map>
         <search base="basesearch">
-          <query>iplocation src_ip | geostats sum(count) by threat_name</query>
+          <query>iplocation client_ip | geostats sum(count) by threat_name</query>
         </search>
         <option name="drilldown">none</option>
         <option name="mapping.type">marker</option>

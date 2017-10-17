@@ -1,5 +1,5 @@
 <form>
-  <label>System Dashboard</label>
+  <label>Firewall System</label>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true">
       <default>
@@ -7,37 +7,35 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="dropdown" token="log_subtype">
+    <input type="text" token="log_subtype">
       <label>Log Subtype</label>
       <default></default>
       <prefix>log.log_subtype="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.system, log.log_subtype)`</populatingSearch>
     </input>
-    <input type="dropdown" token="event_id">
-      <label>Event ID</label>
-      <default></default>
-      <prefix>log.event_id="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.system, log.event_id)`</populatingSearch>
-    </input>
-    <input type="dropdown" token="serial_number">
+    <input type="text" token="serial_number">
       <label>Serial Number</label>
       <default></default>
       <prefix>log.serial_number="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.system, log.serial_number)`</populatingSearch>
     </input>
-    <input type="dropdown" token="severity">
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="event_id">
+      <label>Event ID</label>
+      <default></default>
+      <prefix>log.event_id="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="severity">
       <label>Severity</label>
       <default></default>
       <prefix>log.severity="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.system, log.severity)`</populatingSearch>
     </input>
     <input type="text" token="description">
       <label>Description</label>
@@ -51,7 +49,7 @@
       <table>
         <title>Latest Events</title>
         <search>
-          <query>| `pan_tstats` count FROM `node(log.system)` $serial_number$ $description$ $log_subtype$ $severity$ $event_id$ `table(_time log.serial_number log.description log.log_subtype log.severity log.event_id)` | sort -_time
+          <query>| `pan_tstats` count FROM `node(log.system)` $serial_number$ $vsys$ $description$ $log_subtype$ $severity$ $event_id$ `table(_time log.serial_number log.description log.log_subtype log.severity log.event_id)` | sort -_time
         </query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
@@ -116,7 +114,7 @@
         <title>System Events Over Time</title>
         <search>
           <query>
-          | `pan_tstats` count FROM `node(log.system)` $serial_number$ $description$ $log_subtype$ $severity$ $event_id$ groupby _time log.log_subtype | timechart values(count) by log.log_subtype
+          | `pan_tstats` count FROM `node(log.system)` $serial_number$ $vsys$ $description$ $log_subtype$ $severity$ $event_id$ groupby _time log.log_subtype | timechart values(count) by log.log_subtype
         </query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
@@ -144,7 +142,7 @@
         <title>Severity</title>
         <search>
           <query>
-          | `pan_tstats` count FROM `node(log.system)` $serial_number$ $description$ $log_subtype$ $severity$ $event_id$ groupby _time log.severity | timechart values(count) by log.severity
+          | `pan_tstats` count FROM `node(log.system)` $serial_number$ $vsys$ $description$ $log_subtype$ $severity$ $event_id$ groupby _time log.severity | timechart values(count) by log.severity
         </query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>

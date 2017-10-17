@@ -2,7 +2,7 @@
   <label>File Activity</label>
   <description></description>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.direction) AS log.direction, values(log.src_zone) AS log.src_zone, values(log.dest_zone) AS log.dest_zone, values(log.action) AS log.action, count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" OR nodename="log.file" $src_ip$ $dest_ip$ $log_subtype$ $direction$ $app$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip | rename log.* AS *</query>
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.direction) AS log.direction, values(log.src_zone) AS log.src_zone, values(log.dest_zone) AS log.dest_zone, values(log.action) AS log.action, count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" OR nodename="log.file" $src_ip$ $dest_ip$ $serial$ $log_subtype$ $direction$ $app$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -22,6 +22,24 @@
         <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
       </change-->
     </input>
+    <input type="text" token="log_subtype" searchWhenChanged="true">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
       <default></default>
@@ -34,10 +52,10 @@
       <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="log_subtype" searchWhenChanged="true">
-      <label>Log Subtype</label>
+    <input type="text" token="app">
+      <label>Application</label>
       <default></default>
-      <prefix>log.log_subtype="</prefix>
+      <prefix>log.app="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="dropdown" token="direction" searchWhenChanged="true">
@@ -46,23 +64,8 @@
       <prefix>log.direction="</prefix>
       <suffix>"</suffix>
       <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.file, log.direction)`</populatingSearch>
-    </input>
-    <input type="dropdown" token="app">
-      <label>Application</label>
-      <default></default>
-      <prefix>log.app="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.app)`</populatingSearch>
-    </input>
-    <input type="dropdown" token="vsys">
-      <label>Virtual System</label>
-      <default></default>
-      <prefix>log.vsys="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.vsys)`</populatingSearch>
+      <choice value="client-to-server">client-to-server</choice>
+      <choice value="server-to-client">server-to-client</choice>
     </input>
   </fieldset>
   <row>
@@ -128,7 +131,9 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_self">search?q=`pan_logs` log_subtype="file" action=$click.name2$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <condition match="isnotnull('row._span')">
+            <link target="_self">search?q=`pan_logs` log_subtype="file" action=$click.name2$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          </condition>
         </drilldown>
       </chart>
     </panel>

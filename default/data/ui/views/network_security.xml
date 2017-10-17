@@ -1,16 +1,13 @@
-<form>
+<form script="tooltip.js" stylesheet="tooltip.css">
   <label>Network Security</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") OR nodename="log.data" $log_subtype$ $severity$ $app$ $dest_ip$ $threat_name$ $vsys$ GROUPBY _time sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action log.src_zone log.dest_zone | rename log.* AS *
-| eval victim_ip=if(isnull(direction) OR direction="client-to-server", server_ip, client_ip)
-| lookup minemeldfeeds_lookup indicator AS client_ip OUTPUT value.autofocus_tags AS autofocus_tags
-| lookup minemeldfeeds_lookup indicator AS server_ip OUTPUT value.autofocus_tags AS autofocus_tags
+    <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire.malicious") OR nodename="log.data" $log_subtype$ $severity$ $app$ $dest_ip$ $serial$ $threat_name$ $vsys$ GROUPBY _time sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action log.src_zone log.dest_zone | rename log.* AS *
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
   <search id="correlation">
-    <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY log.severity log.object log.evidence | rename log.* AS *</query>
+    <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY log.severity log.threat_category log.threat_name | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -21,14 +18,24 @@
         <earliest>-60m</earliest>
         <latest>now</latest>
       </default>
-      <!--change>
-        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
-        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
-        <eval token="timediff">'latest_n'-'earliest_n'</eval>
-        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
-        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
-        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
-      </change-->
+    </input>
+    <input type="text" token="log_subtype">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
@@ -48,44 +55,46 @@
       <prefix>log.threat_name="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="log_subtype">
-      <label>Log Subtype</label>
-      <default></default>
-      <prefix>log.log_subtype="</prefix>
-      <suffix>"</suffix>
-    </input>
     <input type="text" token="severity">
       <label>Severity</label>
       <default></default>
       <prefix>log.severity="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="dropdown" token="app">
+    <input type="text" token="app">
       <label>Application</label>
       <default></default>
       <prefix>log.app="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.app)`</populatingSearch>
-    </input>
-    <input type="dropdown" token="vsys">
-      <label>Virtual System</label>
-      <default></default>
-      <prefix>log.vsys="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.threat, log.vsys)`</populatingSearch>
     </input>
   </fieldset>
+  <row id="tooltip_row">
+    <panel>
+      <html>
+        <div id="tooltip_title">Network Security</div>
+        <div id="tooltip_txt">
+          <h4>Overview</h4>
+          <p>Network Security data is displayed from Palo Alto Networks next-generation firewalls and Panorama.</p>
+          <h4>Products Shown</h4>
+          <ul>
+            <li>Firewall or Panorama</li>
+          </ul>
+          <p style="float: right; text-weight: bold;">
+            <a target="_blank" href="REPLACEME">More...</a>
+          </p>
+        </div>
+      </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Top Correlation Events</title>
       <table>
         <search base="correlation">
-          <query>| stats sum(count) AS count by evidence object severity</query>
+          <query>| stats sum(count) AS count by threat_name threat_category severity</query>
         </search>
         <drilldown>
-          <link target="_self">search?q=`pan_threat` log_subtype=correlation evidence=$row.evidence|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_threat` log_subtype=correlation evidence=$row.threat_name|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -127,9 +136,6 @@
             |  search vendor_action="sinkhole" | table client_ip user file_name src_zone dest_zone
             | sort 20 -count
           </query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>

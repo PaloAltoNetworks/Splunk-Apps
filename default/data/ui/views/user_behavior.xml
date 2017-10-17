@@ -1,7 +1,7 @@
 <form>
   <label>User Behavior</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.app:category) AS log.app:category, values(log.app:is_saas) AS log.app:is_saas, values(log.app:default_ports) AS log.app:default_ports, values(log.app) AS log.app, values(log.user) AS log.user, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.dest_port) AS log.dest_port, values(log.severity) AS log.severity, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.url" OR nodename="log.data") $src_ip$ $dest_ip$ $log_subtype$ $severity$ $app$ $category$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.src_ip
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.http_category) AS log.http_category, values(log.app:is_saas) AS log.app:is_saas, values(log.app:default_ports) AS log.app:default_ports, values(log.app) AS log.app, values(log.user) AS log.user, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.dest_port) AS log.dest_port, values(log.severity) AS log.severity, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.url" OR nodename="log.data") $src_ip$ $dest_ip$ $dest_name$ $log_subtype$ $app$ $category$ $user|s$ $vsys$ $serial$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.src_ip
       | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -10,17 +10,33 @@
     <input type="time" searchWhenChanged="true" token="time">
       <label></label>
       <default>
-        <earliest>-1h@m</earliest>
+        <earliest>-60m</earliest>
         <latest>now</latest>
       </default>
-      <!--change>
-        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
-        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
-        <eval token="timediff">'latest_n'-'earliest_n'</eval>
-        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
-        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
-        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
-      </change-->
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <default></default>
+    </input>
+    <input type="text" token="vsys">
+      <label>Vsys</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>User</label>
+      <default></default>
+      <prefix>log.user="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="log_subtype" searchWhenChanged="true">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
@@ -34,109 +50,63 @@
       <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="log_subtype" searchWhenChanged="true">
-      <label>Log Subtype</label>
+    <input type="text" token="dest_name">
+      <label>Hostname</label>
       <default></default>
-      <prefix>log.log_subtype="</prefix>
+      <prefix>log.dest_name="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="severity" searchWhenChanged="true">
-      <label>Severity</label>
-      <default></default>
-      <prefix>log.severity="</prefix>
-      <suffix>"</suffix>
-    </input>
-    <input type="dropdown" token="app">
+    <input type="text" token="app">
       <label>Application</label>
       <default></default>
       <prefix>log.app="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic, log.app)`</populatingSearch>
     </input>
-    <input type="dropdown" token="category">
-      <label>Category</label>
+    <input type="text" token="category">
+      <label>Web Category</label>
       <default></default>
-      <prefix>log.categories="</prefix>
+      <prefix>log.http_category="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic, log.app:category)`</populatingSearch>
-    </input>
-    <input type="dropdown" token="vsys">
-      <label>Virtual System</label>
-      <default></default>
-      <prefix>log.vsys="</prefix>
-      <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic, log.vsys)`</populatingSearch>
     </input>
   </fieldset>
   <row>
     <panel>
       <single>
         <search base="basesearch">
-          <query>| search log_subtype="end" | bucket _time span=1h | stats count by _time</query>
-          <earliest>rt$time.earliest$</earliest>
-          <latest>rtnow</latest>
+          <query>| search log_subtype="end" | stats count</query>
         </search>
-        <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
-        <option name="height">143</option>
-        <option name="showTrendIndicator">1</option>
-        <option name="trendColorInterpretation">inverse</option>
-        <option name="trendInterval">$time.earliest$</option>
-        <option name="underLabel">Traffic Events per Hour</option>
-        <option name="unitPosition">after</option>
-        <option name="useColors">0</option>
+        <option name="underLabel">Traffic Events</option>
         <drilldown>
-          <link target="_blank">/app/SplunkforPaloAltoNetworks/file_activity</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity</link>
         </drilldown>
       </single>
       <single>
         <search base="basesearch">
-          <query>| search log_subtype="data" | bucket _time span=1h | stats count by _time</query>
-          <earliest>rt$time.earliest$</earliest>
-          <latest>rtnow</latest>
+          <query>| search log_subtype="data" |  stats count</query>
         </search>
-        <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
-        <option name="height">143</option>
-        <option name="showTrendIndicator">1</option>
-        <option name="trendColorInterpretation">inverse</option>
-        <option name="trendInterval">$time.earliest$</option>
-        <option name="underLabel">Data  Events Per Hour</option>
-        <option name="useColors">1</option>
+        <option name="underLabel">Data Events</option>
         <drilldown>
-          <link target="_blank">/app/SplunkforPaloAltoNetworks/user_behavior</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/user_behavior</link>
         </drilldown>
       </single>
       <single>
         <search base="basesearch">
-          <query>| search log_subtype="url" | bucket _time span=1h | stats count by _time</query>
-          <earliest>rt$time.earliest$</earliest>
-          <latest>rtnow</latest>
+          <query>| search log_subtype="url" | stats count</query>
         </search>
-        <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
-        <option name="height">143</option>
-        <option name="trendColorInterpretation">inverse</option>
-        <option name="underLabel">URL Events Per Hour</option>
-        <option name="useColors">0</option>
+        <option name="underLabel">URL Events</option>
         <drilldown>
           <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.time.earliest=$earliest$&amp;form.time.latest=$latest$</link>
         </drilldown>
       </single>
       <single>
         <search base="basesearch">
-          <query>| search app:is_saas="yes" | bucket _time span=1h | stats count by _time</query>
+          <query>| search app:is_saas="yes" | stats count</query>
         </search>
-        <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
-        <option name="height">143</option>
-        <option name="trendColorInterpretation">inverse</option>
-        <option name="trendInterval">-1h</option>
-        <option name="underLabel">SAAS Events Per Hour</option>
-        <option name="useColors">0</option>
+        <option name="underLabel">SaaS Events</option>
         <drilldown>
           <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.time.earliest=$earliest$&amp;form.time.latest=$latest$</link>
         </drilldown>
@@ -145,25 +115,25 @@
   </row>
   <row>
     <panel>
+      <title>Top Hostnames</title>
       <table>
-        <title>Web Hits</title>
         <search base="basesearch">
-          <query>| where log_subtype="url" | stats sum(count) by dest_name | sort - count</query>
+          <query>| search log_subtype="url" | stats sum(count) AS count by dest_name | sort -count</query>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/user_behavior?form.dest_ip=$click.value$</link>
+          <set token="form.dest_name">$click.value$</set>
         </drilldown>
       </table>
     </panel>
     <panel>
+      <title>Top Web Categories</title>
       <chart>
-        <title>Categories</title>
         <search base="basesearch">
-          <query>| where log_subtype="url" | stats sum(count) by app:category</query>
+          <query>| search log_subtype="url" | stats sum(count) AS count BY http_category | sort -count</query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>
         <option name="charting.axisTitleY.visibility">visible</option>
@@ -179,15 +149,15 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/user_behavior?form.category=$click.value$</link>
+          <set token="form.category">$click.value$</set>
         </drilldown>
       </chart>
     </panel>
     <panel>
+      <title>Top Applications</title>
       <chart>
-        <title>Applications</title>
         <search base="basesearch">
-          <query>| where log_subtype="url" | stats sum(count) by app</query>
+          <query>| search log_subtype="url" | stats sum(count) AS count BY app | sort -count</query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>
         <option name="charting.axisTitleY.visibility">visible</option>
@@ -203,7 +173,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/user_behavior?form.app=$click.value$</link>
+          <set token="form.app">$click.value$</set>
         </drilldown>
       </chart>
     </panel>
@@ -213,10 +183,7 @@
       <title>Possible Data Leaks</title>
       <table>
         <search base="basesearch">
-          <query>| where log_subtype="data" | stats sum(count) by user app file_name src_ip</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
+          <query>| search log_subtype="data" | stats sum(count) AS count BY user app file_name src_ip</query>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
@@ -226,7 +193,7 @@
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
         <drilldown>
-          <link target="_blank">search?q=`pan_logs` log_subtype="data" | search src_ip=$row.src_ip$ file_name=$row.file_name$ app=$row.app$ user=$row.user|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_logs` log_subtype="data" | search src_ip=$row.src_ip$ file_name=$row.file_name$ app=$row.app$ user=$row.user|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -236,7 +203,7 @@
       <title>Applications Not Using Default Port</title>
       <table>
         <search base="basesearch">
-          <query>| where log_subtype="end" | where not like('app:default_ports',"%".dest_port."%") | stats count by app app:default_ports dest_port | sort -count | rename app:default_ports to default_ports</query>
+          <query>|  search log_subtype="end" app:default_ports!="*dynamic*" | where not like('app:default_ports',"%".dest_port."%") | stats count by app app:default_ports dest_port | sort -count | rename app:default_ports to default_ports | eval default_ports=split(default_ports, "|")</query>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>
@@ -246,18 +213,15 @@
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
         <drilldown>
-          <link target="_blank">search?q=`pan_traffic` | search app=$row.app$ dest_port=$row.dest_port$ "app:default_ports"=$row.default_ports|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_traffic` | search app=$row.app$ dest_port=$row.dest_port$ "app:default_ports"=$row.default_ports|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
     <panel>
       <title>Rare Applications</title>
       <table>
-        <search>
-          <query>eventtype="pan_traffic" | rare app</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
+        <search base="basesearch">
+          <query>| search log_subtype="end" | rare app</query>
         </search>
         <option name="count">20</option>
         <option name="dataOverlayMode">none</option>

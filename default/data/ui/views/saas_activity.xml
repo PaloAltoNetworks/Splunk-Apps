@@ -1,10 +1,10 @@
-<form>
+<form script="tooltip.js" stylesheet="tooltip.css">
   <label>SaaS Activity</label>
   <description></description>
   <search id="basesearch">
-    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action), values(log.file_name) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" $src_ip$ $dst_ip$ $user$ $app$ $category$ $action$ GROUPBY _time log.src_ip log.user log.app
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature), values(log.file_name) count from datamodel="pan_aperture" WHERE nodename="log.activity_monitoring" $src_ip$ $dst_ip$ $user$ $app$ $category$ $action$ GROUPBY _time  log.src_ip log.user log.app
-| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * </query>
+    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action), values(log.file_name) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" $src_ip$ $dst_ip$ $serial_number$ $virtual_system$ $user$ $app$ $category$ $action$ GROUPBY _time log.client_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature), values(log.file_name) count from datamodel="pan_aperture" WHERE nodename="log.activity_monitoring" $src_ip$ $dst_ip$ $serial_number$ $virtual_system$ $user$ $app$ $category$ $action$ GROUPBY _time  log.client_ip log.user log.app
+| stats values AS * by _time log.app log.client_ip log.user | rename log.* as * </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -19,7 +19,7 @@
     <input type="text" token="src_ip">
       <label>Source IP</label>
       <default></default>
-      <prefix>log.src_ip="</prefix>
+      <prefix>log.client_ip="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="dst_ip">
@@ -28,62 +28,94 @@
       <prefix>log.dst_ip="</prefix>
       <suffix>"</suffix>
     </input>
+    <input type="text" token="serial_number">
+      <label>Serial Number</label>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <default></default>
+    </input>
+    <input type="text" token="virtual_system">
+      <label>Vsys</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
     <input type="text" token="user">
       <label>Source User</label>
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="dropdown" token="app">
+    <input type="text" token="app">
       <label>Application</label>
       <default></default>
       <prefix>log.app="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.app)`</populatingSearch>
     </input>
-    <input type="dropdown" token="category">
+    <input type="text" token="category">
       <label>Category</label>
       <default></default>
       <prefix>log.categories="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.app:category)`</populatingSearch>
     </input>
     <input type="dropdown" token="action">
       <label>Action</label>
-      <default></default>
+      <choice value="*">ANY</choice>
+      <default>*</default>
       <prefix>log.action="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.action)`</populatingSearch>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <search>
+        <query>| inputlookup pan_vendor_actions.csv 
+| fields action
+| dedup action
+| sort action</query>
+      </search>
     </input>
   </fieldset>
+  <row id="tooltip_row">
+    <panel>
+      <html>
+      <div id="tooltip_title">SaaS Activity</div>
+      <div id="tooltip_txt">
+<h4>Overview</h4>
+<p>Activity related to Sanctioned and Unsanctioned SaaS applications.</p>
+<h4>Products Shown</h4>
+<ul>
+<li>Aperture</li>
+<li>Firewall or Panorama</li>
+</ul>
+<p style="float: right; text-weight: bold;"><a target="_blank" href="REPLACEME">More...</a></p>
+      </div>
+    </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <single>
         <search base="basesearch">
-          <query>stats dc(app)</query>
+          <query>| stats dc(app)</query>
         </search>
         <option name="drilldown">all</option>
         <option name="underLabel">SaaS Applications</option>
         <drilldown>
-          <link target="_self">search?q=| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
-| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * | table app | dedup app&amp;earliest=&amp;latest=</link>
+          <link target="_self">search?q=| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.client_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.client_ip log.user log.app
+| stats values AS * by _time log.app log.client_ip log.user | rename log.* as * | table app | dedup app&amp;earliest=&amp;latest=</link>
         </drilldown>
       </single>
     </panel>
     <panel>
       <single>
         <search base="basesearch">
-          <query>stats dc(user)</query>
+          <query>| stats dc(user)</query>
         </search>
         <option name="drilldown">all</option>
         <option name="underLabel">Users</option>
         <drilldown>
-          <link target="_self">search?q=| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.src_ip log.user log.app
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.src_ip log.user log.app
-| stats values AS * by _time log.app log.src_ip log.user | rename log.* as * | table user | dedup user&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <link target="_self">search?q=| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.client_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.client_ip log.user log.app
+| stats values AS * by _time log.app log.client_ip log.user | rename log.* as * | table user | dedup user&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </single>
     </panel>
@@ -275,9 +307,6 @@
       <chart>
         <search base="basesearch">
           <query>| eval tbytes= bytes_in + bytes_out | stats sum(tbytes) AS total_bytes by app | sort -total_bytes</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>

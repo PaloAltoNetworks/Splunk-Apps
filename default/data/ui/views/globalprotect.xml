@@ -1,7 +1,7 @@
 <form>
   <label>GlobalProtect</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(log.event_id) AS latest_event, values(log.agent_message) AS log.agent_message, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_firewall" WHERE nodename="log.system.globalprotect" $src_ip$ "$user|s$" $object$ groupby _time log.event_id log.user
+    <query>| tstats summariesonly=t latest(log.event_id) AS latest_event, values(log.agent_message) AS log.agent_message, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_firewall" WHERE nodename="log.system.globalprotect" $src_ip$ $serial$ $vsys$ "$user|s$" $object$ groupby _time log.event_id log.user
       | rename log.* as *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -14,6 +14,18 @@
         <latest>now</latest>
       </default>
     </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
       <default></default>
@@ -25,13 +37,10 @@
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="dropdown" token="object">
+    <input type="text" token="object">
       <label>Portal/Gateway</label>
       <default></default>
-      <prefix>log.object="</prefix>
       <suffix>"</suffix>
-      <choice value="">ALL</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.system.globalprotect, log.object)`</populatingSearch>
     </input>
   </fieldset>
   <row>

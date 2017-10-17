@@ -1,7 +1,7 @@
 <nav search_view="search" color="#004f82">
 
   <collection label="Palo Alto Networks">
-    <a href="/app/Splunk_TA_paloalto/configuration">Configuration</a>
+    <a href="/app/Splunk_TA_paloalto">Configuration</a>
     <divider />
     <a href="http://pansplunk.readthedocs.io" target="_blank">Documentation</a>
     <a href="http://answers.splunk.com/ask/?appid=491" target="_blank">Send Feedback</a>
@@ -28,10 +28,10 @@
   </collection>
   
   <collection label="Operations">
-    <view name="threat_intelligence" />
-    <view name="endpoint_operations" />
     <view name="firewall_system" />
     <view name="firewall_configuration" />
+    <view name="endpoint_operations" />
+    <view name="threat_intelligence" />
     <view name="data_model_audit" />
     <view name="realtime_event_feed"/>
   </collection>

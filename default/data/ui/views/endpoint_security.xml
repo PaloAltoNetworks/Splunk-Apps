@@ -1,7 +1,7 @@
 <form>
   <label>Endpoint Security</label>
   <search id="basesearch">
-    <query>| tstats values(log.dest_ip) AS log.dest_ip, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user$ $dest$ $dest_ip$ $file_name$ $signature$ $action$ $log_subtype$ GROUPBY _time log.log_subtype log.severity log.signature log.user log.file_name log.dest | rename log.* AS *</query>
+    <query>| tstats summariesonly=t values(log.dest_ip) AS log.dest_ip, values(log.client_ip) AS log.client_ip, values(log.src_host) AS log.src_host, values(log.action) AS log.action count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user$ $dest_host$ $dest_ip$ $src_host$ $file_name$ $signature$ $action$ $log_subtype$ GROUPBY _time log.log_subtype log.severity log.user log.file_hash log.file_name log.threat_name log.dest_host | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -13,30 +13,27 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="multiselect" token="log_subtype">
+    <input type="text" token="log_subtype">
       <label>Event Type</label>
-      <default>*</default>
+      <default></default>
       <prefix>(</prefix>
       <suffix>)</suffix>
-      <search>
-        <query>`pan_endpoint` | dedup log_subtype | table log_subtype</query>
-      </search>
-      <fieldForLabel>log_subtype</fieldForLabel>
-      <fieldForValue>log_subtype</fieldForValue>
-      <choice value="*">All</choice>
-      <valuePrefix>log.log_subtype="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
+    </input>
+    <input type="text" token="src_host">
+      <label>ESM</label>
+      <default></default>
+      <prefix>log.src_host="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="text" token="user">
       <label>User</label>
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="text" token="dest">
+    <input type="text" token="dest_host">
       <label>Hostname</label>
       <default></default>
-      <prefix>log.dest="</prefix>
+      <prefix>log.dest_host="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="dest_ip">
@@ -57,23 +54,20 @@
       <prefix>log.signature="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="multiselect" token="action">
+    <input type="dropdown" token="action">
       <label>Action</label>
+      <choice value="*">All</choice>
       <default>*</default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <prefix>log.action="</prefix>
+      <suffix>"</suffix>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
       <search>
-        <query>| inputlookup endpoint_actions_lookup 
+        <query>| inputlookup pan_vendor_actions.csv 
 | fields action
 | dedup action
 | sort action</query>
       </search>
-      <fieldForLabel>action</fieldForLabel>
-      <fieldForValue>action</fieldForValue>
-      <choice value="*">All</choice>
-      <valuePrefix>log.action="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
     </input>
   </fieldset>
   <row>
@@ -134,7 +128,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_blank">/app/SplunkforPaloAltoNetworks/endpoint_security?form.log_subtype=$click.value|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.log_subtype=$click.value$</link>
         </drilldown>
       </chart>
     </panel>
@@ -142,7 +136,7 @@
       <title>Top Endpoint Protection Modules</title>
       <chart>
         <search base="basesearch">
-          <query>| stats count(count) by signature</query>
+          <query>| stats count(count) by threat_name</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -173,12 +167,12 @@
       <title>Prevention Events</title>
       <table>
         <search base="basesearch">
-          <query>| search log_subtype="Prevention event" | eval autofocus="Open in AutoFocus" | table _time dest_ip user file_name signature autofocus file_hash</query>
+          <query>| search log_subtype="Prevention event" | eval autofocus="Open in AutoFocus" | table _time dest_ip user file_name file_hash threat_name autofocus</query>
         </search>
-        <fields>_time dest_ip user file_name signature autofocus</fields>
         <option name="count">20</option>
         <option name="drilldown">cell</option>
         <option name="wrap">false</option>
+        <fields>["_time","dest_ip","user","file_name","file_hash","threat_name","autofocus"]</fields>
         <drilldown>
           <condition field="autofocus">
             <link target="autofocus">https://autofocus.paloaltonetworks.com/#/sample/$row.file_hash$</link>

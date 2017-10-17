@@ -1,7 +1,7 @@
 <form>
   <label>Endpoint Operations</label>
   <search id="basesearch">
-    <query>| tstats values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest) AS log.dest, values(log.src) AS log.src count FROM datamodel="pan_endpoint" WHERE nodename="log.operations" $user$ $dest$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
+    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_host) AS log.dest_host, values(log.src_host) AS log.src_host count FROM datamodel="pan_endpoint" WHERE nodename="log.operations" $user$ $src_host$ $dest_host$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -18,10 +18,16 @@
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="text" token="dest">
+    <input type="text" token="src_host">
+      <label>ESM</label>
+      <default></default>
+      <prefix>log.src_host="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_host">
       <label>Hostname</label>
       <default></default>
-      <prefix>log.dest="</prefix>
+      <prefix>log.dest_host="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="dest_ip">
@@ -30,16 +36,11 @@
       <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="multiselect" token="severity">
+    <input type="text" token="severity">
       <label>Severity</label>
-      <default>*</default>
+      <default></default>
       <prefix>(</prefix>
       <suffix>)</suffix>
-      <search>
-        <query>| inputlookup endpoint_severity_lookup 
-| fields severity
-| dedup severity</query>
-      </search>
       <fieldForLabel>severity</fieldForLabel>
       <fieldForValue>severity</fieldForValue>
       <choice value="*">All</choice>
@@ -47,7 +48,7 @@
       <valueSuffix>"</valueSuffix>
       <delimiter> OR </delimiter>
     </input>
-    <input type="multiselect" token="action">
+    <input type="dropdown" token="action">
       <label>Action</label>
       <default>*</default>
       <prefix>(</prefix>
@@ -71,7 +72,7 @@
       <title>Total Endpoints Reporting</title>
       <single>
         <search base="basesearch">
-          <query>| dedup dest | stats dc(dest)</query>
+          <query>| dedup dest_host | stats dc(dest_host)</query>
         </search>
       </single>
     </panel>

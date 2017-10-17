@@ -1,10 +1,10 @@
-<form>
+<form script="tooltip.js" stylesheet="tooltip.css">
   <label>SaaS Security</label>
   <description></description>
   <search id="basesearch">
     <query>
-| tstats summariesonly=t prestats=t values(log.log_subtype), values(log.app), values(log.action) count FROM datamodel="pan_firewall" WHERE (nodename="log.url" OR nodename="log.data" OR nodename="log.file" OR nodename="log.wildfire.malicious") log.app:is_saas="yes" GROUPBY _time log.file_name log.user
-| tstats summariesonly=t prestats=t append=t values(log.log_subtype), values(log.app), values(log.action) count FROM datamodel="pan_aperture" WHERE nodename="log.incident" GROUPBY _time log.file_name log.user
+| tstats summariesonly=t prestats=t values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count FROM datamodel="pan_firewall" WHERE (nodename="log.url" OR nodename="log.data" OR nodename="log.file" OR nodename="log.wildfire.malicious") log.app:is_saas="yes" $serial$ $vsys$ $client_ip$ $dst_ip$ $user$ $app$ $action$ GROUPBY _time log.file_name log.user
+| tstats summariesonly=t prestats=t append=t values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count FROM datamodel="pan_aperture" WHERE nodename="log.incident" $serial$ $vsys$ $client_ip$ $dst_ip$ $user$ $app$ $action$ GROUPBY _time log.file_name log.user
 | stats values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count BY _time log.file_name log.user
 | rename log.* AS *
 </query>
@@ -18,10 +18,22 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="text" token="src_ip">
-      <label>Source IP</label>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
       <default></default>
-      <prefix>log.src_ip="</prefix>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="client_ip">
+      <label>Client IP</label>
+      <default></default>
+      <prefix>log.client_ip="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="dst_ip">
@@ -35,23 +47,47 @@
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="dropdown" token="app">
+    <input type="text" token="app">
       <label>Application</label>
       <default></default>
       <prefix>log.app="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.app)`</populatingSearch>
     </input>
     <input type="dropdown" token="action">
       <label>Action</label>
-      <default></default>
+      <choice value="*">All</choice>
+      <default>*</default>
       <prefix>log.action="</prefix>
       <suffix>"</suffix>
-      <choice value="">ANY</choice>
-      <populatingSearch fieldForValue="field" fieldForLabel="field_with_count">| `_pan_dropdown(log.traffic.end, log.action)`</populatingSearch>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <search>
+        <query>| inputlookup pan_vendor_actions.csv 
+| fields action
+| dedup action
+| sort action</query>
+      </search>
     </input>
   </fieldset>
+  <row id="tooltip_row">
+    <panel>
+      <html>
+      <div id="tooltip_title">SaaS Security</div>
+      <div id="tooltip_txt">
+<h4>Overview</h4>
+<p>Threats related to Sanctioned and Unsanctioned SaaS application usage including network threats and threats residing within enterprise SaaS applications.</p>
+<h4>Products Shown</h4>
+<ul>
+<li>Aperture</li>
+<li>Firewall or Panorama</li>
+</ul>
+<p style="float: right; text-weight: bold;">
+            <a target="_blank" href="REPLACEME">More...</a>
+          </p>
+      </div>
+    </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <single>

@@ -1,8 +1,7 @@
 <form>
   <label>Web Activity</label>
-  <description>Add a 'decrypted traffic' panel or other action flags, Add Content Type</description>
   <search id="basesearch">
-    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial_number$ $vsys$ $src_ip$ $dest_name$ $user$ $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
+    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial$ $vsys$ $src_ip$ $dest_name$ $user$ $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -13,39 +12,17 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="multiselect" token="serial_number">
+    <input type="text" token="serial">
       <label>Serial Number</label>
       <prefix>(</prefix>
       <suffix>)</suffix>
-      <fieldForLabel>serial_host</fieldForLabel>
-      <fieldForValue>serial_number</fieldForValue>
-      <search>
-        <query>| inputlookup pan_devices_lookup 
-| eval serial_host=if(!isnull(dvc_host),serial_number." : ".dvc_host,serial_number) 
-| dedup serial_number
-| stats count by serial_number serial_host</query>
-      </search>
-      <choice value="*">All</choice>
-      <valuePrefix>log.serial_number="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <default>*</default>
+      <default></default>
     </input>
-    <input type="multiselect" token="vsys">
+    <input type="text" token="vsys">
       <label>Vsys</label>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <fieldForLabel>vsys</fieldForLabel>
-      <fieldForValue>vsys</fieldForValue>
-      <search>
-        <query>| inputlookup pan_devices_lookup
-| stats count by vsys</query>
-      </search>
-      <choice value="*">All</choice>
-      <valuePrefix>log.vsys="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <default>*</default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+      <default></default>
     </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
@@ -64,42 +41,23 @@
       <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="dropdown" token="app">
+    <input type="text" token="app">
       <label>Application</label>
       <default></default>
       <prefix>log.app="</prefix>
       <suffix>"</suffix>
-      <fieldForLabel>field_with_count</fieldForLabel>
-      <fieldForValue>field</fieldForValue>
-      <search>
-        <query>
-        | `_pan_dropdown(log.traffic.end, log.app)`
-        </query>
-      </search>
     </input>
-    <input type="dropdown" token="category">
+    <input type="text" token="category">
       <label>Category</label>
       <default></default>
       <prefix>log.category="</prefix>
       <suffix>"</suffix>
-      <fieldForLabel>field_with_count</fieldForLabel>
-      <fieldForValue>field</fieldForValue>
-      <search>
-        <query>
-        | `_pan_dropdown(log.traffic.end, log.app:category)`
-        </query>
-      </search>
     </input>
-    <input type="dropdown" token="content">
+    <input type="text" token="content">
       <label>Content Type</label>
       <default></default>
       <prefix>log.content_type="</prefix>
       <suffix>"</suffix>
-      <fieldForLabel>field_with_count</fieldForLabel>
-      <fieldForValue>field</fieldForValue>
-      <search>
-        <query>| `_pan_dropdown(log.url, log.content_type)`</query>
-      </search>
     </input>
     <input type="multiselect" token="action">
       <label>Action</label>

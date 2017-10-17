@@ -1,8 +1,15 @@
 <dashboard>
   <label>Data Model Audit</label>
-  <description>Needs an autofocus counter at the top - Add device name next to serial number</description>
+  <search id="tokensetter">
+    <query>| makeresults count=0</query>
+    <done>
+      <set token="results-1">0</set>
+      <set token="results-2">0</set>
+    </done>
+  </search>
   <row>
     <panel>
+      <title>Logs Indexed - 24 Hours</title>
       <single>
         <search>
           <query>`pan_logs` 
@@ -16,11 +23,9 @@
         <option name="rangeValues">[0]</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.size">large</option>
-        <option name="underLabel">NGFW Logs</option>
+        <option name="underLabel">Next-generation Firewall Logs</option>
         <option name="useColors">1</option>
       </single>
-    </panel>
-    <panel>
       <single>
         <search>
           <query>`pan_endpoint`
@@ -37,8 +42,22 @@
         <option name="underLabel">Endpoint Logs</option>
         <option name="useColors">1</option>
       </single>
-    </panel>
-    <panel>
+      <single>
+        <search>
+          <query>`pan_aperture`
+| stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="underLabel">Aperture Logs</option>
+        <option name="useColors">1</option>
+      </single>
       <single>
         <search>
           <query>`pan_wildfire_report`
@@ -61,9 +80,17 @@
     <panel>
       <single>
         <search>
-          <query>| `pan_tstats` dc(log.serial_number) AS count FROM `fw_node(log)` GROUPBY _time</query>
+          <query>| `pan_tstats` dc(log.serial_number) AS count FROM `fw_node(log)` GROUPBY _time | append [| makeresults count=$results-1$ | eval count=0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-1">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-1' == 1">
+              <set token="results-1">0</set>
+            </condition>
+          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>
@@ -75,16 +102,24 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.size">large</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="underLabel">Next-generation Firewalls Reporting</option>
+        <option name="underLabel">Next-generation Firewalls Reporting In Last 24 Hours</option>
         <option name="useColors">1</option>
       </single>
     </panel>
     <panel>
       <single>
         <search>
-          <query>| `pan_tstats` dc(log.src) AS count FROM `ep_node(log)` GROUPBY _time</query>
+          <query>| `pan_tstats` dc(log.src) AS count FROM `ep_node(log)` GROUPBY _time | append [| makeresults count=$results-2$ | eval count=0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-2">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-2' == 1">
+              <set token="results-2">0</set>
+            </condition>
+          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>
@@ -96,7 +131,7 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.size">large</option>
         <option name="trendDisplayMode">absolute</option>
-        <option name="underLabel">Endpoint Security Managers Reporting</option>
+        <option name="underLabel">Endpoint Security Managers Reporting In Last 24 Hours</option>
         <option name="useColors">1</option>
       </single>
     </panel>
@@ -107,7 +142,7 @@
       <table>
         <search>
           <query>| stats count
-| eval datamodel=mvappend("pan_endpoint", "pan_firewall", "pan_wildfire_report")
+| eval datamodel=mvappend("pan_aperture", "pan_endpoint", "pan_firewall", "pan_wildfire_report")
 | mvexpand datamodel 
 | fields datamodel
 | join type=left datamodel 

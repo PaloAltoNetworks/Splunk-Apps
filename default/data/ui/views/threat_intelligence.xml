@@ -1,5 +1,19 @@
-<dashboard>
+<form script="tooltip.js" stylesheet="tooltip.css">
   <label>Threat Intelligence</label>
+  <row id="tooltip_row">
+    <html>
+      <div id="tooltip_title">Threat Intelligence</div>
+      <div id="tooltip_txt">
+<h4>Overview</h4>
+<p>Threat Intelligence provides insight into the threat indicators being retrieved from MineMeld.  Threat indicators are used within the Palo Alto Networks Splunk app, and can also be exported to Splunk Enterprise Security.</p>
+<h4>Products Shown</h4>
+<ul>
+<li>MineMeld</li>
+</ul>
+<p style="float: right; text-weight: bold;"><a target="_blank" href="REPLACEME">More...</a></p>
+      </div>
+    </html>
+  </row>
   <row>
     <panel>
       <title>Top 10 Feeds</title>
@@ -124,4 +138,4 @@
       </chart>
     </panel>
   </row>
-</dashboard>
+</form>

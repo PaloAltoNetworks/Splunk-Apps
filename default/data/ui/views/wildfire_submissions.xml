@@ -1,7 +1,7 @@
-<form>
+<form script="tooltip.js" stylesheet="tooltip.css">
   <label>WildFire Submissions</label>
   <search id="basesearch">
-    <query>| `pan_tstats` count FROM `node(log.wildfire)` $src_ip$ $dest_ip$ "$user|s$" $src_location$ $file_name$ $file_type$ $app$ groupby _time log.rule log.src_ip log.dest_ip log.verdict log.file_name log.file_type log.user log.app log.file_hash log.src_location| rename log.* AS *</query>
+    <query>| `pan_tstats` count FROM `node(log.wildfire)` $vsys$ $serial$ $src_ip$ $dest_ip$ "$user|s$" $src_location$ $file_name$ $file_type$ $app$ groupby _time log.rule log.src_ip log.dest_ip log.verdict log.file_name log.file_type log.user log.app log.file_hash log.src_location| rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -13,38 +13,17 @@
         <latest>now</latest>
       </default>
     </input>
-    <input type="multiselect" token="serial_number">
+    <input type="text" token="serial">
       <label>Serial Number</label>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <fieldForLabel>serial_host</fieldForLabel>
-      <fieldForValue>serial_number</fieldForValue>
-      <search>
-        <query>| inputlookup pan_devices_lookup 
-| eval serial_host=if(!isnull(dvc_host),serial_number." : ".dvc_host,serial_number) 
-| stats count by serial_number serial_host</query>
-      </search>
-      <choice value="*">All</choice>
-      <valuePrefix>log.serial_number="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <default>*</default>
+      <prefix>log.serial_number="</prefix>
+      <suffix>"</suffix>
+      <default></default>
     </input>
-    <input type="multiselect" token="virtual_system">
-      <label>Vsys</label>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <fieldForLabel>vsys</fieldForLabel>
-      <fieldForValue>vsys</fieldForValue>
-      <search>
-        <query>| inputlookup pan_devices_lookup
-| stats count by vsys</query>
-      </search>
-      <choice value="*">All</choice>
-      <valuePrefix>log.virtual_system="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <default>*</default>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+      <default></default>
     </input>
     <input type="text" token="src_ip">
       <label>Source IP</label>
@@ -80,23 +59,32 @@
       <default></default>
       <prefix>log.src_location=</prefix>
     </input>
-    <input type="multiselect" token="app">
+    <input type="text" token="app">
       <label>Application</label>
-      <default>*</default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <choice value="*">All</choice>
-      <valuePrefix>log.app="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <fieldForLabel>app</fieldForLabel>
-      <fieldForValue>app</fieldForValue>
-      <search>
-        <query>| inputlookup app_list.csv
-| fields app</query>
-      </search>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
     </input>
   </fieldset>
+  <row id="tooltip_row">
+    <panel>
+      <html>
+        <div id="tooltip_title">WildFire Submissions</div>
+        <div id="tooltip_txt">
+          <h4>Overview</h4>
+          <p>WildFire is an advanced analysis and prevention engine for highly evasive zero-day exploits and malware. Files can be analyzed from the firewall or Traps endpoint protection agent and will show in this dashboard when analyzed.</p>
+          <h4>Products Shown</h4>
+          <ul>
+            <li>Firewall or Panorama</li>
+            <li>WildFire</li>
+          </ul>
+          <p style="float: right; text-weight: bold;">
+            <a target="_blank" href="REPLACEME">More...</a>
+          </p>
+        </div>
+      </html>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>WildFire Submissions</title>
@@ -151,6 +139,9 @@
         </search>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.fieldColors">{"malicious":#D93F3C,"phishing":#F58F39,"grayware":#F7BC38,"benign":#6DB7C6}</option>
+        <option name="charting.legend.labels">[malicious,phishing,grayware,benign]</option>
         <drilldown>
           <link target="_self">search?q=`pan_wildfire` verdict=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>
         </drilldown>
