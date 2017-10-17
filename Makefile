@@ -16,11 +16,18 @@ bumpversion: CURRENT_BUILD?=$(shell echo `sed -n -e 's/^build *= *\(.*\)/\1/p' d
 bumpversion: BUILD=$(shell echo $$(( $(CURRENT_BUILD) + 1 )))
 
 build:
-	git archive master | tar -x -C $(TARGET_WORKING_DIR)
+	mkdir -p $(TARGET_WORKING_DIR)
+	git archive --prefix=$(NAME)/ HEAD | tar -x -C $(TARGET_WORKING_DIR)
 	find $(TARGET_WORKING_DIR) -type f -name ".*" -exec rm {} \;
+	find $(TARGET_WORKING_DIR)/$(NAME)/bin -type f -name "*.py" -exec chmod +x {} \;
 	rm $(TARGET_WORKING_DIR)/$(NAME)/Makefile
 	rm $(TARGET_WORKING_DIR)/$(NAME)/bin/lib/pan-python/doc/Makefile
-	tar czvf -C $(TARGET_WORKING_DIR) $(TARGET_ARCHIVE_DIR)/$(NAME)-$(CURRENT_VERSION).spl $(NAME)
+	tar -czv -C $(TARGET_WORKING_DIR) -f $(TARGET_ARCHIVE_DIR)/$(NAME)-$(CURRENT_VERSION).spl $(NAME)
+	rm -rf $(TARGET_WORKING_DIR)
+
+clean:
+	rm -rf $(TARGET_WORKING_DIR)
+	rm -f $(TARGET_ARCHIVE_DIR)/$(NAME)-$(CURRENT_VERSION).spl
 
 buildbeta:
 	git archive --format $(BETA_FORMAT) --prefix=$(NAME)/ --output $(TARGET_ARCHIVE_DIR)/$(NAME)-$(CURRENT_VERSION).$(BETA_FORMAT) $(BETA_BRANCH)

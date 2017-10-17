@@ -81,3 +81,6 @@ git-repositories/
 # Sublime Text
 sftp-config.json
 pandoc-config.json
+
+# Working directory for builder
+working/
