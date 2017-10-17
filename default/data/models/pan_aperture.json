@@ -50,18 +50,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "signature",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "signature",
-                    "comment": ""
-                },
-                {
                     "fieldName": "user",
                     "owner": "log",
                     "type": "string",
@@ -86,18 +74,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "category",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "category",
-                    "comment": ""
-                },
-                {
                     "fieldName": "severity",
                     "owner": "log",
                     "type": "number",
@@ -107,18 +83,6 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "severity",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "src_ip",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_ip",
                     "comment": ""
                 },
                 {
@@ -167,6 +131,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "file_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "incident_id",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
                     "comment": ""
                 },
                 {
@@ -269,18 +281,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "signature",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "signature",
-                    "comment": ""
-                },
-                {
                     "fieldName": "user",
                     "owner": "log",
                     "type": "string",
@@ -305,18 +305,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "category",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "category",
-                    "comment": ""
-                },
-                {
                     "fieldName": "severity",
                     "owner": "log",
                     "type": "number",
@@ -326,18 +314,6 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "severity",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "src_ip",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_ip",
                     "comment": ""
                 },
                 {
@@ -386,6 +362,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "file_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "incident_id",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
                     "comment": ""
                 },
                 {
@@ -488,18 +512,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "signature",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "signature",
-                    "comment": ""
-                },
-                {
                     "fieldName": "user",
                     "owner": "log",
                     "type": "string",
@@ -524,18 +536,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "category",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "category",
-                    "comment": ""
-                },
-                {
                     "fieldName": "severity",
                     "owner": "log",
                     "type": "number",
@@ -545,18 +545,6 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "severity",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "src_ip",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_ip",
                     "comment": ""
                 },
                 {
@@ -605,6 +593,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "file_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "incident_id",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
                     "comment": ""
                 },
                 {
@@ -707,18 +743,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "signature",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "signature",
-                    "comment": ""
-                },
-                {
                     "fieldName": "user",
                     "owner": "log",
                     "type": "string",
@@ -743,18 +767,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "category",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "category",
-                    "comment": ""
-                },
-                {
                     "fieldName": "severity",
                     "owner": "log",
                     "type": "number",
@@ -764,18 +776,6 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "severity",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "src_ip",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_ip",
                     "comment": ""
                 },
                 {
@@ -824,6 +824,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "file_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "incident_id",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
                     "comment": ""
                 },
                 {
@@ -926,18 +974,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "signature",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "signature",
-                    "comment": ""
-                },
-                {
                     "fieldName": "user",
                     "owner": "log",
                     "type": "string",
@@ -962,18 +998,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "category",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "category",
-                    "comment": ""
-                },
-                {
                     "fieldName": "severity",
                     "owner": "log",
                     "type": "number",
@@ -983,18 +1007,6 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "severity",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "src_ip",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_ip",
                     "comment": ""
                 },
                 {
@@ -1043,6 +1055,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "file_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "incident_id",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
                     "comment": ""
                 },
                 {
@@ -1145,18 +1205,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "signature",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "signature",
-                    "comment": ""
-                },
-                {
                     "fieldName": "user",
                     "owner": "log",
                     "type": "string",
@@ -1181,18 +1229,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "category",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "category",
-                    "comment": ""
-                },
-                {
                     "fieldName": "severity",
                     "owner": "log",
                     "type": "number",
@@ -1202,18 +1238,6 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "severity",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "src_ip",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "src_ip",
                     "comment": ""
                 },
                 {
@@ -1262,6 +1286,54 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "file_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "threat_category",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "threat_category",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "incident_id",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "incident_id",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "client_ip",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "client_ip",
                     "comment": ""
                 },
                 {

@@ -770,30 +770,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -959,6 +935,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -1781,30 +1769,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -1970,6 +1934,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -2815,30 +2791,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -3004,6 +2956,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -3826,30 +3790,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -4015,6 +3955,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -4837,30 +4789,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -5026,6 +4954,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -5848,30 +5788,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -6037,6 +5953,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -6859,30 +6787,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -7048,6 +6952,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -7870,30 +7786,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -8059,6 +7951,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -8869,30 +8773,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -9058,6 +8938,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -9880,30 +9772,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -10069,6 +9937,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -10891,30 +10771,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -11080,6 +10936,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -11902,30 +11770,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -12091,6 +11935,18 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -12913,30 +12769,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -13102,6 +12934,18 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -13924,30 +13768,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -14113,6 +13933,18 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -14935,30 +14767,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -15124,6 +14932,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -15946,30 +15766,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -16135,6 +15931,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -16957,30 +16765,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": true,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -17146,6 +16930,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
@@ -17968,30 +17764,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "evidence",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "evidence",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "object_id",
-                    "owner": "log",
-                    "type": "number",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "object_id",
-                    "comment": ""
-                },
-                {
                     "fieldName": "file_type",
                     "owner": "log",
                     "type": "string",
@@ -18157,6 +17929,18 @@
                     "hidden": true,
                     "editable": true,
                     "displayName": "verdict",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "sender",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "sender",
                     "comment": ""
                 },
                 {
