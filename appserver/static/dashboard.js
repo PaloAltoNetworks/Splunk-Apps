@@ -4,7 +4,7 @@ function deployModal(title, message) {
   <div class="modal-dialog" role="document"> \
   <div class="modal-content"> \
   <div class="modal-header"> \
-  <h4 class="modal-title">' + title + '</h4> \
+  <h3 class="modal-title">' + title + '</h3> \
   </div> \
   <div class="modal-body"> \
   ' + message + ' \
@@ -19,9 +19,9 @@ function deployModal(title, message) {
   $('#pan_message').modal('show');
 }
 require([
-  'splunkjs/ready!',
   'underscore',
   'jquery',
+  'splunkjs/mvc',
   'splunkjs/mvc/simplexml/ready!'
 ], function (
   mvc,

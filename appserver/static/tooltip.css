@@ -7,6 +7,15 @@
 #tooltip_row div {
   background: transparent;
 }
+#tooltip_title {
+  display: none;
+  max-width: 400px;
+  background-color:#333;
+  color:#fff;
+  text-align: left;
+  font-size: 14px;
+  font-weight: normal;
+}
 #tooltip_txt {
   display: none;
   max-width: 400px;
@@ -15,4 +24,7 @@
   text-align: left;
   font-size: 14px;
   font-weight: normal;
+}
+span.bold {
+  font-weight: bold;
 }
