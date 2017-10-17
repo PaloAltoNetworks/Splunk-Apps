@@ -13,7 +13,6 @@
     <view name="file_activity" />
     <view name="web_activity" />
     <view name="globalprotect" />
-    <view name="executive_overview" />
   </collection>
   
   <collection label="Threats">
