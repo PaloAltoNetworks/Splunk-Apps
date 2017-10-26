@@ -200,6 +200,7 @@ def main():
     apikey = common.apikey(sessionKey, args[0], debug)
 
     device = pandevice.base.PanDevice(args[0], api_key=apikey)
+    device.refresh_system_info()
 
     try:
         if args[1] == "apps":
@@ -207,8 +208,14 @@ def main():
             app_xml = device.xapi.xml_document
             csv = parse_apps(app_xml)
         else:
-            device.xapi.get("/config/predefined/threats")
-            threat_xml = device.xapi.xml_document
+            if device._version_info >= (8, 0, 0):
+                threat_xml = device.op(
+                    'show predefined xpath "/predefined/threats"',
+                    xml=True, cmd_xml=True,
+                )
+            else:
+                device.xapi.get("/config/predefined/threats")
+                threat_xml = device.xapi.xml_document
             csv = parse_threats(threat_xml)
 
     except pan.xapi.PanXapiError as e:
