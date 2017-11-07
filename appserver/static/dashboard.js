@@ -64,7 +64,7 @@ require([
       // Check if the Add-on is installed.
       if (!paloaltoTA) {
         title = 'Missing Add-on';
-        message = '<p>Please install the <a href="https://splunkbase.splunk.com/app/2757/" target="_blank">Palo Alto Networks Add-on</a>.</p><p>For more information please view the <a href="http://pansplunk.readthedocs.io/en/latest/" target="_blank">getting started documentation</a>.</p>';
+        message = '<p>Please install the <a href="https://splunkbase.splunk.com/app/2757/" target="_blank">Palo Alto Networks Add-on</a>.</p><p>For more information please view the <a href="http://splunk.paloaltonetworks.com/installation.html" target="_blank">getting started documentation</a>.</p>';
         // TA is not installed.
         deployModal(title, message);
         sessionStorage.checked_ta = 1;
