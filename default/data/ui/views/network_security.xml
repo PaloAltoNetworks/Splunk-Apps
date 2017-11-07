@@ -79,9 +79,7 @@
           <ul>
             <li>Firewall or Panorama</li>
           </ul>
-          <p style="float: right; text-weight: bold;">
-            <a target="_blank" href="REPLACEME">More...</a>
-          </p>
+          <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#network-security">More...</a></p>
         </div>
       </html>
     </panel>

@@ -74,15 +74,14 @@
       <html>
       <div id="tooltip_title">SaaS Security</div>
       <div id="tooltip_txt">
-<h4>Overview</h4>
-<p>Threats related to Sanctioned and Unsanctioned SaaS application usage including network threats and threats residing within enterprise SaaS applications.</p>
-<h4>Products Shown</h4>
-<ul>
-<li>Aperture</li>
-<li>Firewall or Panorama</li>
-</ul>
-<p style="float: right; text-weight: bold;">
-            <a target="_blank" href="REPLACEME">More...</a>
+        <h4>Overview</h4>
+        <p>Threats related to Sanctioned and Unsanctioned SaaS application usage including network threats and threats residing within enterprise SaaS applications.</p>
+        <h4>Products Shown</h4>
+        <ul>
+          <li>Aperture</li>
+          <li>Firewall or Panorama</li>
+        </ul>
+        <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#saas-security">More...</a></p>
           </p>
       </div>
     </html>

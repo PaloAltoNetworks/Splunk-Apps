@@ -143,17 +143,17 @@
       <html>
       <div id="tooltip_title">All Incidents</div>
       <div id="tooltip_txt">
-<h4>Overview</h4>
-<p>The Incident Feed displays all incidents from all Palo Alto Networks products. An <span style="font-style: italic;">incident</span> is any event that may need attention or investigation.</p>
-<h4>Products Shown</h4>
-<ul>
-<li>Aperture</li>
-<li>AutoFocus</li>
-<li>Firewall or Panorama</li>
-<li>Traps Endpoint Protection</li>
-<li>WildFire</li>
-</ul>
-<p style="float: right; text-weight: bold;"><a target="_blank" href="REPLACEME">More...</a></p>
+        <h4>Overview</h4>
+        <p>The Incident Feed displays all incidents from all Palo Alto Networks products. An <span style="font-style: italic;">incident</span> is any event that may need attention or investigation.</p>
+        <h4>Products Shown</h4>
+        <ul>
+          <li>Aperture</li>
+          <li>AutoFocus</li>
+          <li>Firewall or Panorama</li>
+          <li>Traps Endpoint Protection</li>
+          <li>WildFire</li>
+        </ul>
+        <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#incidents">More...</a></p>
       </div>
     </html>
     </panel>
