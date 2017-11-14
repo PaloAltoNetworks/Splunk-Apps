@@ -3,6 +3,16 @@
 Upgrade
 =======
 
+.. raw:: html
+
+    <style> .red {color:red} </style>
+
+.. role:: red
+
+.. warning::
+This documentation is :red:`deprecated` in Splunk App and Add-on version 6.0.
+     The latest documentation is now available here: http://splunk.paloaltonetworks.com
+
 Most upgrades don't require any special action. Just upgrade like any other
 Splunk app. For the versions below, there are some considerations or
 actions needed to migrate to the new version.

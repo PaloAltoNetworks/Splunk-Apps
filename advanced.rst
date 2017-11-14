@@ -1,3 +1,13 @@
+.. raw:: html
+
+    <style> .red {color:red} </style>
+
+.. role:: red
+
+.. warning::
+   This documentation is :red:`deprecated` in Splunk App and Add-on version 6.0.
+     The latest documentation is now available here: http://splunk.paloaltonetworks.com
+
 .. _advancedfeatures:
 
 Advanced Features
