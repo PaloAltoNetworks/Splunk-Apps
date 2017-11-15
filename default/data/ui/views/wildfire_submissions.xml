@@ -1,0 +1,240 @@
+<form script="tooltip.js" stylesheet="tooltip.css">
+  <label>WildFire Submissions</label>
+  <search id="basesearch">
+    <query>| `pan_tstats` count FROM `node(log.wildfire)` $vsys$ $serial$ $src_ip$ $dest_ip$ "$user|s$" $src_location$ $file_name$ $file_type$ $app$ groupby _time log.rule log.src_ip log.dest_ip log.verdict log.file_name log.file_type log.user log.app log.file_hash log.src_location| rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <prefix>log.serial_number="</prefix>
+      <suffix>"</suffix>
+      <default></default>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+      <default></default>
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="file_name">
+      <label>Filename</label>
+      <default></default>
+      <prefix>log.file_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="file_type">
+      <label>File Type</label>
+      <default></default>
+      <prefix>log.file_type="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>User</label>
+      <default></default>
+      <prefix>log.user=</prefix>
+    </input>
+    <input type="text" token="src_location">
+      <label>Location</label>
+      <default></default>
+      <prefix>log.src_location=</prefix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row id="tooltip_row">
+    <panel>
+      <html>
+        <div id="tooltip_title">WildFire Submissions</div>
+        <div id="tooltip_txt">
+          <h4>Overview</h4>
+          <p>WildFire is an advanced analysis and prevention engine for highly evasive zero-day exploits and malware. Files can be analyzed from the firewall or Traps endpoint protection agent and will show in this dashboard when analyzed.</p>
+          <h4>Products Shown</h4>
+          <ul>
+            <li>Firewall or Panorama</li>
+            <li>WildFire</li>
+          </ul>
+          <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#wildfire">More...</a></p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>WildFire Submissions</title>
+      <single>
+        <search base="basesearch">
+          <query>| search verdict="malicious" | stats count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0xd93f3c"]</option>
+        <option name="rangeValues">[50]</option>
+        <option name="underLabel">Malicious</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| search verdict="phishing" | stats count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xf58f39","0xf58f39"]</option>
+        <option name="rangeValues">[50]</option>
+        <option name="underLabel">Phishing</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| search verdict="grayware" | stats count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xf7bc38","0xf7bc38"]</option>
+        <option name="rangeValues">[50]</option>
+        <option name="underLabel">Grayware</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| search verdict="benign" | stats count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x6db7c6","0x6db7c6"]</option>
+        <option name="rangeValues">[50]</option>
+        <option name="underLabel">Benign</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>WildFire Submissions Over Time By Verdict</title>
+      <chart>
+        <search base="basesearch">
+          <query>| timechart sum(count) by verdict</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.fieldColors">{"malicious":#D93F3C,"phishing":#F58F39,"grayware":#F7BC38,"benign":#6DB7C6}</option>
+        <option name="charting.legend.labels">[malicious,phishing,grayware,benign]</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_wildfire` verdict=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Applications</title>
+      <chart>
+        <search base="basesearch">
+          <query>| top limit=100 app</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.$click.name$=$click.value$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top File Types</title>
+      <chart>
+        <search base="basesearch">
+          <query>| top limit=100 file_type</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.file_type=$click.value$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Source Locations</title>
+      <chart>
+        <search base="basesearch">
+          <query>| top limit=100 src_location</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.src_location=$click.value|s$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Recent WildFire Submissions</title>
+      <table>
+        <search base="basesearch">
+          <query>| search verdict!="benign" | eval autofocus="Open in AutoFocus" | table _time verdict rule file_name file_type app src_ip dest_ip user autofocus file_hash | sort -_time</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">false</option>
+        <fields>["_time","verdict","rule","file_name","file_type","app","src_ip","dest_ip","user","autofocus"]</fields>
+        <drilldown>
+          <condition field="autofocus">
+            <link target="autofocus">https://autofocus.paloaltonetworks.com/#/sample/$row.file_hash$</link>
+          </condition>
+          <condition field="*">
+            <link target="_self">search?q=`pan_logs` (sourcetype="pan:wildfire_report" wildfire.file_info.sha256=$row.file_hash|s$) OR (eventtype="pan_wildfire" file_hash=$row.file_hash|s$)&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Possible Malware Traffic</title>
+      <table>
+        <search>
+          <query>| `pan_tstats` count(traffic) FROM `node(log.traffic)` $src_ip$ $dest_ip$ "$user|s$" $file_name$ $app$ groupby _time log.traffic.dest_ip_port log.dest_ip log.dest_port log.src_ip log.user log.app | rename log.traffic.dest_ip_port AS ip_port | join type=inner ip_port [ | `pan_tstats` count(wildfire_report) FROM datamodel="pan_wildfire_report" WHERE earliest=-1y latest=now nodename="wildfire_report" groupby wildfire_report.wildfire.file_info.sha256 wildfire_report.tcp_ip_port | rename wildfire_report.tcp_ip_port AS ip_port ] | dedup 1 log.src_ip log.user ip_port log.app | eval "Traffic Link" = "View Traffic Logs" | eval "WildFire Link" = "View WildFire Report" | rename log.* AS * wildfire_report.wildfire.file_info.sha256 AS file_hash | table _time src_ip user dest_ip dest_port app file_hash "Traffic Link" "WildFire Link" | rex mode=sed field=ip_port "s/,/:/" | sort -_time</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">false</option>
+        <fields>["_time","src_ip","user","dest_ip","dest_port","app","Traffic Link","WildFire Link"]</fields>
+        <drilldown>
+          <condition field="WildFire Link">
+            <link target="_self">search?q=`pan_logs` (sourcetype="pan:wildfire_report" (wildfire.file_info.sha256=$row.WildFire Report Hash|s$ OR wildfire.file_info.sha256=$row.WildFire Report Hash|s$)) OR (sourcetype="pan:threat" log_subtype="wildfire" file_hash=$row.WildFire Report Hash|s$)&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          </condition>
+          <condition field="*">
+            <link target="_self">/app/SplunkforPaloAltoNetworks/search?q=`pan_logs` src_ip=$row.Source|s$ dest_ip=$row.Dest IP|s$ dest_port=$row.Dest Port|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

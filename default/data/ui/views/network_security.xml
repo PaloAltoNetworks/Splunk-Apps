@@ -1,0 +1,188 @@
+<form script="tooltip.js" stylesheet="tooltip.css">
+  <label>Network Security</label>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire.malicious") OR nodename="log.data" $log_subtype$ $severity$ $app$ $dest_ip$ $serial$ $threat_name$ $vsys$ GROUPBY _time sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action log.src_zone log.dest_zone | rename log.* AS *
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search id="correlation">
+    <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY log.severity log.threat_category log.threat_name | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="log_subtype">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="threat_name">
+      <label>Threat</label>
+      <default></default>
+      <prefix>log.threat_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="severity">
+      <label>Severity</label>
+      <default></default>
+      <prefix>log.severity="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row id="tooltip_row">
+    <panel>
+      <html>
+        <div id="tooltip_title">Network Security</div>
+        <div id="tooltip_txt">
+          <h4>Overview</h4>
+          <p>Network Security data is displayed from Palo Alto Networks next-generation firewalls and Panorama.</p>
+          <h4>Products Shown</h4>
+          <ul>
+            <li>Firewall or Panorama</li>
+          </ul>
+          <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#network-security">More...</a></p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Correlation Events</title>
+      <table>
+        <search base="correlation">
+          <query>| stats sum(count) AS count by threat_name threat_category severity</query>
+        </search>
+        <drilldown>
+          <link target="_self">search?q=`pan_threat` log_subtype=correlation evidence=$row.threat_name|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 20 Vulnerability Events</title>
+      <table>
+        <search base="basesearch">
+          <query>| search log_subtype="vulnerability" | stats sum(count) AS count by threat_name severity
+| sort 20 -count</query>
+        </search>
+        <option name="drilldown">row</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_threat` $click.name$="$click.value$"&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Top 20 Virus and Malware Events</title>
+      <table>
+        <search base="basesearch">
+          <query>| search log_subtype="virus" OR log_subtype="*virus*" | stats count by file_name log_subtype user client_ip server_ip | sort - count</query>
+        </search>
+        <option name="drilldown">row</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_threat` log_subtype="virus" OR log_subtype="*virus*"  file_name="UodxeipTEaQ.eXe" log_subtype="wildfire-virus" user=$row.user|s$ client_ip=$row.client_ip|s$ server_ip=$row.server_ip|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>DNS Sinkhole</title>
+      <table>
+        <search base="basesearch">
+          <query>
+            |  search vendor_action="sinkhole" | table client_ip user file_name src_zone dest_zone
+            | sort 20 -count
+          </query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` vendor_action="sinkhole" client_ip=$row.client_ip|s$ user=$row.user|s$ file_name=$row.file_name|s$ src_zone=$src_zone|s$ dest_zone=$dest_zone|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 10 Apps With Threats By Severity</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats sum(count) AS count by app severity
+| eval severity_count=mvzip(severity,count,":")
+| stats sum(count) as app_count values(severity_count) as severity_count by app
+| sort -app_count
+| head 10
+| mvexpand severity_count
+| rex field=severity_count "(?&lt;severity&gt;\w+):(?&lt;count&gt;\d+)"
+| xyseries app severity count
+| addtotals
+| sort -Total
+| fields - Total</query>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.fieldColors">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</option>
+        <option name="charting.legend.labels">[critical,high,medium,low,informational]</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/network_security?form.app=$click.value$&amp;form.severity=$click.name2$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Threats By Source Location</title>
+      <map>
+        <search base="basesearch">
+          <query>| iplocation client_ip | geostats sum(count) by log_subtype</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="mapping.type">marker</option>
+      </map>
+    </panel>
+  </row>
+</form>

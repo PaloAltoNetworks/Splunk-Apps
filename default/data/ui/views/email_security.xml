@@ -1,0 +1,204 @@
+<form>
+  <label>Email Security</label>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t values(sourcetype) AS sourcetype, values(log.log_subtype) AS log.log_subtype,
+    values(log.threat_name) AS log.threat_name, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.sender) AS log.sender, values(log.user) AS log.user count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic.end" OR nodename="log.threat") (log.app:subcategory="email" OR log.sender=“*”)      $serial$ $vsys$ $client_ip$ $server_ip$ $user$ $app$ GROUPBY _time `session` | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="client_ip">
+      <label>Client IP</label>
+      <default></default>
+      <prefix>log.client_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="server_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.server_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>Source User</label>
+      <default></default>
+      <prefix>log.user=</prefix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| search app=smtp AND bytes_in &gt; 0 | bucket _time span=1m | stats count by _time</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-1m</option>
+        <option name="underLabel">Inbound SMTP Emails per Minute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| search sourcetype="pan:threat" | bucket _time span=1m | stats count by _time</query>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">Email Threats Per Minute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| search app=smtp AND bytes_out &gt; 0 | bucket _time span=1m | stats count by _time</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="trendInterval">-1m</option>
+        <option name="underLabel">Outbound SMTP Emails per Minute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Email Threats Source</title>
+      <table>
+        <search base="basesearch">
+          <query>| stats count by client_ip user sender threat_name app | sort -count</query>
+        </search>
+        <option name="count">15</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=eventtype="pan:emails" OR eventtype="pan_email" src_ip=$row.src_ip|s$ threat_name=$row.threat_name|s$ app=$row.app|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Large Email Senders</title>
+      <table>
+        <search base="basesearch">
+          <query>| search bytes_out &gt; 0 | table client_ip sender user bytes_out count | sort -count</query>
+        </search>
+        <option name="count">15</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=eventtype="pan:emails" OR eventtype="pan_email" src_ip=$row.src_ip|s$ sender=$row.sender|s$ bytes_out=$row.bytes_out|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Email Apps With Threats By Severity</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats sum(count) AS count by app severity
+| eval severity_count=mvzip(severity,count,":")
+| stats sum(count) as app_count values(severity_count) as severity_count by app
+| sort -app_count
+| head 10
+| mvexpand severity_count
+| rex field=severity_count "(?&lt;severity&gt;\w+):(?&lt;count&gt;\d+)"
+| xyseries app severity count
+| addtotals
+| sort -Total
+| fields - Total</query>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.fieldColors">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</option>
+        <option name="charting.legend.labels">[critical,high,medium,low,informational]</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_threat` eventtype="pan:emails" OR eventtype="pan_email" app=$click.value$ severity=$click.name2$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Threats By Source Location</title>
+      <map>
+        <search base="basesearch">
+          <query>iplocation client_ip | geostats sum(count) by threat_name</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+      </map>
+    </panel>
+  </row>
+</form>

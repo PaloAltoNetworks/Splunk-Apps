@@ -1,8 +1,13 @@
 <form>
-  <label>Endpoint Operations Dashboard</label>
+  <label>Endpoint Operations</label>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_host) AS log.dest_host, values(log.src_host) AS log.src_host count FROM datamodel="pan_endpoint" WHERE nodename="log.operations" $user$ $src_host$ $dest_host$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
   <fieldset submitButton="true" autoRun="true">
-    <input type="time" searchWhenChanged="true">
-      <label>Time Range</label>
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
       <default>
         <earliest>-60m</earliest>
         <latest>now</latest>
@@ -10,78 +15,90 @@
     </input>
     <input type="text" token="user">
       <label>User</label>
-      <default/>
+      <default></default>
       <prefix>log.user=</prefix>
     </input>
-    <input type="text" token="src">
+    <input type="text" token="src_host">
+      <label>ESM</label>
+      <default></default>
+      <prefix>log.src_host="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_host">
       <label>Hostname</label>
-      <default/>
-      <prefix>log.src="</prefix>
+      <default></default>
+      <prefix>log.dest_host="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="device_ip">
-      <label>Device IP</label>
-      <default/>
-      <prefix>log.dvc="</prefix>
+    <input type="text" token="dest_ip">
+      <label>IP Address</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="dropdown" token="severity">
+    <input type="text" token="severity">
       <label>Severity</label>
-      <default/>
-      <prefix>log.severity="</prefix>
-      <suffix>"</suffix>
-      <!-- <choice value="">ANY</choice> -->
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <fieldForLabel>severity</fieldForLabel>
+      <fieldForValue>severity</fieldForValue>
+      <choice value="*">All</choice>
+      <valuePrefix>log.severity="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+    </input>
+    <input type="dropdown" token="action">
+      <label>Action</label>
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
       <search>
-        <query>| `_pan_ep_dropdown(log, log.severity)`</query>
+        <query>| inputlookup endpoint_actions_lookup 
+| fields action
+| dedup action
+| sort action</query>
       </search>
-      <fieldForLabel>field_with_count</fieldForLabel>
-      <fieldForValue>field</fieldForValue>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <choice value="*">All</choice>
+      <valuePrefix>log.action="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
     </input>
   </fieldset>
   <row>
     <panel>
+      <title>Total Endpoints Reporting</title>
       <single>
-        <title>Total Endpoints Reporting</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.operations)` AND log.log_subtype=heartbeat GROUPBY log.dest | stats count by log.dest | stats sum(count) as count</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-          <sampleRatio>1</sampleRatio>
+        <search base="basesearch">
+          <query>| dedup dest_host | stats dc(dest_host)</query>
         </search>
       </single>
     </panel>
     <panel>
+      <title>Content Version</title>
       <single>
-        <title>Content Version</title>
-        <search>
-          <query>`pan_endpoint` log_subtype="Server Content Update Success" OR log_subtype="Server Content Revert Success" | sort _time DESC | table content_version | head 1 | rename content_version AS "Content Version"</query>
-          <earliest>0</earliest>
-          <latest></latest>
-          <sampleRatio>1</sampleRatio>
+        <search base="basesearch">
+          <query>| search log_subtype="Server Content Update Success" OR log_subtype="Server Content Revert Success" | sort _time DESC | table content_version | head 1 | rename content_version AS "Content Version"</query>
         </search>
       </single>
     </panel>
     <panel>
+      <title>Protection Status</title>
       <single>
-        <title>Protection Status</title>
-        <search>
-          <query>`pan_endpoint` log_subtype="Protection Enabled" OR log_subtype="Protection Disabled" | sort _time DESC | head 1 | table log_subtype</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
+        <search base="basesearch">
+          <query>| search log_subtype="Protection Enabled" OR log_subtype="Protection Disabled" | sort _time DESC | head 1 | table log_subtype</query>
         </search>
       </single>
     </panel>
   </row>
   <row>
     <panel>
+      <title>Management Events</title>
       <chart>
-        <title>Management Events</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node(log.operations)` $user|s$ $src$ $device_ip|s$ $severity$ GROUPBY _time log.log_subtype | rename log.log_subtype AS subtype | timechart count by subtype</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-          <sampleRatio>1</sampleRatio>
+        <search base="basesearch">
+          <query>| rename log_subtype AS subtype | timechart count by subtype</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -107,58 +124,17 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-            ]]>
-          </link>
+          <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
   </row>
   <row>
     <panel>
+      <title>Logs by Type</title>
       <chart>
-        <title>Logs by Type</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node` "$user|s$" $src$ $device_ip|s$ $severity$ `groupby(_time log.type)` | timechart values(count) by type</query>
-          <earliest>$earliest$</earliest>
-          <latest>$latest$</latest>
-        </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">collapsed</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.enabled">false</option>
-        <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">stacked</option>
-        <option name="charting.chart.style">shiny</option>
-        <option name="charting.drilldown">all</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.placement">bottom</option>
-        <drilldown>
-          <link>
-            <![CDATA[
-            /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-            ]]>
-          </link>
-        </drilldown>
-      </chart>
-    </panel>
-    <panel>
-      <chart>
-        <title>Logs by Severity (24 hours)</title>
-        <search>
-          <query>| `pan_tstats` count FROM `ep_node` "$user|s$" $src$ $device_ip|s$ $severity$ `groupby(_time log.severity)` | timechart values(count) by severity</query>
-          <earliest>-24h</earliest>
-          <latest>now</latest>
+        <search base="basesearch">
+          <query>| timechart count by type</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -179,11 +155,36 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link>
-            <![CDATA[
-              /app/SplunkforPaloAltoNetworks/search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]
-          ]]>
-          </link>
+          <link target="_self">search?q=`pan_endpoint` type=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Logs by Severity (24 hours)</title>
+      <chart>
+        <search base="basesearch">
+          <query>| timechart count by severity</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 1800 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>

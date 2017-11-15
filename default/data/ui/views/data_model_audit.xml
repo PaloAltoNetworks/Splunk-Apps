@@ -1,0 +1,233 @@
+<dashboard>
+  <label>Data Model Audit</label>
+  <search id="tokensetter">
+    <query>| makeresults count=0</query>
+    <done>
+      <set token="results-1">0</set>
+      <set token="results-2">0</set>
+    </done>
+  </search>
+  <row>
+    <panel>
+      <title>Logs Indexed - 24 Hours</title>
+      <single>
+        <search>
+          <query>`pan_logs` 
+| stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="underLabel">Next-generation Firewall Logs</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search>
+          <query>`pan_endpoint`
+| stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="underLabel">Endpoint Logs</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search>
+          <query>`pan_aperture`
+| stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="underLabel">Aperture Logs</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search>
+          <query>`pan_wildfire_report`
+| stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="underLabel">WildFire Reports</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| `pan_tstats` dc(log.serial_number) AS count FROM `fw_node(log)` GROUPBY _time | append [| makeresults count=$results-1$ | eval count=0]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-1">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-1' == 1">
+              <set token="results-1">0</set>
+            </condition>
+          </done>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">Next-generation Firewalls Reporting In Last 24 Hours</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search>
+          <query>| `pan_tstats` dc(log.src) AS count FROM `ep_node(log)` GROUPBY _time | append [| makeresults count=$results-2$ | eval count=0]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="results-2">1</set>
+            </condition>
+            <condition match="'job.resultCount' != 0 AND 'results-2' == 1">
+              <set token="results-2">0</set>
+            </condition>
+          </done>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">Endpoint Security Managers Reporting In Last 24 Hours</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Datamodel Acceleration Status</title>
+      <table>
+        <search>
+          <query>| stats count
+| eval datamodel=mvappend("pan_aperture", "pan_endpoint", "pan_firewall", "pan_wildfire_report")
+| mvexpand datamodel 
+| fields datamodel
+| join type=left datamodel 
+    [| rest /servicesNS/nobody/SplunkforPaloAltoNetworks/admin/summarization by_tstats=t splunk_server=local count=0 
+    | search eai:acl.app=SplunkforPaloAltoNetworks 
+    | eval datamodel=replace('summary.id',"DM_".'eai:acl.app'."_","")]
+| table datamodel summary.is_inprogress summary.size summary.latest_time summary.complete summary.last_error summary.time_range summary.earliest_time 
+| rename summary.is_inprogress AS build_inprogress, summary.earliest_time AS earliest, summary.latest_time AS latest
+| rename summary.* AS *
+| sort datamodel 
+| eval "size(MB)"=round(size/1048576,1), "retention"=if(time_range==0,"unlimited",round(time_range/86400,1)), "build_complete(%)"=round(complete*100,1) 
+| eval acceleration=if(build_inprogress&gt;-1,"enabled","disabled")
+| fieldformat earliest=strftime(earliest, "%m/%d/%Y %H:%M:%S") 
+| fieldformat latest=strftime(latest, "%m/%d/%Y %H:%M:%S")
+| fields datamodel,acceleration,retention,earliest,latest,build_inprogress,build_complete(%),size(MB),last_error</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="acceleration">
+          <colorPalette type="map">{"disabled":#D93F3C,"enabled":#A2CC3E}</colorPalette>
+        </format>
+        <format type="number" field="retention(days)">
+          <option name="precision">0</option>
+          <option name="unit">days</option>
+        </format>
+        <format type="number" field="retention">
+          <option name="precision">0</option>
+          <option name="unit">days</option>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Next-generation Firewall Accelerated Logs by Device - 24 hours</title>
+      <table>
+        <search>
+          <query>| `pan_tstats` count FROM `node(log)` `groupby(log.serial_number log.log_subtype)`
+| xyseries serial_number log_subtype count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="general">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Advanced Endpoint Protection Accelerated Logs by ESM - 24 hours</title>
+      <table>
+        <search>
+          <query>| `pan_tstats` count FROM `ep_node(log)` `groupby(log.src log.type)`
+| rename src AS ESM
+| xyseries ESM type count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

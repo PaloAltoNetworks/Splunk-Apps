@@ -1,0 +1,332 @@
+<form>
+  <label>Web Activity</label>
+  <search id="basesearch">
+    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial$ $vsys$ $src_ip$ $dest_name$ $user$ $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <default></default>
+    </input>
+    <input type="text" token="vsys">
+      <label>Vsys</label>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+      <default></default>
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_name">
+      <label>Destination Hostname</label>
+      <default></default>
+      <prefix>log.dest_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>User</label>
+      <default></default>
+      <prefix>log.user=</prefix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="category">
+      <label>Category</label>
+      <default></default>
+      <prefix>log.category="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="content">
+      <label>Content Type</label>
+      <default></default>
+      <prefix>log.content_type="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="multiselect" token="action">
+      <label>Action</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <search>
+        <query>| inputlookup pan_vendor_actions.csv 
+| fields action
+| dedup action
+| sort action</query>
+      </search>
+      <valuePrefix>log.action="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Web Destinations</title>
+      <table>
+        <search base="basesearch">
+          <query>| stats sum(count) AS count values(app) AS app values(category) AS category BY dest_name
+| table dest_name app category count
+| sort -count</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">true</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Categories</title>
+      <chart>
+        <search base="basesearch">
+          <query>|  stats count BY app:category
+| sort -count</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.category=$click.value$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Applications</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats count BY app
+| sort -count</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.app=$click.value$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Content Type</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats count BY content_type
+| sort -count</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.content=$click.value$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Requests Over Time By Action</title>
+      <chart>
+        <search base="basesearch">
+          <query>| timechart count by action</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.placement">bottom</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` action=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Methods Over Time</title>
+      <chart>
+        <search>
+          <query>`pan_url` 
+| timechart count by http_method</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` method=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=&amp;latest=</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Hostnames Block-Continue</title>
+      <table>
+        <search base="basesearch">
+          <query>|  stats count BY dest_name | eval vendor_action="block-continue" | sort -count </query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">8</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` vendor_action="block-continue" dest_name=$row.dest_name|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Top Referrers</title>
+      <table>
+        <search>
+          <query>`pan_url`
+          | where dest_name!=http_referrer_name
+          | stats count by http_referrer_name
+          | sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">8</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.dest_name=$row.http_referrer_name$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Top File Downloads</title>
+      <table>
+        <search>
+          <query>`pan_url`
+            | where http_method=="GET" 
+            | stats count by file_name
+            | sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">8</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` http_method=="GET" 
+file_name=$row.file_name|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Decrypted Traffic</title>
+      <table>
+        <search>
+          <query>| tstats values(log.flags) AS log.flags, values(log.user) AS log.user, count FROM datamodel=pan_firewall WHERE nodename="log.url" GROUPBY _time log.src_ip log.dest_name log.category log.app log.action log.content_type log.vendor_action | rename log.* AS * | search flags="decrypted" | table _time src_ip user dest_name category app flags count</query>
+          <earliest>-60m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_url` flags="decrypted"&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

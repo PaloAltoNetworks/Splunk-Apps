@@ -31,6 +31,10 @@
     width: 120px;
 }*/
 
+div.select2-container {
+    width: 220px !important;
+}
+
 /* Make the Search button on each dashboard blue instead of green */
 
 .btn-primary {
@@ -70,9 +74,28 @@
 }
 
 .btn-primary:active, .btn-primary.active {
-    background-color: #016baf 9;
+    background-color: #016baf;
 }
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .btn-primary.disabled, .btn-primary[disabled] {
     color: #ffffff;
     background-color: #016baf;
+}
+
+a.custom-drilldown {
+    color: rgb(51, 51, 51);
+    text-decoration: none;
+}
+
+a.custom-drilldown:hover {
+    color: rgb(51, 51, 51);
+    text-decoration: underline;
+}
+
+.custom-single-result {
+    letter-spacing: -0.02em;
+    font-weight: bold;
+    fill: rgb(51, 51, 51);
+    opacity: 1;
+    font-size: 40px;
+    line-height: 80px;
 }

@@ -1,0 +1,236 @@
+<form>
+  <label>User Behavior</label>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.http_category) AS log.http_category, values(log.app:is_saas) AS log.app:is_saas, values(log.app:default_ports) AS log.app:default_ports, values(log.app) AS log.app, values(log.user) AS log.user, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.dest_port) AS log.dest_port, values(log.severity) AS log.severity, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.url" OR nodename="log.data") $src_ip$ $dest_ip$ $dest_name$ $log_subtype$ $app$ $category$ $user|s$ $vsys$ $serial$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.src_ip
+      | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <default></default>
+    </input>
+    <input type="text" token="vsys">
+      <label>Vsys</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="user">
+      <label>User</label>
+      <default></default>
+      <prefix>log.user="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="log_subtype" searchWhenChanged="true">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_name">
+      <label>Hostname</label>
+      <default></default>
+      <prefix>log.dest_name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="category">
+      <label>Web Category</label>
+      <default></default>
+      <prefix>log.http_category="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| search log_subtype="end" | stats count</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Traffic Events</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity</link>
+        </drilldown>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| search log_subtype="data" |  stats count</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Data Events</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/user_behavior</link>
+        </drilldown>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| search log_subtype="url" | stats count</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">URL Events</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.time.earliest=$earliest$&amp;form.time.latest=$latest$</link>
+        </drilldown>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| search app:is_saas="yes" | stats count</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">SaaS Events</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.time.earliest=$earliest$&amp;form.time.latest=$latest$</link>
+        </drilldown>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Hostnames</title>
+      <table>
+        <search base="basesearch">
+          <query>| search log_subtype="url" | stats sum(count) AS count by dest_name | sort -count</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="wrap">false</option>
+        <drilldown>
+          <set token="form.dest_name">$click.value$</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Top Web Categories</title>
+      <chart>
+        <search base="basesearch">
+          <query>| search log_subtype="url" | stats sum(count) AS count BY http_category | sort -count</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <set token="form.category">$click.value$</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Applications</title>
+      <chart>
+        <search base="basesearch">
+          <query>| search log_subtype="url" | stats sum(count) AS count BY app | sort -count</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <drilldown>
+          <set token="form.app">$click.value$</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Possible Data Leaks</title>
+      <table>
+        <search base="basesearch">
+          <query>| search log_subtype="data" | stats sum(count) AS count BY user app file_name src_ip</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` log_subtype="data" | search src_ip=$row.src_ip$ file_name=$row.file_name$ app=$row.app$ user=$row.user|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Applications Not Using Default Port</title>
+      <table>
+        <search base="basesearch">
+          <query>|  search log_subtype="end" app:default_ports!="*dynamic*" | where not like('app:default_ports',"%".dest_port."%") | stats count by app app:default_ports dest_port | sort -count | rename app:default_ports to default_ports | eval default_ports=split(default_ports, "|")</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_traffic` | search app=$row.app$ dest_port=$row.dest_port$ "app:default_ports"=$row.default_ports|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Rare Applications</title>
+      <table>
+        <search base="basesearch">
+          <query>| search log_subtype="end" | rare app</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

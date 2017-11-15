@@ -1,0 +1,228 @@
+<form script="tooltip.js" stylesheet="tooltip.css">
+  <label>Adversary Scoreboard</label>
+  <search id="basesearch">
+    <query>
+| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.file_hash), values(log.url), values(log.dest_name), values(log.vendor_action), count FROM datamodel="pan_firewall" GROUPBY `session` log.action
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.file_hash), count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" GROUPBY log.client_ip log.action
+| fillnull value="" log.server_ip log.serial_number log.session_id
+| stats values(sourcetype) AS sourcetype, values(log.log_subtype) AS log.log_subtype, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.vendor_action) AS log.vendor_action, count BY `session` log.action
+| rename log.* as *
+| eval vendor_action=coalesce(vendor_action,action)
+| lookup minemeldfeeds_lookup indicator AS client_ip OUTPUT value.autofocus_tags AS client_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS server_ip OUTPUT value.autofocus_tags AS server_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS file_hash OUTPUT value.autofocus_tags AS file_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS url OUTPUT value.autofocus_tags AS url_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS dest_name OUTPUT value.autofocus_tags AS domain_autofocus_tags
+| eval autofocus_tags=mvappend(client_autofocus_tags,server_autofocus_tags,file_autofocus_tags,url_autofocus_tags,domain_autofocus_tags)
+| search autofocus_tags=*
+| mvexpand autofocus_tags
+| lookup autofocus_tag_lookup aftag:public_tag_name AS autofocus_tags OUTPUT aftag:tag_class aftag:aliases aftag:tag_name aftag:tagstatus
+| lookup pan_vendor_info_lookup sourcetype OUTPUT product</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row id="tooltip_row">
+    <html>
+      <div id="tooltip_title">Adversary Scoreboard</div>
+      <div id="tooltip_txt">
+        <h4>Overview</h4>
+        <p>The Adversary Scoreboard offers a broad view of the threats to your organization. Threats are displayed by the Threat Actor, Attack Campaign, or Malware Family responsible. Each adversary indicates the scope of the attack and the stage of the attack lifecycle reached by that adversary. Note: AutoFocus Threat Intelligence is required for the Adversary Scoreboard to display information.</p>
+        <h4>Products Shown</h4>
+        <ul>
+          <li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-network/subscriptions/autofocus">AutoFocus:</a></span> Threat intelligence from the Unit42 Threat Research Team determines the actor, campaign, or malware family associated with a threat and tags it with and AutoFocus Tag. AutoFocus is required for the Adversary Dashboard.</li>
+          <li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-network/next-generation-firewall">Firewall or Panorama:</a></span> Network events are correlated against AutoFocus threat intelligence to generate data for this dashboard.</li>
+          <li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-endpoint/traps">Traps Endpoint Protection:</a></span> Endpoint events are correlated against AutoFocus threat intelligence to generate data for this dashboard</li>
+        </ul>
+        <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#adversary">More...</a></p>
+      </div>
+    </html>
+  </row>
+  <row>
+    <panel>
+      <title>Cyber Attack Lifecycle</title>
+      <html>
+        <div style="text-align: center;">
+          <a target="_blank" href="https://www.paloaltonetworks.com/cyberpedia/how-to-break-the-cyber-attack-lifecycle">
+            <img src="/static/app/SplunkforPaloAltoNetworks/attack_lifecycle.png" style="width: 1050px; height: auto;"/>
+          </a>
+        </div>
+        <div style="text-align: right">
+          <a target="_blank" href="https://www.paloaltonetworks.com/cyberpedia/how-to-break-the-cyber-attack-lifecycle">More information</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel id="threat_actors_panel">
+      <title>Threat Actors and Campaigns</title>
+      <table>
+        <search base="basesearch">
+          <query>| search (aftag:tag_class="actor" OR aftag:tag_class="campaign") AND aftag:tagstatus="enable"
+| makemv delim=" " aftag:aliases
+| rename aftag:* AS *
+| eval attack_lifecycle_stage=case(
+    log_subtype=="data" AND action=="allowed", 6,
+    log_subtype=="data" AND (action=="blocked" OR action=="dropped"), 5,
+    log_subtype=="spyware" AND action=="allowed", 5,
+    vendor_action=="sinkhole", 3,
+    log_subtype=="spyware" AND (action=="blocked" OR action=="dropped"), 3,
+    log_subtype=="Notification Event", 3,
+    log_subtype=="Prevention Event", 2,
+    log_subtype=="wildfire" AND action=="allowed", 2,
+    log_subtype=="virus" AND action=="allowed", 2,
+    log_subtype=="wildfire-virus" AND action=="allowed", 2,
+    log_subtype=="virus" AND (action=="blocked" OR action=="dropped"), 2,
+    log_subtype=="wildfire-virus" AND (action=="blocked" OR action=="dropped"), 2
+)
+| fillnull value="1" attack_lifecycle_stage
+| rename autofocus_tags AS public_tag_name
+| eval blocked_by=if(action=="blocked" OR action=="dropped", product, null())
+| stats values(product) AS visibility, values(aliases) AS aliases, values(blocked_by) AS blocked_by, sum(count) AS incident_count by tag_name tag_class attack_lifecycle_stage public_tag_name
+| table tag_name aliases tag_class attack_lifecycle_stage incident_count visibility blocked_by public_tag_name</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">true</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">false</option>
+        <format type="color" field="attack_lifecycle_stage">
+          <colorPalette type="minMidMax" maxColor="#D97410" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax" maxValue="7" minValue="0"></scale>
+        </format>
+        <fields>["tag_name","aliases","tag_class","attack_lifecycle_stage","incident_count","visibility","blocked_by"]</fields>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/incident_feed?form.autofocus_tags=$row.public_tag_name$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="malware_panel">
+      <title>Malware Families</title>
+      <table>
+        <search base="basesearch">
+          <query>| search aftag:tag_class="malware_family" AND aftag:tagstatus="enable"
+| makemv delim=" " aftag:aliases
+| rename aftag:* AS *
+| eval attack_lifecycle_stage=case(
+    log_subtype=="data" AND action=="allowed", 6,
+    log_subtype=="data" AND (action=="blocked" OR action=="dropped"), 5,
+    log_subtype=="spyware" AND action=="allowed", 5,
+    vendor_action=="sinkhole", 3,
+    log_subtype=="spyware" AND (action=="blocked" OR action=="dropped"), 3,
+    log_subtype=="Notification Event", 3,
+    log_subtype=="Prevention Event", 2,
+    log_subtype=="wildfire" AND action=="allowed", 2,
+    log_subtype=="virus" AND action=="allowed", 2,
+    log_subtype=="wildfire-virus" AND action=="allowed", 2,
+    log_subtype=="virus" AND (action=="blocked" OR action=="dropped"), 2,
+    log_subtype=="wildfire-virus" AND (action=="blocked" OR action=="dropped"), 2
+)
+| fillnull value="1" attack_lifecycle_stage
+| eval blocked_by=if(action=="blocked" OR action=="dropped", product, null())
+| rename autofocus_tags AS public_tag_name
+| stats values(product) AS visibility, values(aliases) AS aliases, dc(client_ip) AS endpoints_affected, values(blocked_by) AS blocked_by,  max(attack_lifecycle_stage) AS attack_lifecycle_stage, sum(count) AS incident_count BY tag_name tag_class public_tag_name
+| table tag_name aliases tag_class attack_lifecycle_stage incident_count endpoints_affected visibility blocked_by public_tag_name</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">true</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">false</option>
+        <format type="color" field="attack_lifecycle_stage">
+          <colorPalette type="minMidMax" maxColor="#D97410" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax" maxValue="7" minValue="0"></scale>
+        </format>
+        <fields>["tag_name","aliases","tag_class","attack_lifecycle_stage","incident_count","endpoints_affected","visibility","blocked_by"]</fields>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/incident_feed?form.autofocus_tags=$row.public_tag_name$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="adversary_malware_product_panel">
+      <title>Adversary and Malware Events By Product</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats sum(count) by product
+| sort -count</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel id="adversary_malware_action_panel">
+      <title>Adversary and Malware Events By Action</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats sum(count) by vendor_action
+| sort -count</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</form>

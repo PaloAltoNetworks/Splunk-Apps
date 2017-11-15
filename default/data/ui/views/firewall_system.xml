@@ -1,0 +1,169 @@
+<form>
+  <label>Firewall System</label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true">
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="log_subtype">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="serial_number">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>log.serial_number="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="event_id">
+      <label>Event ID</label>
+      <default></default>
+      <prefix>log.event_id="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="severity">
+      <label>Severity</label>
+      <default></default>
+      <prefix>log.severity="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="description">
+      <label>Description</label>
+      <default></default>
+      <prefix>log.description="</prefix>
+      <suffix>"</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Latest Events</title>
+        <search>
+          <query>| `pan_tstats` count FROM `node(log.system)` $serial_number$ $vsys$ $description$ $log_subtype$ $severity$ $event_id$ `table(_time log.serial_number log.description log.log_subtype log.severity log.event_id)` | sort -_time
+        </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="wrap">false</option>
+        <option name="displayRowNumbers">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+        <drilldown>
+          <link field="_time">
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` _time=$row._time|s$
+        ]]>
+          </link>
+          <link field="serial_number">
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` serial_number=$row.serial_number|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+          </link>
+          <link field="description">
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` description=$row.description|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+          </link>
+          <link field="log_subtype">
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` log_subtype=$row.log_subtype|s$&earliest=$earliest$&latest=$latest$
+          ]]>
+          </link>
+          <link field="severity">
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` severity=$row.severity|s$&earliest=$earliest$&latest=$latest$
+	  ]]>
+          </link>
+          <link field="event_id">
+            <![CDATA[
+            /app/SplunkforPaloAltoNetworks/search?q=`pan_logs` event_id=$row.event_id|s$
+	  ]]>
+          </link>
+        </drilldown>
+        <option name="rowNumbers">false</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>System Events Over Time</title>
+        <search>
+          <query>
+          | `pan_tstats` count FROM `node(log.system)` $serial_number$ $vsys$ $description$ $log_subtype$ $severity$ $event_id$ groupby _time log.log_subtype | timechart values(count) by log.log_subtype
+        </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_system` log_subtype=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Severity</title>
+        <search>
+          <query>
+          | `pan_tstats` count FROM `node(log.system)` $serial_number$ $vsys$ $description$ $log_subtype$ $severity$ $event_id$ groupby _time log.severity | timechart values(count) by log.severity
+        </query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_system` severity=$click.name2|s$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] earliest = $click.value$&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+</form>

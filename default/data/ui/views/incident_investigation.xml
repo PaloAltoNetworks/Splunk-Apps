@@ -1,0 +1,557 @@
+<form>
+  <label>Incident Context</label>
+  <description>Details and context for a specific incident.  Time Span is 7 day span surrounding event.  Click a panel to display more information.</description>
+  <search id="tokensetter">
+    <query>| makeresults count=0</query>
+    <done>
+      <eval token="index_match">case('endpoint_event'=="t","eventtype=\"pan_endpoint\" client_ip=\"".'client_ip'."\" _time=\"".'event_time'."\"", 'network_event'=="t","eventtype=\"pan_firewall\" session_id=\"".'session_id'."\" serial_number=\"".'serial_number'."\" client_ip=\"".'client_ip'."\" server_ip=\"".'server_ip'."\"", 'aperture_event'=="t","eventtype=\"pan_aperture\" incident_id=\"".'incident_id'."\"", true(),"error1")</eval>
+    </done>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="time_span" searchWhenChanged="true">
+      <label></label>
+      <fieldForLabel>label</fieldForLabel>
+      <fieldForValue>value</fieldForValue>
+      <search>
+        <query>| makeresults | eval x="1,2,3,4" | makemv x delim="," | mvexpand x
+| eval label=case(x==1,"7 day span around incident", x==2,"30 days before incident", x==3,"60 days before incident", x==4,"All events since incident")
+| eval value=case(x==1,"302400s", x==2,"30d", x==3,"60d", x==4,"now")
+| eval etime=case(x==1,relative_time($event_time$,"-302400s"), x==2,relative_time($event_time$,"-30d"), x==3,relative_time($event_time$, "-60d"), x==4,$event_time$)
+| eval ltime=case(x==1,relative_time($event_time$,"+302400s"), x==2,$event_time$, x==3,$event_time$, x==4,now())
+| table label value etime ltime</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+      <default>302400s</default>
+      <change>
+        <set token="earliest">$row.etime$</set>
+        <set token="latest">$row.ltime$</set>
+      </change>
+    </input>
+  </fieldset>
+  <row depends="$network_event$">
+    <panel>
+      <title>Incident Details</title>
+      <table>
+        <search>
+          <query>$index_match$ | head 5
+| lookup minemeldfeeds_lookup indicator AS file_hash OUTPUT value.autofocus_tags AS file_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS url OUTPUT value.autofocus_tags AS url_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS dest_name OUTPUT value.autofocus_tags AS domain_autofocus_tags
+| eval autofocus_tags=mvappend(src_autofocus_tags,dest_autofocus_tags,file_autofocus_tags,url_autofocus_tags,domain_autofocus_tags)
+| stats
+    values(log_subtype) AS "Log Subtypes"
+    values(client_ip) AS "Client IP"
+    values(server_ip) AS "Server IP"
+    values(user) AS "Users"
+    values(app) AS "Application"
+    values(dest_name) AS "URL Hostname"
+    values(http_category) AS "URL Category"
+    values(threat_name) AS "Threat Name"
+    values(threat_category) AS "Threat Category"
+    values(file_name) AS "File Name"
+    values(file_hash) AS "File Hash"
+    values(verdict) AS "WildFire Verdict"
+    values(autofocus_tags) AS "AutoFocus Tags"
+    values(flags) AS "Session Properties"
+| append 
+    [| makeresults
+    | eval map=mvappend("URL Hostname:URL Filtering","URL Category:URL Filtering","Threat Name:Threat Prevention","Threat Category:Threat Prevention","File Hash:WildFire","WildFire Verdict:WildFire","AutoFocus Tags:AutoFocus")
+    | mvexpand map
+    | rex field=map "^(?&lt;headers&gt;[^:]*):(?&lt;values&gt;.*)$"
+    | xyseries _time headers values
+    | fields - _time]
+| table "Log Subtypes" "Client IP" "Server IP" "Users" "Application" "URL Hostname" "URL Category" "Threat Name" "Threat Category" "File Name" "File Hash" "WildFire Verdict" "AutoFocus Tags" "Session Properties"
+| transpose
+| rename column AS Fields, "row 1" AS Values, "row 2" AS Source</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="count">30</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Source Of Incident</title>
+      <map>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR nodename="log.wildfire.malicious") (log.client_ip="$client_ip$" log.server_ip="$server_ip$" log.session_id="$session_id$" log.serial_number="$serial_number$") GROUPBY log.src_ip log.log_subtype | rename log.* AS * | iplocation src_ip | geostats sum(count) by log_subtype</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+      </map>
+    </panel>
+  </row>
+  <row depends="$endpoint_event$">
+    <panel>
+      <title>Incident Details</title>
+      <table>
+        <search>
+          <query>$index_match$ | head 5
+| lookup minemeldfeeds_lookup indicator AS file_hash OUTPUT value.autofocus_tags AS file_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS url OUTPUT value.autofocus_tags AS url_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS dest_name OUTPUT value.autofocus_tags AS domain_autofocus_tags
+| eval autofocus_tags=mvappend(src_autofocus_tags,dest_autofocus_tags,file_autofocus_tags,url_autofocus_tags,domain_autofocus_tags)
+| stats
+    values(log_subtype) AS "Log Subtypes"
+    values(client_ip) AS "Client IP"
+    values(user) AS "Users"
+    values(threat_name) AS "Protection Module"
+    values(file_name) AS "File Name"
+    values(file_hash) AS "File Hash"
+    values(autofocus_tags) AS "AutoFocus Tags"
+| table "Log Subtypes" "Client IP" "Users" "Protection Module" "File Name" "File Hash" "AutoFocus Tags"
+| transpose
+| rename column AS Fields, "row 1" AS Values</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="count">30</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">false</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Endpoint Incidents On This Client</title>
+      <chart>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" log.client_ip="$client_ip$" GROUPBY _time log.log_subtype | rename log.* AS * | timechart sum(count) by log_subtype</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$network_event$">
+    <panel>
+      <title>Events In Incident Session</title>
+      <table>
+        <search>
+          <query>eventtype="pan" session_id="$session_id$" serial_number="$serial_number$" client_ip="$client_ip$" server_ip="$server_ip$" 
+| head 9
+| eval time_in_seconds=_time
+| eval open_in=if(eventtype="pan_threat" OR (eventtype="pan_wildfire" AND verdict="malicious"),"Open in...",null())
+| eval category=if(category=="any",null(),category)
+| table _time log_subtype user client_ip server_ip vendor_action direction file_name category open_in file_hash serial_number threat_id pcap_id host time_in_seconds</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="wrap">false</option>
+        <fields>["_time","log_subtype","user","client_ip","server_ip","vendor_action","direction","file_name","category","open_in"]</fields>
+        <drilldown>
+          <condition field="client_ip">
+            <unset token="inc-open_in"></unset>
+            <unset token="inc-user"></unset>
+            <set token="inc-ip_field">$click.name2$</set>
+            <set token="inc-ip">$click.value2$</set>
+          </condition>
+          <condition field="server_ip">
+            <unset token="inc-open_in"></unset>
+            <unset token="inc-user"></unset>
+            <set token="inc-ip_field">$click.name2$</set>
+            <set token="inc-ip">$click.value2$</set>
+          </condition>
+          <condition field="user">
+            <unset token="inc-open_in"></unset>
+            <unset token="inc-ip"></unset>
+            <set token="inc-user">$click.value2$</set>
+          </condition>
+          <condition field="open_in">
+            <set token="inc-open_in">t</set>
+            <set token="inc-log_subtype">$row.log_subtype$</set>
+            <set token="inc-file_hash">$row.file_hash$</set>
+            <set token="inc-serial_number">$row.serial_number$</set>
+            <set token="inc-pcap_id">$row.pcap_id$</set>
+            <set token="inc-host">$row.host$</set>
+            <eval token="inc-time">strftime('row.time_in_seconds', "%Y/%m/%d %H:%M:%S")</eval>
+            <set token="inc-threat_id">$row.threat_id$</set>
+            <eval token="inc-open-show-virustotal">if('row.log_subtype'=="wildfire","block","none")</eval>
+            <eval token="inc-open-show-wildfire">if('row.log_subtype'=="wildfire","block","none")</eval>
+            <eval token="inc-open-show-autofocus">if('row.log_subtype'=="wildfire","block","none")</eval>
+            <eval token="inc-open-show-threatvault">if('row.log_subtype'!="wildfire","block","none")</eval>
+            <eval token="inc-open-show-pcap-available">if('row.log_subtype'!="wildfire" AND 'row.pcap_id'!="0","block","none")</eval>
+            <eval token="inc-open-show-pcap-notavailable">if('row.log_subtype'!="wildfire" AND 'row.pcap_id'=="0","block","none")</eval>
+          </condition>
+          <condition field="*">
+            <unset token="inc-open_in"></unset>
+            <set token="inc-name">$click.name2$</set>
+            <set token="inc-value">$click.value2$</set>
+          </condition>
+        </drilldown>
+      </table>
+      <html depends="$inc-open_in$">
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-virustotal$;">
+          <a href="https://www.virustotal.com/en/file/$inc-file_hash$/analysis/" target="virustotal" class="single-drilldown custom-drilldown">
+            <text class="single-result custom-single-result">VirusTotal</text>
+          </a>
+        </div>
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-autofocus$;">
+          <a href="https://autofocus.paloaltonetworks.com/#/sample/$inc-file_hash$" target="autofocus" class="single-drilldown custom-drilldown">
+            <text class="single-result custom-single-result">AutoFocus</text>
+          </a>
+        </div>
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-threatvault$;">
+          <a href="https://threatvault.paloaltonetworks.com/?query=$inc-threat_id$&amp;type=" target="threatvault" class="single-drilldown custom-drilldown">
+            <text class="single-result custom-single-result">Threat Vault</text>
+          </a>
+        </div>
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-pcap-available$;">
+          <a href="/splunkd/__raw/servicesNS/nobody/SplunkforPaloAltoNetworks/pan_pcap?serial=$inc-serial_number$&amp;pid=$inc-pcap_id$&amp;host=$inc-host$&amp;stime=$inc-time$" target="pcap" class="single-drilldown custom-drilldown">
+            <text class="single-result custom-single-result">Download pcap</text>
+          </a>
+        </div>
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left; display: $inc-open-show-pcap-notavailable$;">
+          <text class="single-result custom-single-result" style="color: #DDD">Download pcap</text>
+        </div>
+        <div class="splunk-view splunk-single" style="width: 33.33%; float: left;">
+          <a href="search?q=`pan_logs` session_id=$session_id$ serial_number=$serial_number$ client_ip=$client_ip$ server_ip=$server_ip$&amp;earliest=$earliest$&amp;latest=$latest$" target="searchbar" class="single-drilldown custom-drilldown">
+            <text class="single-result custom-single-result">Search bar</text>
+          </a>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$inc-ip$">
+        <title>Top Apps For IP Address: $inc-ip$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE log.$inc-ip_field$="$inc-ip$" GROUPBY log.app | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <chart depends="$inc-ip$">
+        <title>Top Threats For IP Address: $inc-ip$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") log.$inc-ip_field$="$inc-ip$" GROUPBY log.log_subtype | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$inc-user$">
+        <title>Top Hostnames For User: $inc-user$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.url" log.user=$inc-user|s$ GROUPBY log.dest_ip_name log.category | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <chart depends="$inc-user$">
+        <title>Top Threats For User: $inc-user$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") log.user=$inc-user|s$ GROUPBY log.log_subtype | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel rejects="$hide_c2$">
+      <title>Possible Related Command And Control Traffic</title>
+      <table>
+        <search>
+          <query>| tstats summariesonly=t count, values(log.src_ip) as src, values(log.dest_ip) as dest FROM datamodel="pan_firewall" WHERE nodename="log.spyware" (log.src_ip="$client_ip$" OR log.dest_ip="$client_ip$" OR log.src_ip="$server_ip$" OR log.dest_ip="$server_ip$") GROUPBY _time span=4h log.threat_name | rename log.* AS * 
+| eval matched=mvappend(if(src_ip=="$client_ip$" OR dest_ip=="$client_ip$","$client_ip$",null()),if(src_ip=="$server_ip$" OR dest_ip=="$server_ip$","$server_ip$",null()))
+| stats values(matched) AS matched, sparkline(sum(count), 4h) AS sparkline, sum(count) as count by threat_name
+| sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="hide_c2"></set>
+            </condition>
+          </done>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel rejects="$hide_autofocus_tags$, $aperture_event$">
+      <title>Related AutoFocus Tags</title>
+      <table>
+        <search>
+          <query>$index_match$
+| lookup minemeldfeeds_lookup indicator AS client_ip OUTPUT value.autofocus_tags AS client_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS server_ip OUTPUT value.autofocus_tags AS server_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS file_hash OUTPUT value.autofocus_tags AS file_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS url OUTPUT value.autofocus_tags AS url_autofocus_tags
+| lookup minemeldfeeds_lookup indicator AS dest_name OUTPUT value.autofocus_tags AS domain_autofocus_tags
+| eval autofocus_tags=mvappend(client_autofocus_tags,server_autofocus_tags,file_autofocus_tags,url_autofocus_tags,domain_autofocus_tags)
+| search autofocus_tags=*
+| mvexpand autofocus_tags
+| lookup autofocus_tag_lookup aftag:public_tag_name AS autofocus_tags OUTPUT aftag:tag_class aftag:aliases aftag:tag_name aftag:tagstatus aftag:tag_groups.tag_group_name
+| search aftag:tagstatus="enable"
+| makemv delim=" " aftag:aliases
+| rename aftag:* AS *
+| stats values(aliases) AS aliases, values(tag_groups.tag_group_name) AS tag_group BY tag_name tag_class
+| table tag_name aliases tag_class tag_group</query>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="hide_autofocus_tags"></set>
+            </condition>
+          </done>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel rejects="$hide_top_hostnames$, $aperture_event$">
+      <title>Top Hostnames Accessed By Victim</title>
+      <table>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.url" log.src_ip="$victim_ip$" GROUPBY log.dest_ip_name log.category | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="hide_top_hostnames"></set>
+            </condition>
+          </done>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row rejects="$aperture_event$">
+    <panel>
+      <title>Top NGFW Rules for IP Addresses</title>
+      <table>
+        <search>
+          <query>| tstats summariesonly=t count, values(log.src_ip) as src, values(log.dest_ip) as dest FROM datamodel="pan_firewall" WHERE log.src_ip="$client_ip$" OR log.dest_ip="$client_ip$" OR log.src_ip="$server_ip$" OR log.dest_ip="$server_ip$" GROUPBY _time span=4h log.rule log.action | rename log.* AS * 
+| eval matched=mvappend(if(src=="$client_ip$" OR dest=="$client_ip$","$client_ip$",null()),if(src=="$server_ip$" OR dest=="$server_ip$","$server_ip$",null()))
+| stats values(matched) AS matched, values(action) AS actions, sparkline(sum(count), 4h) AS sparkline, sum(count) as count by rule
+| sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Top NGFW Reporting Incidents For IP Addresses</title>
+      <table>
+        <search>
+          <query>| tstats summariesonly=t values(log.dvc_host) AS log.dvc_host, values(log.src_ip) as src, values(log.dest_ip) as dest, count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign")) (log.src_ip="$client_ip$" OR log.dest_ip="$client_ip$" OR log.src_ip="$server_ip$" OR log.dest_ip="$server_ip$") GROUPBY _time span=4h log.serial_number | rename log.* AS * 
+| eval matched=mvappend(if(src=="$client_ip$" OR dest=="$client_ip$","$client_ip$",null()),if(src=="$server_ip$" OR dest=="$server_ip$","$server_ip$",null()))
+| eval dvc_host=coalesce(dvc_host,serial_number)
+| stats values(matched) AS matched, sparkline(sum(count), 4h) AS sparkline, sum(count) as count by dvc_host
+| sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel depends="$network_event$">
+      <title>File Transfers Between IP Addresses</title>
+      <chart>
+        <search>
+          <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, count FROM datamodel="pan_firewall" WHERE (nodename="log.file" OR nodename="log.threat" OR nodename="log.wildfire") ((log.src_ip="$client_ip$" AND log.dest_ip="$server_ip$") OR (log.src_ip="$server_ip$" AND log.dest_ip="$client_ip$")) GROUPBY log.session_id log.src_ip_port log.dest_ip_port | rename log.* AS * 
+| search log_subtype="file" OR log_subtype="wildfire" OR log_subtype="wildfire-virus" OR log_subtype="virus"
+| eval log_subtype=mvjoin(log_subtype, ":")
+| eval file_transfers=if(log_subtype=="file","Benign File Transfer","Malicious File Transfer")
+| stats sum(count) AS count by file_transfers
+| sort -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Malicious File Transfer":#D93F3C,"Benign File Transfer":#6DB7C6}</option>
+      </chart>
+    </panel>
+    <panel depends="$endpoint_event$">
+      <title>File Transfers For Endpoint</title>
+      <chart>
+        <search>
+          <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, count FROM datamodel="pan_firewall" WHERE (nodename="log.file" OR nodename="log.threat" OR nodename="log.wildfire") (log.src_ip="$client_ip$" OR log.dest_ip="$client_ip$") GROUPBY log.session_id log.src_ip_port log.dest_ip_port | rename log.* AS * 
+| search log_subtype="file" OR log_subtype="wildfire" OR log_subtype="wildfire-virus" OR log_subtype="virus"
+| eval log_subtype=mvjoin(log_subtype, ":")
+| eval file_transfers=if(log_subtype=="file","Benign File Transfer","Malicious File Transfer")
+| stats sum(count) AS count by file_transfers
+| sort -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row rejects="$aperture_event$">
+    <panel>
+      <title>Threats By Type Over Time For IP Addresses</title>
+      <chart>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign")) (log.src_ip="$client_ip$" OR log.dest_ip="$client_ip$" OR log.src_ip="$server_ip$" OR log.dest_ip="$server_ip$") GROUPBY _time log.log_subtype
+| rename log.* AS *
+| timechart sum(count) by log_subtype</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel rejects="$hide_similar_network$">
+      <title>Similar Network Incidents</title>
+      <table>
+        <search>
+          <query>| tstats summariesonly=t values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign")) (log.src_ip="$client_ip$" OR log.dest_ip="$client_ip$" OR log.src_ip="$server_ip$" OR log.dest_ip="$server_ip$") GROUPBY _time span=1s log.serial_number log.user log.src_ip log.dest_ip log.log_subtype log.vendor_action log.pcap_id
+| rename log.* AS *
+| sort -_time</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="hide_similar_network"></set>
+            </condition>
+          </done>
+        </search>
+        <option name="drilldown">cell</option>
+        <fields>["_time","user","src_ip","dest_ip","log_subtype","vendor_action"]</fields>
+        <drilldown>
+          <condition field="client_ip">
+            <unset token="net-open_in"></unset>
+            <unset token="net-user"></unset>
+            <set token="net-ip_field">$click.name2$</set>
+            <set token="net-ip">$click.value2$</set>
+          </condition>
+          <condition field="server_ip">
+            <unset token="net-open_in"></unset>
+            <unset token="net-user"></unset>
+            <set token="net-ip_field">$click.name2$</set>
+            <set token="net-ip">$click.value2$</set>
+          </condition>
+          <condition field="user">
+            <unset token="net-open_in"></unset>
+            <unset token="net-ip"></unset>
+            <set token="net-user">$click.value2$</set>
+          </condition>
+          <condition field="*">
+            <set token="net-details">t</set>
+            <set token="net-name">$click.name2$</set>
+            <set token="net-value">$click.value2$</set>
+            <unset token="net-open_in"></unset>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$net-ip$">
+        <title>Top Apps For IP Address: $net-ip$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE log.$net-ip_field$="$net-ip$" GROUPBY log.app | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <chart depends="$net-ip$">
+        <title>Top Threats For IP Address: $net-ip$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") log.$net-ip_field$="$net-ip$" GROUPBY log.log_subtype | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$net-user$">
+        <title>Top Hostnames For User: $net-user$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.url" log.user=$net-user|s$ GROUPBY log.dest_ip_name log.category | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <chart depends="$net-user$">
+        <title>Top Threats For User: $net-user$</title>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire" AND log.category!="benign") log.user=$net-user|s$ GROUPBY log.log_subtype | rename log.* AS * | sort 100 -count</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel rejects="$hide_similar_endpoint$">
+      <title>Similar Endpoint Incidents</title>
+      <table>
+        <search>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_endpoint" WHERE log.dest_ip="$client_ip$" OR log.dest_ip="$server_ip$" GROUPBY _time span=1s log.dest_ip log.log_subtype log.file_name log.file_hash log.action
+| rename log.* AS *</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+          <done>
+            <condition match="'job.resultCount' == 0">
+              <set token="hide_similar_endpoint"></set>
+            </condition>
+          </done>
+        </search>
+        <option name="drilldown">row</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$debug$">
+      <html>
+        <p>index_match: $index_match$</p>
+        <p>client_ip: $client_ip$</p>
+        <p>server_ip: $server_ip$</p>
+        <p>endpoint_event: $endpoint_event$</p>
+        <p>network_event: $network_event$</p>
+        <p>event_time: $event_time$</p>
+        <p>earliest: $earliest$</p>
+        <p>latest: $latest$</p>
+        <p>time_span: $time_span$</p>
+        <p>action: $action$</p>
+        <p>net-log_subtype: $net-log_subtype$</p>
+        <p>net-file_hash: $net-file_hash$</p>
+      </html>
+    </panel>
+  </row>
+</form>

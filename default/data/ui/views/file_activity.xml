@@ -1,0 +1,262 @@
+<form>
+  <label>File Activity</label>
+  <description></description>
+  <search id="basesearch">
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.direction) AS log.direction, values(log.src_zone) AS log.src_zone, values(log.dest_zone) AS log.dest_zone, values(log.action) AS log.action, count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" OR nodename="log.file" $src_ip$ $dest_ip$ $serial$ $log_subtype$ $direction$ $app$ $vsys$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip | rename log.* AS *</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </default>
+      <!--change>
+        <eval token="latest_n">if('time.latest'=="now",now(),tonumber('time.latest'))</eval>
+        <eval token="earliest_n">if('time.latest'=="now",relative_time(now(),'time.earliest'),tonumber('time.earliest'))</eval>
+        <eval token="timediff">'latest_n'-'earliest_n'</eval>
+        <eval token="span">case(relative_time('timediff',"-4h")&lt;=0, "30mins",  relative_time('timediff',"-3d")&lt;=0, "1hour",  relative_time('timediff',"-2mon")&lt;=0, "1day",  relative_time('timediff',"-2mon")&gt;0, "1month")</eval>
+        <eval token="spantext">if(match('span',"[0-9][0-9]"), substr('span',0,2)+" "+substr('span',3), substr('span',0,1)+" "+substr('span',2))</eval>
+        <eval token="spantrend">"-"+if(match('span',"[0-9][0-9]"), substr('span',0,3), substr('span',0,2))</eval>
+      </change-->
+    </input>
+    <input type="text" token="log_subtype" searchWhenChanged="true">
+      <label>Log Subtype</label>
+      <default></default>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="serial">
+      <label>Serial Number</label>
+      <default></default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="vsys">
+      <label>Virtual System</label>
+      <default></default>
+      <prefix>log.vsys="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="src_ip">
+      <label>Source IP</label>
+      <default></default>
+      <prefix>log.src_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="dest_ip">
+      <label>Destination IP</label>
+      <default></default>
+      <prefix>log.dest_ip="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="app">
+      <label>Application</label>
+      <default></default>
+      <prefix>log.app="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="dropdown" token="direction" searchWhenChanged="true">
+      <label>Direction</label>
+      <default></default>
+      <prefix>log.direction="</prefix>
+      <suffix>"</suffix>
+      <choice value="">ANY</choice>
+      <choice value="client-to-server">client-to-server</choice>
+      <choice value="server-to-client">server-to-client</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| search action="blocked" AND log_subtype="file" | stats sum(count) as count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">Blocked</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| search action="allowed" AND log_subtype="file" | stats sum(count) as count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">Allowed</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| search log_subtype="file" | stats sum(count)</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">Total</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>File Actions Over Time</title>
+      <chart>
+        <search base="basesearch">
+          <query>| search log_subtype="file" | timechart count by action</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <condition match="isnotnull('row._span')">
+            <link target="_self">search?q=`pan_logs` log_subtype="file" action=$click.name2$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          </condition>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>Bytes Transfered Over Time</title>
+      <chart>
+        <search base="basesearch">
+          <query>| search bytes_out&gt;0 OR bytes_in&gt;0 | timechart per_minute(bytes_in) as bytes_in,  per_minute(bytes_out) AS bytes_out</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` log_subtype="end" OR log_subtype="file" $click.name2$&gt;0 earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>File Direction</title>
+      <chart>
+        <search base="basesearch">
+          <query>| search log_subtype="file" | stats count by direction</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.direction=$click.value$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Top Zone File Activity</title>
+        <search base="basesearch">
+          <query>| search log_subtype="file" | eval src_dest_zones = toString(src_zone) + " to " + toString(dest_zone) | stats count by src_dest_zones</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Apps</title>
+      <table>
+        <search base="basesearch">
+          <query>|  stats sum(bytes_in) AS total_bytes_in sum(bytes_out) AS total_bytes_out sum(count) AS count by app  | sort - count</query>
+        </search>
+        <option name="drilldown">row</option>
+        <option name="refresh.display">preview</option>
+        <drilldown>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.app=$row.app$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>File Activity</title>
+      <table>
+        <search base="basesearch">
+          <query>| where log_subtype="file" | eval time_in_seconds=_time | table _time action app client_ip server_ip user file_name session_id serial_number src_zone dest_zone count | sort -_time</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_self">search?q=`pan_logs` action=$row.action$ app=$row.app|s$ client_ip=$row.client_ip$ server_ip=$row.server_ip$ user=$row.user|s$ file_name=$row.file_name|s$ session_id=$row.session_id$ serial_number=$row.serial_number$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>
