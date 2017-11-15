@@ -5,9 +5,9 @@ Palo Alto Networks App for Splunk
 Copyright (C) 2012-2016 Palo Alto Networks Inc. All Rights Reserved.
 
 * **App Homepage:** https://splunkbase.splunk.com/app/491
-* **Authors:** Brian Torres-Gil and Paul Nguyen - Palo Alto Networks
-* **App Version:** 5.4.2
-* **Required Add-on (TA) Version:** Splunk_TA_paloalto 3.7.x
+* **Authors:** Brian Torres-Gil, Paul Nguyen, Garfield Freeman - Palo Alto Networks
+* **App Version:** 6.0.0
+* **Required Add-on (TA) Version:** Splunk_TA_paloalto 6.0.0
 
 ### Description ###
 
@@ -29,9 +29,9 @@ security resources to focus on critical, time-sensitive investigations.
 
 ### Documentation ###
 
-**Installation and Getting Started:** http://pansplunk.readthedocs.io/en/latest/getting_started.html  
-**Release Notes:** http://pansplunk.readthedocs.io/en/latest/release_notes.html  
-**Support:** http://pansplunk.readthedocs.io/en/latest/support.html
+**Installation and Getting Started:** http://splunk.paloaltonetworks.com/getting_started.html  
+**Release Notes:** http://splunk.paloaltonetworks.com/release-notes.html  
+**Support:** http://splunk.paloaltonetworks.com/support.html
 
 ### Install from Git ###
 
@@ -45,5 +45,5 @@ From the directory `$SPLUNK_HOME/etc/apps/`, type the following command:
     
 ### Libraries Included ###
 
-**Pan-Python:** [Github] (https://github.com/kevinsteves/pan-python)
+**Pan-Python:** [Github] (https://github.com/kevinsteves/pan-python)  
 **PanDevice:** [Github] (https://github.com/PaloAltoNetworks/pandevice)

@@ -34,15 +34,15 @@
     <html>
       <div id="tooltip_title">Adversary Scoreboard</div>
       <div id="tooltip_txt">
-<h4>Overview</h4>
-<p>The Adversary Scoreboard offers a broad view of the threats to your organization. Threats are displayed by the Threat Actor, Attack Campaign, or Malware Family responsible. Each adversary indicates the scope of the attack and the stage of the attack lifecycle reached by that adversary. Note: AutoFocus Threat Intelligence is required for the Adversary Scoreboard to display information.</p>
-<h4>Products Shown</h4>
-<ul>
-<li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-network/subscriptions/autofocus">AutoFocus:</a></span> Threat intelligence from the Unit42 Threat Research Team determines the actor, campaign, or malware family associated with a threat and tags it with and AutoFocus Tag. AutoFocus is required for the Adversary Dashboard.</li>
-<li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-network/next-generation-firewall">Firewall or Panorama:</a></span> Network events are correlated against AutoFocus threat intelligence to generate data for this dashboard.</li>
-<li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-endpoint/traps">Traps Endpoint Protection:</a></span> Endpoint events are correlated against AutoFocus threat intelligence to generate data for this dashboard</li>
-</ul>
-<p style="float: right; text-weight: bold;"><a target="_blank" href="REPLACEME">More...</a></p>
+        <h4>Overview</h4>
+        <p>The Adversary Scoreboard offers a broad view of the threats to your organization. Threats are displayed by the Threat Actor, Attack Campaign, or Malware Family responsible. Each adversary indicates the scope of the attack and the stage of the attack lifecycle reached by that adversary. Note: AutoFocus Threat Intelligence is required for the Adversary Scoreboard to display information.</p>
+        <h4>Products Shown</h4>
+        <ul>
+          <li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-network/subscriptions/autofocus">AutoFocus:</a></span> Threat intelligence from the Unit42 Threat Research Team determines the actor, campaign, or malware family associated with a threat and tags it with and AutoFocus Tag. AutoFocus is required for the Adversary Dashboard.</li>
+          <li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-network/next-generation-firewall">Firewall or Panorama:</a></span> Network events are correlated against AutoFocus threat intelligence to generate data for this dashboard.</li>
+          <li><span class="bold"><a target="moreproductinfo" href="https://www.paloaltonetworks.com/products/secure-the-endpoint/traps">Traps Endpoint Protection:</a></span> Endpoint events are correlated against AutoFocus threat intelligence to generate data for this dashboard</li>
+        </ul>
+        <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#adversary">More...</a></p>
       </div>
     </html>
   </row>
