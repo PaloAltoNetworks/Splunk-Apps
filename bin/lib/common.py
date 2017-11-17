@@ -229,7 +229,7 @@ def check_debug(arguments):
     if 'debug' in arguments:
         if arguments['debug'] != "no" and arguments['debug'] != "false":
             logger.info("Debugging enabled")
-            logger.setLevel(logging.DEBUG)
+            logger.setLevel(10)
             return True
     return False
 
