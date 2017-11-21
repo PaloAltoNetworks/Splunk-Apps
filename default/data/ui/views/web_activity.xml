@@ -1,7 +1,7 @@
 <form>
   <label>Web Activity</label>
   <search id="basesearch">
-    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial$ $vsys$ $src_ip$ $dest_name$ $user$ $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
+    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial$ $vsys$ $src_ip$ $dest_name$ "$user|s$" $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -14,8 +14,8 @@
     </input>
     <input type="text" token="serial">
       <label>Serial Number</label>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <prefix>log.serial_number="</prefix>
+      <suffix>"</suffix>
       <default></default>
     </input>
     <input type="text" token="vsys">
@@ -59,23 +59,20 @@
       <prefix>log.content_type="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="multiselect" token="action">
+    <input type="dropdown" token="action">
       <label>Action</label>
-      <choice value="*">All</choice>
       <default>*</default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <fieldForLabel>action</fieldForLabel>
-      <fieldForValue>action</fieldForValue>
       <search>
-        <query>| inputlookup pan_vendor_actions.csv 
+        <query>| inputlookup endpoint_actions_lookup 
 | fields action
 | dedup action
 | sort action</query>
       </search>
-      <valuePrefix>log.action="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <choice value="*">All</choice>
+      <prefix>log.action="</prefix>
+      <suffix>"</suffix>
     </input>
   </fieldset>
   <row>

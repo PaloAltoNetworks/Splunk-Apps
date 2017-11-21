@@ -1,7 +1,7 @@
 <form>
   <label>Endpoint Operations</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_host) AS log.dest_host, values(log.src_host) AS log.src_host count FROM datamodel="pan_endpoint" WHERE nodename="log.operations" $user$ $src_host$ $dest_host$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
+    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_host) AS log.dest_host, values(log.src_host) AS log.src_host count FROM datamodel="pan_endpoint" WHERE nodename="log.operations" "$user|s$" $src_host$ $dest_host$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -36,23 +36,23 @@
       <prefix>log.dest_ip="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="severity">
+    <input type="dropdown" token="severity">
       <label>Severity</label>
-      <default></default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <default>*</default>
+      <prefix>log.severity="</prefix>
+      <suffix>"</suffix>
+      <choice value="low">Low</choice>
+      <choice value="medium">Medium</choice>
+      <choice value="high">High</choice>
+      <choice value="critical">Critical</choice>
+      <choice value="*">All</choice>
       <fieldForLabel>severity</fieldForLabel>
       <fieldForValue>severity</fieldForValue>
-      <choice value="*">All</choice>
-      <valuePrefix>log.severity="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
+      <initialValue>*</initialValue>
     </input>
     <input type="dropdown" token="action">
       <label>Action</label>
       <default>*</default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
       <search>
         <query>| inputlookup endpoint_actions_lookup 
 | fields action
@@ -62,9 +62,8 @@
       <fieldForLabel>action</fieldForLabel>
       <fieldForValue>action</fieldForValue>
       <choice value="*">All</choice>
-      <valuePrefix>log.action="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
+      <prefix>log.action="</prefix>
+      <suffix>"</suffix>
     </input>
   </fieldset>
   <row>
