@@ -2,8 +2,8 @@
   <label>SaaS Activity</label>
   <description></description>
   <search id="basesearch">
-    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action), values(log.file_name) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" $src_ip$ $dst_ip$ $serial_number$ $virtual_system$ $user$ $app$ $category$ $action$ GROUPBY _time log.client_ip log.user log.app
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature), values(log.file_name) count from datamodel="pan_aperture" WHERE nodename="log.activity_monitoring" $src_ip$ $dst_ip$ $serial_number$ $virtual_system$ $user$ $app$ $category$ $action$ GROUPBY _time  log.client_ip log.user log.app
+    <query>| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action), values(log.file_name) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" $src_ip$ $dst_ip$ $serial_number$ $virtual_system$ "$user|s$" $app$ $category$ $action$ GROUPBY _time log.client_ip log.user log.app
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature), values(log.file_name) count from datamodel="pan_aperture" WHERE nodename="log.activity_monitoring" $src_ip$ $dst_ip$ $serial_number$ $virtual_system$ "$user|s$" $app$ $category$ $action$ GROUPBY _time  log.client_ip log.user log.app
 | stats values AS * by _time log.app log.client_ip log.user | rename log.* as * </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>

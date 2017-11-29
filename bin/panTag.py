@@ -160,7 +160,8 @@ def main_splunk():
         # For Panorama, create the Panorama object, and the firewall if only one serial
         panorama = Panorama(hostname, api_key=apikey)
         if serial is not None:
-            firewall = {'firewall': Firewall(panorama=panorama, serial=serial, vsys=vsys)}
+            firewall = {'firewall': Firewall(serial=serial, vsys=vsys)}
+            panorama.add(firewall['firewall'])
             firewall['firewall'].userid.batch_start()
         else:
             firewall = {}
@@ -186,8 +187,9 @@ def main_splunk():
                     this_firewall = firewall[(this_serial, this_vsys)]
                 else:
                     # Create the firewall object for this serial
-                    firewall[(this_serial, this_vsys)] = Firewall(panorama=panorama, serial=this_serial, vsys=this_vsys)
+                    firewall[(this_serial, this_vsys)] = Firewall(serial=this_serial, vsys=this_vsys)
                     this_firewall = firewall[(this_serial, this_vsys)]
+                    panorama.add(this_firewall)
                     this_firewall.userid.batch_start()
         else:
             this_firewall = firewall['firewall']

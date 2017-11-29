@@ -1,7 +1,7 @@
 <form>
   <label>Endpoint Security</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t values(log.dest_ip) AS log.dest_ip, values(log.client_ip) AS log.client_ip, values(log.src_host) AS log.src_host, values(log.action) AS log.action count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user$ $dest_host$ $dest_ip$ $src_host$ $file_name$ $signature$ $action$ $log_subtype$ GROUPBY _time log.log_subtype log.severity log.user log.file_hash log.file_name log.threat_name log.dest_host | rename log.* AS *</query>
+    <query>| tstats summariesonly=t values(log.dest_ip) AS log.dest_ip, values(log.client_ip) AS log.client_ip, values(log.src_host) AS log.src_host, values(log.action) AS log.action count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" "$user|s$" $dest_host$ $dest_ip$ $src_host$ $file_name$ $signature$ $action$ $log_subtype$ GROUPBY _time log.log_subtype log.severity log.user log.file_hash log.file_name log.threat_name log.dest_host | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -16,8 +16,8 @@
     <input type="text" token="log_subtype">
       <label>Event Type</label>
       <default></default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="text" token="src_host">
       <label>ESM</label>
