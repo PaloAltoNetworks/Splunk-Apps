@@ -107,23 +107,20 @@
       <choice value="low">Low</choice>
       <choice value="informational">Informational</choice>
     </input>
-    <input type="multiselect" token="action">
+    <input type="dropdown" token="action">
       <label>Action</label>
-      <choice value="*">All</choice>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
-      <fieldForLabel>action</fieldForLabel>
-      <fieldForValue>action</fieldForValue>
+      <default>*</default>
       <search>
-        <query>| inputlookup pan_vendor_actions.csv 
+        <query>| inputlookup pan_vendor_actions.csv
 | fields action
 | dedup action
 | sort action</query>
       </search>
-      <valuePrefix>log.action="</valuePrefix>
-      <valueSuffix>"</valueSuffix>
-      <delimiter> OR </delimiter>
-      <default>*</default>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <choice value="*">All</choice>
+      <prefix>log.action="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="dropdown" token="autofocus_tags" searchWhenChanged="true">
       <label>AutoFocus Tag</label>

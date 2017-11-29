@@ -105,8 +105,8 @@ def main_splunk():
     # Get the sessionKey
     sessionKey = settings['sessionKey']
     # If there are logs to act on, get the Panorama user and password from Splunk using the sessionKey
-    if len(results) < 0:
-        logger.debug("No search results.  Nothing to do.")
+    if len(results) == 0:
+        logger.debug("WildFire Report Retrieval: No search results.  Nothing to do.")
         splunk.Intersplunk.outputResults(results)
         sys.exit(0)
 

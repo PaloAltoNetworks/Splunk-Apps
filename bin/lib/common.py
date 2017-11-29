@@ -114,26 +114,26 @@ def get_wildfire_apikey(session_key):
         entities = entity.getEntities(['admin', 'passwords'],
                                       namespace=APPNAME, owner='nobody',
                                       sessionKey=session_key)
-        # logger.debug(entities)
     except Exception as e:
+        entities = {}
         exit_with_error("Could not get %s credentials from splunk."
                         "Error: %s" % (APPNAME, str(e)))
-    if '__REST_CREDENTIAL__#Splunk_TA_paloalto#configs/conf-splunk_ta_paloalto_settings:additional_parameters``splunk_cred_sep``1:' in entities:
+    try:
         clear_password = json.loads(entities['__REST_CREDENTIAL__#Splunk_TA_paloalto#configs/conf-splunk_ta_paloalto_settings:additional_parameters``splunk_cred_sep``1:']['clear_password'])
-        if 'wildfire_api_key' in clear_password:
-            api_key = clear_password['wildfire_api_key']
-            logger.debug('Password exist')
-            return api_key
-        else:
-            exit_with_error("No WildFire API key is set, "
-                            "set apikey in App configuration.")
-    else:
-        logger.warn(
+        api_key = clear_password['wildfire_api_key']
+        logger.debug('WildFire API key exists')
+        return api_key
+    except KeyError:
+        logger.info(
             "There are Palo Alto Networks WildFire malware events, "
             "but no WildFire API Key found, please set the API key "
-            "in the Splunk_TA_paloalto App set up page")
+            "in the Splunk_TA_paloalto Add-on Configuration dashboard.")
         exit_with_error("No WildFire API key is set, "
-                        "set apikey in App configuration.")
+                        "set apikey in Add-on configuration.",
+                        log_error=False,
+                        log_traceback=False)
+    except (ValueError, TypeError):
+        exit_with_error("Problem getting WildFire API Key from JSON returned by Splunk password API")
 
 
 def get_firewall_apikey(session_key):
@@ -229,15 +229,16 @@ def check_debug(arguments):
     if 'debug' in arguments:
         if arguments['debug'] != "no" and arguments['debug'] != "false":
             logger.info("Debugging enabled")
-            logger.setLevel(logging.DEBUG)
+            logger.setLevel(10)
             return True
     return False
 
 
-def exit_with_error(e, errorcode=2, log_traceback=True):
+def exit_with_error(e, errorcode=2, log_error=True, log_traceback=True):
     if log_traceback:
         logger.error(''.join(traceback.format_stack()))
-    logger.error(str(e))
+    if log_error:
+        logger.error(str(e))
     if run_by_splunk():
         splunk.Intersplunk.generateErrorResults(str(e))
     sys.exit(errorcode)

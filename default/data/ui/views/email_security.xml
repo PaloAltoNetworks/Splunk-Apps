@@ -2,7 +2,7 @@
   <label>Email Security</label>
   <search id="basesearch">
     <query>| tstats summariesonly=t values(sourcetype) AS sourcetype, values(log.log_subtype) AS log.log_subtype,
-    values(log.threat_name) AS log.threat_name, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.sender) AS log.sender, values(log.user) AS log.user count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic.end" OR nodename="log.threat") (log.app:subcategory="email" OR log.sender=“*”)      $serial$ $vsys$ $client_ip$ $server_ip$ $user$ $app$ GROUPBY _time `session` | rename log.* AS *</query>
+    values(log.threat_name) AS log.threat_name, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out, values(log.sender) AS log.sender, values(log.user) AS log.user count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic.end" OR nodename="log.threat") (log.app:subcategory="email" OR log.sender=“*”)      $serial$ $vsys$ $client_ip$ $server_ip$ "$user|s$" $app$ GROUPBY _time `session` | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -17,8 +17,8 @@
     <input type="text" token="serial">
       <label>Serial Number</label>
       <default></default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <prefix>log.serial_number="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="text" token="vsys">
       <label>Virtual System</label>
