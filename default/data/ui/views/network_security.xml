@@ -120,7 +120,7 @@
         </search>
         <option name="drilldown">row</option>
         <drilldown>
-          <link target="_self">search?q=`pan_threat` log_subtype="virus" OR log_subtype="*virus*"  file_name="UodxeipTEaQ.eXe" log_subtype="wildfire-virus" user=$row.user|s$ client_ip=$row.client_ip|s$ server_ip=$row.server_ip|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_threat` log_subtype="virus" OR log_subtype="*virus*" file_name=$row.file_name|s$ user=$row.user|s$ client_ip=$row.client_ip|s$ server_ip=$row.server_ip|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
