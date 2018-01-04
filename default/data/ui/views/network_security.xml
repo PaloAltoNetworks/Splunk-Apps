@@ -170,7 +170,7 @@
         <option name="charting.fieldColors">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"informational":#6DB7C6}</option>
         <option name="charting.legend.labels">[critical,high,medium,low,informational]</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/network_security?form.app=$click.value$&amp;form.severity=$click.name2$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/network_security?form.app=$click.value$&amp;form.severity=$click.name2$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>

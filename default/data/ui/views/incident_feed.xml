@@ -340,7 +340,7 @@
             <link target="_self">search?q=`pan_aperture` incident_id=$row.incident_id$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
           </condition>
           <condition>
-            <link>/app/SplunkforPaloAltoNetworks/incident_investigation?client_ip=$row.client_ip$&amp;server_ip=$row.server_ip$&amp;$row.drilldown_token$=t&amp;event_time=$row.time_in_seconds$&amp;session_id=$row.session_id$&amp;serial_number=$row.serial_number$&amp;victim_ip=$row.victim_ip$&amp;incident_id=$row.incident_id$</link>  
+            <link>/app/SplunkforPaloAltoNetworks/incident_investigation?client_ip=$row.client_ip$&amp;server_ip=$row.server_ip$&amp;$row.drilldown_token$=t&amp;event_time=$row.time_in_seconds$&amp;session_id=$row.session_id$&amp;serial_number=$row.serial_number$&amp;victim_ip=$row.victim_ip$&amp;incident_id=$row.incident_id$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>  
           </condition>
         </drilldown>
       </table>
