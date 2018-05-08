@@ -146,7 +146,8 @@ def main_splunk():
     if use_panorama:
         # For Panorama, create the Panorama object, and the firewall object
         panorama = Panorama(hostname, api_key=apikey)
-        firewall = Firewall(panorama=panorama, serial=serial, vsys=vsys)
+        firewall = Firewall(serial=serial, vsys=vsys)
+        panorama.add(firewall)
         firewall.userid.batch_start()
     else:
         # No Panorama, so just create the firewall object
