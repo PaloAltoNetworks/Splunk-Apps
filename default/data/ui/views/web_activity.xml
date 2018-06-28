@@ -236,7 +236,7 @@
       <title>Hostnames Block-Continue</title>
       <table>
         <search base="basesearch">
-          <query>|  stats count BY dest_name | eval vendor_action="block-continue" | sort -count </query>
+          <query>| stats count BY dest_name vendor_action | search vendor_action="block-continue" | sort -count </query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
           <sampleRatio>1</sampleRatio>
