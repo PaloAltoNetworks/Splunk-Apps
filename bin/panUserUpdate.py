@@ -97,6 +97,7 @@ def main_splunk():
     #   vsys
     #   user_field
     #   ip_field
+    #   timeout
     #   debug
 
     # Verify required args were passed to command
@@ -111,6 +112,7 @@ def main_splunk():
     vsys = kwargs['vsys'] if 'vsys' in kwargs else "vsys1"
     ip_field = kwargs['ip_field'] if 'ip_field' in kwargs else "src_ip"
     user_field = kwargs['user_field'] if 'user_field' in kwargs else "user"
+    timeout = kwargs['timeout'] if 'timeout' in kwargs else None
 
     # Determine if device hostname or serial was provided as argument or should be pulled from entries
     log(debug, "Determining how firewalls should be contacted based on arguments")
@@ -176,7 +178,7 @@ def main_splunk():
 
         if action == "login":
             log(debug, "Login event on firewall %s: %s - %s" % (firewall, this_ip, this_user))
-            firewall.userid.login(this_user, this_ip)
+            firewall.userid.login(this_user, this_ip, timeout=timeout)
         else:
             log(debug, "Logout event on firewall %s: %s - %s" % (firewall, this_ip, this_user))
             firewall.userid.logout(this_user, this_ip)
