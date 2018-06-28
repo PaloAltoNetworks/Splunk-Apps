@@ -2,18 +2,15 @@
   <label>Realtime Event Feed</label>
   <description>Real-time 5 minute window</description>
   <search id="baseSearch">
-    <query>`pan_logs` | fillnull value="" | stats count by host sourcetype log_subtype action category</query>
+    <query>`pan_logs` | fillnull value="" host dvc sourcetype log_subtype action category serial_number | stats count by host dvc serial_number sourcetype eventtype log_subtype action category</query>
     <earliest>rt-5m</earliest>
     <latest>rt</latest>
   </search>
   <row>
     <panel>
       <single>
-        <search>
-          <query>`pan_logs` 
-| stats count</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| stats sum(count) as count</query>
         </search>
         <option name="colorMode">none</option>
         <option name="drilldown">none</option>
@@ -27,11 +24,8 @@
     </panel>
     <panel>
       <single>
-        <search>
-          <query>`pan_endpoint`
-| stats count</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| search eventtype="pan_endpoint" | stats sum(count) AS count</query>
         </search>
         <option name="colorMode">none</option>
         <option name="drilldown">none</option>
@@ -45,11 +39,8 @@
     </panel>
     <panel>
       <single>
-        <search>
-          <query>`pan_aperture`
-| stats count</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| search eventtype="pan_aperture" | stats sum(count) AS count</query>
         </search>
         <option name="colorMode">none</option>
         <option name="drilldown">none</option>
@@ -65,11 +56,8 @@
   <row>
     <panel>
       <single>
-        <search>
-          <query>`pan_logs` serial_number=* 
-| stats dc(serial_number)</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| search serial_number=* | stats dc(serial_number)</query>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>
@@ -87,11 +75,8 @@
     </panel>
     <panel>
       <single>
-        <search>
-          <query>`pan_endpoint` 
-| stats dc(src)</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| search eventtype="pan_endpoint" | stats dc(src)</query>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>
@@ -112,11 +97,9 @@
     <panel>
       <title>Event Types</title>
       <chart>
-        <search>
-          <query>`pan_logs` sourcetype="pan:*" log_subtype="*" 
-| timechart span=10s count by log_subtype</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| search sourcetype="pan:*" log_subtype="*"
+| timechart span=10s sum(count) AS count BY log_subtype</query>
         </search>
         <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.axisTitleY.text">Events</option>
@@ -143,11 +126,8 @@
     <panel>
       <title>Logs by host</title>
       <chart>
-        <search>
-          <query>`pan_logs` 
-| stats count by dvc</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| stats sum(count) AS count BY host</query>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
@@ -184,11 +164,8 @@
     <panel>
       <title>Logs by device</title>
       <chart>
-        <search>
-          <query>`pan_logs` 
-| timechart span=10s count by dvc_host</query>
-          <earliest>rt-5m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| timechart span=10s sum(count) AS count BY dvc</query>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
@@ -227,11 +204,8 @@
     <panel>
       <title>Event Feed</title>
       <event>
-        <search>
-          <query>`pan_logs` 
-|  head 100</query>
-          <earliest>rt-1m</earliest>
-          <latest>rt</latest>
+        <search id="baseSearch">
+          <query>| head 100</query>
         </search>
         <option name="list.drilldown">none</option>
         <option name="raw.drilldown">none</option>
