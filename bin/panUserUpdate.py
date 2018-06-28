@@ -142,7 +142,6 @@ def main_splunk():
     apikey = common.apikey(sessionKey, hostname, debug)
 
     # Create the connection to the firewall or Panorama
-    panorama = None
     if use_panorama:
         # For Panorama, create the Panorama object, and the firewall object
         panorama = Panorama(hostname, api_key=apikey)
