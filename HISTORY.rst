@@ -3,6 +3,130 @@
 History
 =======
 
+0.6.3
+-----
+
+Released: 2018-05-15
+
+Status: Alpha
+
+- Fixed: uid always returns a string
+
+0.6.2
+-----
+
+Released: 2018-05-03
+
+Status: Alpha
+
+- Fixed: issue in error checking
+
+0.6.1
+-----
+
+Released: 2018-03-27
+
+Status: Alpha
+
+- Added: visualize configuration tree in Jupyter Notebooks and graphviz
+- Fixed: small xpath generation issue
+- Fixed: uid is equal to id when id exists
+
+
+0.6.0
+-----
+
+Released: 2018-03-16
+
+Status: Alpha
+
+- Added initial support for templates and template stacks
+- Added: Support for timeouts for logins in user-id module
+- Added: `panorama.Template`
+- Added: `panorama.TemplateStack`
+- Fix: Vsys native objects added under a Panorama will be put in `shared` scope
+
+
+0.5.3
+-----
+
+Released: 2018-01-30
+
+Status: Alpha
+
+- Added: `network.IkeGateway`
+- Added: `network.IpsecTunnel`
+- Added: `network.IpsecTunnelIpv4ProxyId`
+- Added: `network.IpsecTunnelIpv6ProxyId`
+- Added: `network.IpsecCryptoProfile`
+- Added: `network.IkeCryptoProfile`
+- Fix: `enable_ipv6` XPath for various network interface has been corrected
+
+
+0.5.2
+-----
+
+Released: 2017-11-30
+
+Status: Alpha
+
+- Adding DHCP management interface options to `device.SystemSettings`
+- Various bug fixes
+
+
+0.5.1
+-----
+
+Released: 2017-09-12
+
+Status: Alpha
+
+- Fix: Security and NAT policy XPATH problems
+- Fix: `base.PanDevice.create_from_device()`'s check for certain Panorama devices
+- Fix: `firewall.Firewall.organize_into_vsys()`'s behavior with importables that aren't imported
+- Fix: `refreshall()`'s behavior when it has a `device.Vsys` parent
+
+
+0.5.0
+-----
+
+Released: 2017-07-14
+
+Status: Alpha
+
+- Add: Support for python3 (3.5+)
+- Add: Support for predefined tags
+- Add: Support for bulk operations (e.g. - `create_similar()`)
+- Add: DHCP support for various data interface objects
+- Add: `request_password_hash()` to firewall / panorama devices
+- Change: Layer2Subinterface/Layer3Subinterface can be children of vsys or firewalls now
+- Fix: `equals()` for objects with list params
+
+
+Potentially breaking-changes in this version, please update your scripts to account for the following:
+
+- The default vsys for firewalls is changed from "vsys1" to None.  This has no effect for scripts that set the vsys on the firewall object directly (vsys is still treated as vsys1 in this situation).  This specific change was to better align pandevice with the default behavior of the firewall, which only imports interfaces by default (vsys1 if otherwise unspecified).  Thus, virtual wire, virtual routers, and VLANs will only be imported if they are attached to a Vsys object *or* the firewall has a vsys set.
+- VsysResources and SystemSettings now have a name of None
+- SubinterfaceArp and EthernetInterfaceArp have been replaced with Arp
+
+
+List of PanObject changes:
+
+- Added: PasswordProfile
+- Added: Administrator
+- Added: Arp
+- Updated: Zone
+- Updated: Vsys
+- Fixed: StaticRouteV6
+- Fixed: OspfNsaaExternalRange
+
+
+- New example scripts:
+
+  - bulk_address_objects.py
+  - bulk_subinterfaces.py
+
+
 0.4.1
 -----
 

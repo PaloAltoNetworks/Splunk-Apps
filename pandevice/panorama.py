@@ -29,13 +29,14 @@ from pandevice import base, firewall, policies
 import pandevice.errors as err
 from pandevice.base import VarPath as Var
 from pandevice.base import PanObject, Root, MEMBER, ENTRY
+from pandevice.base import VersionedPanObject, VersionedParamPath
 
 import pan.commit
 
 logger = getlogger(__name__)
 
 
-class DeviceGroup(PanObject):
+class DeviceGroup(VersionedPanObject):
     """Panorama Device-group
 
     This class and the :class:`pandevice.panorama.Panorama` classes are the only objects that can
@@ -50,9 +51,9 @@ class DeviceGroup(PanObject):
         tag (list): Tags as strings
 
     """
-    XPATH = "/device-group"
     ROOT = Root.DEVICE
     SUFFIX = ENTRY
+    VSYS_LABEL = 'device-group'
     CHILDTYPES = (
         "firewall.Firewall",
         "objects.AddressObject",
@@ -64,16 +65,144 @@ class DeviceGroup(PanObject):
         "objects.ApplicationObject",
         "objects.ApplicationGroup",
         "objects.ApplicationFilter",
+        "objects.SecurityProfileGroup",
     )
 
-    @classmethod
-    def variables(cls):
-        return (
-            Var("tag", vartype="entry"),
-        )
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/device-group')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'tag', vartype='entry'))
+
+        self._params = tuple(params)
+
+    @property
+    def vsys(self):
+        return self.name
 
     def devicegroup(self):
         return self
+
+    def xpath_vsys(self):
+        return self.xpath()
+
+
+class Template(VersionedPanObject):
+    """A panorama template.
+
+    Args:
+        name: Template name
+        description: Description
+        devices (str/list): The list of serial numbers in this template
+        default_vsys: The default vsys in case of a single vsys firewall
+        multi_vsys (bool): (6.1 and lower) Multi virtual systems boolean
+        mode: (6.1 and lower) Can be fips, cc, or normal (default: normal)
+        vpn_disable_mode (bool): (6.1 and lower) VPN disable mode
+
+    """
+    ROOT = Root.DEVICE
+    SUFFIX = ENTRY
+    CHILDTYPES = (
+        "device.Vsys",
+        "device.SystemSettings",
+        "device.PasswordProfile",
+        "device.Administrator",
+        "ha.HighAvailability",
+        "network.EthernetInterface",
+        "network.AggregateInterface",
+        "network.LoopbackInterface",
+        "network.TunnelInterface",
+        "network.VlanInterface",
+        "network.Vlan",
+        "network.VirtualRouter",
+        "network.ManagementProfile",
+        "network.VirtualWire",
+        "network.IkeGateway",
+        "network.IpsecTunnel",
+        "network.IpsecCryptoProfile",
+        "network.IkeCryptoProfile",
+    )
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/template')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'description', path='description'))
+        params.append(VersionedParamPath(
+            'devices', vartype='entry', path='devices'))
+        params.append(VersionedParamPath(
+            'default_vsys', exclude=True))
+        params[-1].add_profile(
+            '7.0.0',
+            path='settings/default-vsys')
+        params.append(VersionedParamPath(
+            'multi_vsys', vartype='yesno', path='settings/multi-vsys'))
+        params[-1].add_profile(
+            '7.0.0',
+            exclude=True)
+        params.append(VersionedParamPath(
+            'mode', default='normal', path='settings/operational-mode'))
+        params[-1].add_profile(
+            '7.0.0',
+            exclude=True)
+        params.append(VersionedParamPath(
+            'vpn_disable_mode', vartype='yesno',
+            path='settings/vpn-disable-mode'))
+        params[-1].add_profile(
+            '7.0.0',
+            exclude=True)
+
+        self._params = tuple(params)
+
+    def create_similar(self):
+        raise NotImplementedError('This is not supported for templates')
+
+    def apply_similar(self):
+        raise NotImplementedError('This is not supported for templates')
+
+    def delete_similar(self):
+        raise NotImplementedError('This is not supported for templates')
+
+
+class TemplateStack(VersionedPanObject):
+    """Template stack.
+
+    NOTE:  Template stacks were introduced in PAN-OS 7.0.  Attempting to
+    use this class on PAN-OS 6.1 or earlier will result in an error.
+
+    Args:
+        name: Stack name
+        description: The description
+        templates (str/list): The list of templates in this stack
+        devices (str/list): The list of serial numbers in this template
+
+    """
+    ROOT = Root.DEVICE
+    SUFFIX = ENTRY
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/template-stack')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'description', path='description'))
+        params.append(VersionedParamPath(
+            'templates', path='templates', vartype='member'))
+        params.append(VersionedParamPath(
+            'devices', vartype='entry', path='devices'))
+
+        self._params = tuple(params)
 
 
 class Panorama(base.PanDevice):
@@ -94,11 +223,14 @@ class Panorama(base.PanDevice):
     """
     FIREWALL_CLASS = firewall.Firewall
     NAME = "hostname"
+    DEFAULT_VSYS = 'shared'
     CHILDTYPES = (
         "device.Administrator",
         "device.PasswordProfile",
         "firewall.Firewall",
         "panorama.DeviceGroup",
+        "panorama.Template",
+        "panorama.TemplateStack",
     )
 
     def __init__(self,
@@ -133,7 +265,7 @@ class Panorama(base.PanDevice):
         return super(Panorama, self).op(cmd, vsys=None, xml=xml, cmd_xml=cmd_xml, extra_qs=extra_qs, retry_on_peer=retry_on_peer)
 
     def xpath_vsys(self):
-        return "/config/shared"
+        return '/config/shared'
 
     def xpath_panorama(self):
         return "/config/panorama"
@@ -141,7 +273,9 @@ class Panorama(base.PanDevice):
     def panorama(self):
         return self
 
-    def commit_all(self, sync=False, sync_all=True, exception=False, devicegroup=None, serials=(), cmd=None):
+    def commit_all(self, sync=False, sync_all=True, exception=False,
+                   devicegroup=None, serials=(), cmd=None,
+                   description=None, include_template=None):
         """Trigger a commit-all (commit to devices) on Panorama
 
         Args:
@@ -151,6 +285,8 @@ class Panorama(base.PanDevice):
             devicegroup (str): Limit commit-all to a single device-group
             serials (list): Limit commit-all to these serial numbers
             cmd (str): Commit options in XML format
+            description: Commit description
+            include_template (bool): Include template changes in this push
 
         Returns:
             dict: Commit results
@@ -169,6 +305,11 @@ class Panorama(base.PanDevice):
                     d = ET.SubElement(dg_e, "devices")
                     for serial in serials:
                         ET.SubElement(d, "entry", {"name": serial})
+                if description is not None:
+                    ET.SubElement(sp, "description").text = description
+                if include_template is not None:
+                    val = 'yes' if include_template else 'no'
+                    ET.SubElement(sp, "include-template").text = val
             cmd = ET.tostring(e)
         elif isinstance(cmd, pan.commit.PanCommit):
             cmd = cmd.cmd()
@@ -312,6 +453,8 @@ class Panorama(base.PanDevice):
         # of the device groups
         if devicegroup_configxml is not None:
             for dg_entry in devicegroup_configxml:
+                if dg_entry.find('devices') is None:
+                    continue
                 for fw_entry in dg_entry.find('devices'):
                     fw_entry_op = devicegroup_opxml.find("entry/devices/entry[@name='%s']" % fw_entry.get("name"))
                     if fw_entry_op is not None:
@@ -345,7 +488,7 @@ class Panorama(base.PanDevice):
                             # Passed in string serials, no vsys, so get all vsys
                             pass
                         else:
-                            if "shared" not in requested_vsys and dg_vsys not in requested_vsys:
+                            if "shared" not in requested_vsys and None not in requested_vsys and dg_vsys not in requested_vsys:
                                 # A specific vsys was requested, and this isn't it, skip
                                 continue
                     fw = next((x for x in firewall_instances if x.serial == dg_serial and x.vsys == dg_vsys), None)

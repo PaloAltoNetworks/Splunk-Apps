@@ -28,45 +28,49 @@ import pandevice.errors as err
 logger = getlogger(__name__)
 
 
-class VsysResources(PanObject):
+class VsysResources(VersionedPanObject):
     """Resource constraints for a Vsys
 
     Args:
-        max-security-rules (int): Maximum security rules
-        max-nat-rules (int): Maximum nat rules
-        max-ssl-decryption-rules (int): Maximum ssl decryption rules
-        max-qos-rules (int): Maximum QOS rules
-        max-application-override-rules (int): Maximum application override rules
-        max-pbf-rules (int): Maximum policy based forwarding rules
-        max-cp-rules (int): Maximum captive portal rules
-        max-dos-rules (int): Maximum DOS rules
-        max-site-to-site-vpn-tunnels (int): Maximum site-to-site VPN tunnels
-        max-concurrent-ssl-vpn-tunnels (int): Maximum ssl VPN tunnels
-        max-sessions (int): Maximum sessions
+        max_security_rules (int): Maximum security rules
+        max_nat_rules (int): Maximum nat rules
+        max_ssl_decryption_rules (int): Maximum ssl decryption rules
+        max_qos_rules (int): Maximum QOS rules
+        max_application_override_rules (int): Maximum application override rules
+        max_pbf_rules (int): Maximum policy based forwarding rules
+        max_cp_rules (int): Maximum captive portal rules
+        max_dos_rules (int): Maximum DOS rules
+        max_site_to_site_vpn_tunnels (int): Maximum site-to-site VPN tunnels
+        max_concurrent_ssl_vpn_tunnels (int): Maximum ssl VPN tunnels
+        max_sessions (int): Maximum sessions
 
     """
-
-    XPATH = "/import/resource"
+    NAME = None
     ROOT = Root.VSYS
 
-    @classmethod
-    def variables(cls):
-        return (
-            Var("max-security-rules", vartype="int"),
-            Var("max-nat-rules", vartype="int"),
-            Var("max-ssl-decryption-rules", vartype="int"),
-            Var("max-qos-rules", vartype="int"),
-            Var("max-application-override-rules", vartype="int"),
-            Var("max-pbf-rules", vartype="int"),
-            Var("max-cp-rules", vartype="int"),
-            Var("max-dos-rules", vartype="int"),
-            Var("max-site-to-site-vpn-tunnels", vartype="int"),
-            Var("max-concurrent-ssl-vpn-tunnels", vartype="int"),
-            Var("max-sessions", vartype="int"),
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/import/resource')
+        self._xpaths.add_profile(
+            value='{0}/import/resource'.format(self._TEMPLATE_VSYS_XPATH),
+            parents=('Template', ))
+
+        # params
+        params = []
+
+        int_params = ("max-security-rules", "max-nat-rules",
+            "max-ssl-decryption-rules", "max-qos-rules",
+            "max-application-override-rules", "max-pbf-rules",
+            "max-cp-rules", "max-dos-rules", "max-site-to-site-vpn-tunnels",
+            "max-concurrent-ssl-vpn-tunnels", "max-sessions",
         )
+        for x in int_params:
+            params.append(VersionedParamPath(x, path=x, vartype='int'))
+
+        self._params = tuple(params)
 
 
-class Vsys(PanObject):
+class Vsys(VersionedPanObject):
     """Virtual System (VSYS)
 
     You can interact with virtual systems in two different ways:
@@ -86,24 +90,81 @@ class Vsys(PanObject):
         display_name (str): Friendly name of the vsys
         interface (list): A list of strings with names of interfaces
             or a list of :class:`pandevice.network.Interface` objects
+        vlans (list): A list of strings of VLANs
+        virtual_wires (list): A list of strings of virtual wires
+        virtual_routers (list): A list of strings of virtual routers
+        visible_vsys (list): A list of strings of the vsys visible
+        dns_proxy (str): DNS Proxy server
+        decrypt_forwarding (bool): Allow forwarding of decrypted content
 
     """
-    XPATH = "/vsys"
     ROOT = Root.DEVICE
+    VSYS_LABEL = 'vsys'
     SUFFIX = ENTRY
+    CHILDTYPES = (
+        "device.VsysResources",
+        "objects.AddressObject",
+        "objects.AddressGroup",
+        "objects.ServiceObject",
+        "objects.ServiceGroup",
+        "objects.ApplicationObject",
+        "objects.ApplicationGroup",
+        "objects.ApplicationFilter",
+        "objects.SecurityProfileGroup",
+        "policies.Rulebase",
+        "network.EthernetInterface",
+        "network.AggregateInterface",
+        "network.LoopbackInterface",
+        "network.TunnelInterface",
+        "network.VlanInterface",
+        "network.Vlan",
+        "network.VirtualRouter",
+        "network.VirtualWire",
+        "network.Zone",
+    )
 
-    @classmethod
-    def variables(cls):
-        return (
-            Var("display-name"),
-            Var("import/network/interface", vartype="member")
-        )
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/vsys')
+        self._xpaths.add_profile(
+            value='{0}/vsys'.format(self._TEMPLATE_DEVICE_XPATH),
+            parents=('Template', ))
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'display_name', path='display-name'))
+        params.append(VersionedParamPath(
+            'interface', vartype='member',
+            path='import/network/interface'))
+        params.append(VersionedParamPath(
+            'vlans', vartype='member',
+            path='import/network/vlan'))
+        params.append(VersionedParamPath(
+            'virtual_wires', vartype='member',
+            path='import/network/virtual-wire'))
+        params.append(VersionedParamPath(
+            'virtual_routers', vartype='member',
+            path='import/network/virtual-router'))
+        params.append(VersionedParamPath(
+            'visible_vsys', vartype='member',
+            path='import/visible-vsys'))
+        params.append(VersionedParamPath(
+            'dns_proxy', path='import/dns-proxy'))
+        params.append(VersionedParamPath(
+            'decrypt_forwarding', vartype='yesno',
+            path='setting/ssl-decrypt/allow-forward-decrypted-content'))
+
+        self._params = tuple(params)
 
     def xpath_vsys(self):
-        if self.name == "shared" or self.name is None:
-            return "/config/shared"
-        else:
-            return "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='%s']" % self.name
+        return self.xpath()
+
+    def _build_xpath(self, root, vsys):
+        if self.parent is None:
+            return ''
+        return self.parent._build_xpath(root, self.name)
 
     @property
     def vsys(self):
@@ -164,10 +225,13 @@ class NTPServerSecondary(NTPServer):
     XPATH = "/ntp-servers/secondary-ntp-server"
 
 
-class SystemSettings(PanObject):
+class SystemSettings(VersionedPanObject):
     """Firewall or Panorama device system settings
 
     Add only one of these to a parent object.
+
+    If you want to configure DHCP on the management interface, you should
+    specify settings for `dhcp_send_hostname` and `dhcp_send_client_id`.
 
     Args:
         hostname (str): The hostname of the device
@@ -184,34 +248,76 @@ class SystemSettings(PanObject):
         panorama2 (str):  IP address of secondary Panorama
         login_banner (str): Login banner text
         update_server (str): IP or hostname of the update server
+        verify_update_server (bool): Verify the update server identity
+        dhcp_send_hostname (bool): (DHCP Mngt) Send Hostname
+        dhcp_send_client_id (bool): (DHCP Mngt) Send Client ID
+        accept_dhcp_hostname (bool): (DHCP Mngt) Accept DHCP hostname
+        accept_dhcp_domain (bool): (DHCP Mngt) Accept DHCP domain name
 
     """
+    NAME = None
     ROOT = Root.DEVICE
-    XPATH = "/deviceconfig/system"
     HA_SYNC = False
     CHILDTYPES = (
         "device.NTPServerPrimary",
         "device.NTPServerSecondary",
     )
 
-    @classmethod
-    def variables(cls):
-        return (
-            Var("hostname"),
-            Var("domain"),
-            Var("ip-address"),
-            Var("netmask"),
-            Var("default-gateway"),
-            Var("ipv6-address"),
-            Var("ipv6-default-gateway"),
-            Var("dns-setting/servers/primary", "dns_primary"),
-            Var("dns-setting/servers/secondary", "dns_secondary"),
-            Var("timezone"),
-            Var("panorama-server", "panorama"),
-            Var("panorama-server-2", "panorama2"),
-            Var("login-banner"),
-            Var("update-server"),
-        )
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/deviceconfig/system')
+        self._xpaths.add_profile(
+            value='{0}/deviceconfig/system'.format(self._TEMPLATE_DEVICE_XPATH),
+            parents=('Template', ))
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'hostname', path='hostname'))
+        params.append(VersionedParamPath(
+            'domain', path='domain'))
+        params.append(VersionedParamPath(
+            'ip_address', path='ip-address'))
+        params.append(VersionedParamPath(
+            'netmask', path='netmask'))
+        params.append(VersionedParamPath(
+            'default_gateway', path='default-gateway'))
+        params.append(VersionedParamPath(
+            'ipv6_address', path='ipv6-address'))
+        params.append(VersionedParamPath(
+            'ipv6_default_gateway', path='ipv6-default-gateway'))
+        params.append(VersionedParamPath(
+            'dns_primary', path='dns-setting/servers/primary'))
+        params.append(VersionedParamPath(
+            'dns_secondary', path='dns-setting/servers/secondary'))
+        params.append(VersionedParamPath(
+            'timezone', path='timezone'))
+        params.append(VersionedParamPath(
+            'panorama', path='panorama-server'))
+        params.append(VersionedParamPath(
+            'panorama2', path='panorama-server-2'))
+        params.append(VersionedParamPath(
+            'login_banner', path='login-banner'))
+        params.append(VersionedParamPath(
+            'update_server', path='update-server'))
+        params.append(VersionedParamPath(
+            'verify_update_server', vartype='yesno',
+            path='server-verification'))
+        params.append(VersionedParamPath(
+            'dhcp_send_hostname', vartype='yesno',
+            path='type/dhcp-client/send-hostname'))
+        params.append(VersionedParamPath(
+            'dhcp_send_client_id', vartype='yesno',
+            path='type/dhcp-client/send-client-id'))
+        params.append(VersionedParamPath(
+            'accept_dhcp_hostname', vartype='yesno',
+            path='type/dhcp-client/accept-dhcp-hostname'))
+        params.append(VersionedParamPath(
+            'accept_dhcp_domain', vartype='yesno',
+            path='type/dhcp-client/accept-dhcp-domain'))
+
+        self._params = tuple(params)
 
 
 class PasswordProfile(VersionedPanObject):
@@ -231,6 +337,9 @@ class PasswordProfile(VersionedPanObject):
     def _setup(self):
         # xpaths
         self._xpaths.add_profile(value='/password-profile')
+        self._xpaths.add_profile(
+            value='{0}/password-profile'.format(self._TEMPLATE_MGTCONFIG_XPATH),
+            parents=('Template', ))
 
         # params
         params = []
@@ -277,6 +386,9 @@ class Administrator(VersionedPanObject):
     def _setup(self):
         # xpaths
         self._xpaths.add_profile(value='/users')
+        self._xpaths.add_profile(
+            value='{0}/users'.format(self._TEMPLATE_MGTCONFIG_XPATH),
+            parents=('Template', ))
 
         # params
         params = []
