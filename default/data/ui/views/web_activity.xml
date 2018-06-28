@@ -117,7 +117,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.category=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.category=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -142,7 +142,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.app=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.app=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -167,7 +167,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.content=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.content=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -226,7 +226,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_self">search?q=`pan_url` method=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=&amp;latest=</link>
+          <link target="_self">search?q=`pan_url` method=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -273,7 +273,7 @@
         <option name="totalsRow">false</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.dest_name=$row.http_referrer_name$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/web_activity?form.dest_name=$row.http_referrer_name$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>

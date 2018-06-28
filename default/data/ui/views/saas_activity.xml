@@ -101,7 +101,7 @@
         <drilldown>
           <link target="_self">search?q=| tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.app:is_sanctioned_saas), values(log.app:risk), values(log.app:category), values(log.app:subcategory), values(log.bytes_in), values(log.bytes_out), values(log.action) count FROM datamodel="pan_firewall" WHERE nodename="log.traffic.end" log.app:is_saas="yes" GROUPBY _time log.client_ip log.user log.app
 | tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.action), values(log.object), values(log.object_path), values(log.severity), values(log.signature) count from datamodel="pan_aperture" GROUPBY _time  log.client_ip log.user log.app
-| stats values AS * by _time log.app log.client_ip log.user | rename log.* as * | table app | dedup app&amp;earliest=&amp;latest=</link>
+| stats values AS * by _time log.app log.client_ip log.user | rename log.* as * | table app | dedup app&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </single>
     </panel>
@@ -252,7 +252,7 @@
         </search>
         <option name="drilldown">cell</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$row.app$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$row.app$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -264,7 +264,7 @@
         </search>
         <option name="drilldown">cell</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$row.app$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$row.app$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -335,7 +335,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.app=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -369,7 +369,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">none</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.category=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.category=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -401,7 +401,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">none</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.category=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/saas_activity?form.category=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>

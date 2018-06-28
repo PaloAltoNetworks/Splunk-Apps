@@ -141,7 +141,7 @@
         <option name="charting.fieldColors">{"malicious":#D93F3C,"phishing":#F58F39,"grayware":#F7BC38,"benign":#6DB7C6}</option>
         <option name="charting.legend.labels">[malicious,phishing,grayware,benign]</option>
         <drilldown>
-          <link target="_self">search?q=`pan_wildfire` verdict=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]</link>
+          <link target="_self">search?q=`pan_wildfire` verdict=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -156,7 +156,7 @@
         <option name="charting.chart">pie</option>
         <option name="charting.drilldown">all</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.$click.name$=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.$click.name$=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -169,7 +169,7 @@
         <option name="charting.chart">pie</option>
         <option name="charting.drilldown">all</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.file_type=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.file_type=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -182,7 +182,7 @@
         <option name="charting.chart">pie</option>
         <option name="charting.drilldown">all</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.src_location=$click.value|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/wildfire_submissions?form.src_location=$click.value|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>

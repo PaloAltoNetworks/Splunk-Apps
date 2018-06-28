@@ -147,7 +147,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/globalprotect?form.src_ip=$click.value|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/globalprotect?form.src_ip=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -185,7 +185,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">search?q=`pan_globalprotect` event_id="*fail*" user=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_globalprotect` event_id="*fail*" user=$click.value|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -314,7 +314,7 @@
         <option name="rowNumbers">false</option>
         <option name="wrap">true</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/globalprotect?form.user=$click.value|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/globalprotect?form.user=$click.value|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>

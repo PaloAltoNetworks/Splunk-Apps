@@ -128,7 +128,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.log_subtype=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.log_subtype=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -157,7 +157,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.signature=$click.value|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.signature=$click.value|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -194,7 +194,7 @@
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.dest_ip=$row.dest_ip$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.dest_ip=$row.dest_ip$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -207,7 +207,7 @@
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.user=$row.user|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.user=$row.user|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>

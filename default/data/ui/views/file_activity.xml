@@ -209,7 +209,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.direction=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.direction=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -234,7 +234,7 @@
         <option name="drilldown">row</option>
         <option name="refresh.display">preview</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.app=$row.app$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/file_activity?form.app=$row.app$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
