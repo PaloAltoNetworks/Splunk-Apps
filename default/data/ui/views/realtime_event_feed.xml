@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><dashboard>
+<dashboard script="tooltip.js" stylesheet="tooltip.css">
   <label>Realtime Event Feed</label>
   <description>Real-time 5 minute window</description>
   <search id="baseSearch">
@@ -21,7 +21,7 @@
   <row>
     <panel>
       <single>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| stats sum(count) as count</query>
         </search>
         <option name="colorMode">none</option>
@@ -36,7 +36,7 @@
     </panel>
     <panel>
       <single>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| search eventtype="pan_endpoint" | stats sum(count) AS count</query>
         </search>
         <option name="colorMode">none</option>
@@ -51,7 +51,7 @@
     </panel>
     <panel>
       <single>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| search eventtype="pan_aperture" | stats sum(count) AS count</query>
         </search>
         <option name="colorMode">none</option>
@@ -68,7 +68,7 @@
   <row>
     <panel>
       <single>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| search serial_number=* | stats dc(serial_number)</query>
         </search>
         <option name="colorBy">trend</option>
@@ -87,7 +87,7 @@
     </panel>
     <panel>
       <single>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| search eventtype="pan_endpoint" | stats dc(src)</query>
         </search>
         <option name="colorBy">trend</option>
@@ -109,7 +109,7 @@
     <panel>
       <title>Event Types</title>
       <chart>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| search sourcetype="pan:*" log_subtype="*"
 | timechart span=10s sum(count) AS count BY log_subtype</query>
         </search>
@@ -138,7 +138,7 @@
     <panel>
       <title>Logs by host</title>
       <chart>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| stats sum(count) AS count BY host</query>
           <sampleRatio>1</sampleRatio>
         </search>
@@ -176,7 +176,7 @@
     <panel>
       <title>Logs by device</title>
       <chart>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| timechart span=10s sum(count) AS count BY dvc</query>
           <sampleRatio>1</sampleRatio>
         </search>
@@ -216,7 +216,7 @@
     <panel>
       <title>Event Feed</title>
       <event>
-        <search id="baseSearch">
+        <search base="baseSearch">
           <query>| head 100</query>
         </search>
         <option name="list.drilldown">none</option>
