@@ -1,7 +1,10 @@
 #!/bin/bash
+
+# MUST BE RUN FROM APP ROOT
+
 set -e
 NAME=SplunkforPaloAltoNetworks
-VERSION=`grep -o '^version = [0-9.-]*' default/app.conf | awk '{print $3}'`
+VERSION=`grep -o '^version = [0-9a-z.-]*' default/app.conf | awk '{print $3}'`
 if [ "${TRAVIS}" == "true" ]; then
     BUILD=${TRAVIS_BUILD_NUMBER}
     BRANCH=${TRAVIS_BRANCH}

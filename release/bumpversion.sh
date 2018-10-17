@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# MUST BE RUN FROM APP ROOT
+
 set -e
 
 display_usage() {
@@ -24,26 +26,23 @@ fi
 NAME=SplunkforPaloAltoNetworks
 VERSION=$1
 ADDON_VERSION=$2
-CURRENT_VERSION=`grep -o '^version = [0-9.-]*' default/app.conf | awk '{print $3}'`
+CURRENT_VERSION=`grep -o '^version = [0-9a-z.-]*' default/app.conf | awk '{print $3}'`
 BUILD=${VERSION//./}0
 echo "Bumping version from ${CURRENT_VERSION} to ${VERSION} build ${BUILD}"
-# Files where verison needs to be bumped
+# Files where version needs to be bumped
 APPCONF=default/app.conf
 README=README.md
 
 # Bump Versions
-sed -i.backup -E 's/version = .+/version = '${VERSION}'/' ${APPCONF} ${APPCONF}
+sed -i '' -E 's/version = .+/version = '${VERSION}'/' ${APPCONF} ${APPCONF}
 echo "Bump ${APPCONF} version to ${VERSION}"
-sed -i.backup -E 's/build = .+/build = '${BUILD}'/' ${APPCONF} ${APPCONF}
+sed -i '' -E 's/build = .+/build = '${BUILD}'/' ${APPCONF} ${APPCONF}
 echo "Bump ${APPCONF} build to ${BUILD}"
-sed -i.backup -E 's/ta_dependency_version = .+/ta_dependency_version = '${ADDON_VERSION}'/' ${APPCONF} ${APPCONF}
+sed -i '' -E 's/ta_dependency_version = .+/ta_dependency_version = '${ADDON_VERSION}'/' ${APPCONF} ${APPCONF}
 echo "Bump ${APPCONF} add-on required version to ${ADDON_VERSION}"
-sed -i.backup -E 's/App Version:\*\* .+/App Version:** '${VERSION}'/' ${README} ${README}
+sed -i '' -E 's/App Version:\*\* .+/App Version:** '${VERSION}'/' ${README} ${README}
 echo "Bump ${README} Version to ${VERSION}"
-sed -i.backup -E 's/Add-on \(TA\) Version:\*\* Splunk_TA_paloalto .+/Add-on (TA) Version:** Splunk_TA_paloalto '${ADDON_VERSION}'/' ${README} ${README}
+sed -i '' -E 's/Splunk_TA_paloalto .+/Splunk_TA_paloalto '${ADDON_VERSION}'/' ${README} ${README}
 echo "Bump ${README} add-on required version to ${ADDON_VERSION}"
-#remove backup file created by sed command
-rm ${README}.backup
-rm ${APPCONF}.backup
 
 
