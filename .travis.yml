@@ -1,0 +1,15 @@
+language: python
+
+jobs:
+  include:
+    - stage: deploy
+      if: (repo =~ -private$ AND branch IN (master, develop)) OR branch = master
+      script: bash -x ./release/splunkbase.sh
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN
+        local-dir: ./_build
+        target-branch: build
+        on:
+          all_branches: true
