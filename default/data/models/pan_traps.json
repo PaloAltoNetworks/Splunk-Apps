@@ -1,6 +1,6 @@
 {
-    "modelName": "pan_endpoint",
-    "displayName": "Palo Alto Networks Endpoint Logs",
+    "modelName": "pan_traps",
+    "displayName": "Palo Alto Networks Traps Logs",
     "description": "",
     "objectSummary": {
         "Event-Based": 3,
@@ -12,6 +12,7 @@
             "objectName": "log",
             "displayName": "Endpoint Logs",
             "parentName": "BaseEvent",
+            "comment": "",
             "fields": [
                 {
                     "fieldName": "log_subtype",
@@ -59,30 +60,6 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "user",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "message",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "message",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "msg",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "msg",
                     "comment": ""
                 },
                 {
@@ -158,18 +135,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dest_host",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "dest_host",
-                    "comment": ""
-                },
-                {
                     "fieldName": "client_ip",
                     "owner": "log",
                     "type": "string",
@@ -203,6 +168,102 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_host",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "agent_version",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "agent_version",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "dest_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "dest_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "command",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "command",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_path",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_path",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_size",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_size",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_type",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_type",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "os_type",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "os_type",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "pid",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "pid",
                     "comment": ""
                 },
                 {
@@ -267,6 +328,7 @@
             "objectName": "attacks",
             "displayName": "Attacks",
             "parentName": "log",
+            "comment": "",
             "fields": [
                 {
                     "fieldName": "log_subtype",
@@ -314,18 +376,6 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "user",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "message",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "message",
                     "comment": ""
                 },
                 {
@@ -413,18 +463,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dest_host",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "dest_host",
-                    "comment": ""
-                },
-                {
                     "fieldName": "client_ip",
                     "owner": "log",
                     "type": "string",
@@ -458,6 +496,102 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_host",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "agent_version",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "agent_version",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "dest_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "dest_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "command",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "command",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_path",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_path",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_size",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_size",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_type",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_type",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "os_type",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "os_type",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "pid",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "pid",
                     "comment": ""
                 },
                 {
@@ -522,6 +656,7 @@
             "objectName": "operations",
             "displayName": "Operations",
             "parentName": "log",
+            "comment": "",
             "fields": [
                 {
                     "fieldName": "log_subtype",
@@ -569,18 +704,6 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "user",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "message",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "message",
                     "comment": ""
                 },
                 {
@@ -668,18 +791,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "dest_host",
-                    "owner": "log",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "dest_host",
-                    "comment": ""
-                },
-                {
                     "fieldName": "client_ip",
                     "owner": "log",
                     "type": "string",
@@ -713,6 +824,102 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "src_host",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "agent_version",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "agent_version",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "dest_name",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "dest_name",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "command",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "command",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_path",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_path",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_size",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_size",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "file_type",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "file_type",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "os_type",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "os_type",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "pid",
+                    "owner": "log",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "pid",
                     "comment": ""
                 },
                 {

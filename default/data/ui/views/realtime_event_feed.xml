@@ -2,7 +2,7 @@
   <label>Realtime Event Feed</label>
   <description>Real-time 5 minute window</description>
   <search id="baseSearch">
-    <query>`pan_logs` | fillnull value="" host dvc sourcetype log_subtype action category serial_number | stats count by host dvc serial_number sourcetype eventtype log_subtype action category</query>
+    <query>`pan_logs` | fillnull value="" host dvc sourcetype log_subtype action category serial_number | stats count by _time host dvc serial_number sourcetype eventtype log_subtype action category</query>
     <earliest>rt-5m</earliest>
     <latest>rt</latest>
   </search>
@@ -37,7 +37,7 @@
     <panel>
       <single>
         <search base="baseSearch">
-          <query>| search eventtype="pan_endpoint" | stats sum(count) AS count</query>
+          <query>| search eventtype="pan_traps" | stats sum(count) AS count</query>
         </search>
         <option name="colorMode">none</option>
         <option name="drilldown">none</option>
@@ -88,7 +88,7 @@
     <panel>
       <single>
         <search base="baseSearch">
-          <query>| search eventtype="pan_endpoint" | stats dc(src)</query>
+          <query>| search eventtype="pan_traps" | stats dc(src)</query>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>
@@ -140,7 +140,6 @@
       <chart>
         <search base="baseSearch">
           <query>| stats sum(count) AS count BY host</query>
-          <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -178,7 +177,6 @@
       <chart>
         <search base="baseSearch">
           <query>| timechart span=10s sum(count) AS count BY dvc</query>
-          <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>

@@ -28,7 +28,7 @@
       </single>
       <single>
         <search>
-          <query>`pan_endpoint`
+          <query>`pan_traps`
 | stats count</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
@@ -142,7 +142,7 @@
       <table>
         <search>
           <query>| stats count
-| eval datamodel=mvappend("pan_aperture", "pan_endpoint", "pan_firewall", "pan_wildfire_report")
+| eval datamodel=mvappend("pan_aperture", "pan_traps", "pan_firewall", "pan_wildfire_report")
 | mvexpand datamodel 
 | fields datamodel
 | join type=left datamodel 

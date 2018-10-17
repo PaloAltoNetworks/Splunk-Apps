@@ -13,7 +13,7 @@
   <search id="basesearch">
     <query>| tstats summariesonly=t prestats=t latest(_time), values(log.log_subtype), values(log.severity), values(log.app), values(log.user), values(log.threat_name), values(log.file_name), values(log.file_hash), values(log.url), values(log.dest_name), count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR nodename="log.wildfire.malicious") $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype `session` log.direction log.action
 | tstats summariesonly=t prestats=t append=t latest(_time), values(log.log_subtype), values(log.severity), values(log.threat_name), values(log.user), count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype log.serial_number log.log_subtype log.client_ip log.action
-| tstats summariesonly=t prestats=t append=t latest(_time), values(log.log_subtype), values(log.severity), values(log.file_name), values(log.file_hash), values(log.user), values(log.threat_name), count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype log.log_subtype log.client_ip log.action
+| tstats summariesonly=t prestats=t append=t latest(_time), values(log.log_subtype), values(log.severity), values(log.file_hash), values(log.user), values(log.threat_name), count FROM datamodel="pan_traps" WHERE nodename="log.attacks" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype log.log_subtype log.client_ip log.action log.file_name
 | tstats summariesonly=t prestats=t append=t latest(_time), latest(log.incident_id), values(log.log_subtype), values(log.app), values(log.user), values(log.threat_name), values(log.client_ip), count FROM datamodel="pan_aperture" WHERE nodename="log.incident" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ GROUPBY sourcetype log.threat_name log.file_name
 | fillnull value="" log.client_ip log.server_ip log.serial_number log.session_id log.direction log.action log.file_name log.threat_name
 | stats latest(_time) AS _time, latest(log.incident_id) AS log.incident_id, values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name_values, values(log.file_name) AS log.file_name_values, values(log.client_ip) AS log.client_ip_values, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, count BY sourcetype `session` log.direction log.action log.file_name log.threat_name
@@ -37,7 +37,7 @@
   <search id="timechart">
     <query>| tstats summariesonly=t prestats=t values(log.file_hash), values(log.url), values(log.dest_name), count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR nodename="log.wildfire.malicious") $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY _time `session` log.direction log.action log.log_subtype log.severity
 | tstats summariesonly=t prestats=t append=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY _time log.serial_number log.client_ip log.action log.log_subtype log.severity
-| tstats summariesonly=t prestats=t append=t values(log.file_hash), count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY _time log.client_ip log.action log.log_subtype log.severity
+| tstats summariesonly=t prestats=t append=t values(log.file_hash), count FROM datamodel="pan_traps" WHERE nodename="log.attacks" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY _time log.client_ip log.action log.log_subtype log.severity
 | tstats summariesonly=t prestats=t append=t count FROM datamodel="pan_aperture" WHERE nodename="log.incident" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ GROUPBY _time log.threat_name log.file_name log.log_subtype
 | fillnull value="" log.client_ip log.server_ip log.serial_number log.session_id log.direction log.action
 | fillnull value="high" log.severity
@@ -64,11 +64,11 @@
       <label>Product</label>
       <default></default>
       <choice value="">ANY</choice>
-      <choice value="pan:threat">Firewall</choice>
-      <choice value="pan:endpoint">Endpoint</choice>
-      <choice value="pan:aperture">Aperture</choice>
-      <choice value="pan:correlation">Correlation</choice>
-      <prefix>sourcetype="</prefix>
+      <choice value="pan_threat">Firewall</choice>
+      <choice value="pan_traps">Traps</choice>
+      <choice value="pan_aperture">Aperture</choice>
+      <choice value="pan_correlation">Correlation</choice>
+      <prefix>eventtype="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="vsys">
@@ -203,7 +203,7 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" GROUPBY _time span=1h | append [| makeresults count=$results-3$ | eval count=0]</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_traps" WHERE nodename="log.attacks" GROUPBY _time span=1h | append [| makeresults count=$results-3$ | eval count=0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <done>
@@ -319,7 +319,7 @@
       <title>Incident Investigation Feed</title>
       <table>
         <search base="basesearch">
-          <query>| $autofocus_tags$ eval time_in_seconds=_time | eval drilldown_token=case(sourcetype=="pan:endpoint","endpoint_event", sourcetype=="pan:aperture","aperture_event", true(),"network_event") | table _time log_subtype threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags incident_id sourcetype | eval autofocus_tags=mvdedup(autofocus_tags) | sort -_time</query>
+          <query>| $autofocus_tags$ eval time_in_seconds=_time | eval drilldown_token=case(like(sourcetype, "pan:%traps%"),"endpoint_event", sourcetype=="pan:aperture","aperture_event", true(),"network_event") | table _time log_subtype threat_name severity action app client_ip server_ip user file_name session_id serial_number drilldown_token victim_ip time_in_seconds autofocus_tags incident_id sourcetype | eval autofocus_tags=mvdedup(autofocus_tags) | sort -_time</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>

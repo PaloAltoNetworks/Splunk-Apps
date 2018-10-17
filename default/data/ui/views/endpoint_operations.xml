@@ -1,7 +1,7 @@
 <form>
   <label>Endpoint Operations</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_host) AS log.dest_host, values(log.src_host) AS log.src_host count FROM datamodel="pan_endpoint" WHERE nodename="log.operations" "$user|s$" $src_host$ $dest_host$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
+    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_host) AS log.dest_host, values(log.src_host) AS log.src_host count FROM datamodel="pan_traps" WHERE nodename="log.operations" "$user|s$" $src_host$ $dest_host$ $dest_ip$ $severity$ $action$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -123,7 +123,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <link target="_self">search?q=`pan_traps` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -154,7 +154,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` type=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <link target="_self">search?q=`pan_traps` type=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -183,7 +183,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 1800 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <link target="_self">search?q=`pan_traps` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 1800 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
