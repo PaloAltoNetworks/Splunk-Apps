@@ -27,7 +27,6 @@ then
     exit 0
 fi
 
-NAME=SplunkforPaloAltoNetworks
 VERSION=$1
 ADDON_VERSION=$2
 CURRENT_VERSION=`grep -o '^version = [0-9a-z.-]*' default/app.conf | awk '{print $3}'`
