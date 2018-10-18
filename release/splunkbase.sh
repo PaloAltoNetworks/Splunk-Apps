@@ -27,6 +27,9 @@ rm ${NAME}-${VERSION}-${BUILD}-temp.tgz
 # Strip out stuff that SplunkBase doesn't like
 # such as hidden files and Makefiles
 find . -type f -name ".*" -exec rm {} \;
+find ${NAME}/bin -type f -name "*.py" -exec chmod +x {} \;
+rm ${NAME}/Makefile
+rm ${NAME}/bin/lib/pandevice/docs/Makefile
 rm ${NAME}/bin/lib/pan-python/doc/Makefile
 rm -rf ${NAME}/release
 
