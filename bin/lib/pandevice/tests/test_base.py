@@ -331,63 +331,9 @@ class TestPanObject(unittest.TestCase):
 
     # Skipping removeall
 
-    @mock.patch('pandevice.base.PanObject.uid', new_callable=mock.PropertyMock)
-    def test_xpath_with_entry_suffix(self, m_uid):
-        Uid = 'baz'
-        ParentValue = '/foo'
-        SelfXpath = '/bar'
-        Suffix = Base.ENTRY
-        expected = ParentValue + SelfXpath + Base.ENTRY % (Uid, )
-
-        m_uid.return_value = Uid
-        self.obj._parent_xpath = mock.Mock(
-            return_value=ParentValue)
-        self.obj.XPATH = SelfXpath
-        self.obj.SUFFIX = Suffix
-
-        ret_val = self.obj.xpath()
-
-        self.assertEqual(expected, ret_val)
-        self.obj._parent_xpath.assert_called_once_with()
-
     # Skipping xpath_nosuffix
 
     # Skipping xpath_short
-
-    def test_parent_xpath_for_none_parent(self):
-        '''None parent results in empty xpath string.'''
-        ret_val = self.obj._parent_xpath()
-
-        self.assertEqual('', ret_val)
-
-    def test_parent_xpath_for_xpath_root_parent(self):
-        '''If the parent has "xpath_root()", then use that.'''
-        Path = '/foo/bar'
-
-        spec = {
-            'xpath_root.return_value': Path,
-        }
-        self.obj.parent = mock.Mock(**spec)
-
-        ret_val = self.obj._parent_xpath()
-
-        self.assertEqual(Path, ret_val)
-        self.obj.parent.xpath_root.assert_called_once_with(
-            self.obj.ROOT)
-
-    def test_parent_xpath_for_xpath_parent(self):
-        '''Default case for parent xpath.'''
-        Path = '/hello/world'
-
-        spec = {
-            'xpath.return_value': Path,
-        }
-        self.obj.parent = mock.Mock(spec=['xpath', ], **spec)
-
-        ret_val = self.obj._parent_xpath()
-
-        self.assertEqual(Path, ret_val)
-        self.obj.parent.xpath.assert_called_once_with()
 
     def test_xpath_vsys_without_parent(self):
         ret_val = self.obj.xpath_vsys()
@@ -1388,6 +1334,97 @@ class TestParentAwareXpathWithParams(unittest.TestCase):
             self.NEW_LAYER3_PATH,
             self.obj._get_versioned_value(
                 Base.VersionedPanObject._UNKNOWN_PANOS_VERSION, parent))
+
+
+class MyVersionedObject(Base.VersionedPanObject):
+    SUFFIX = Base.ENTRY
+
+    def _setup(self):
+        params = []
+
+        params.append(Base.VersionedParamPath(
+            'entries', path='multiple/entries', vartype='entry'))
+        params.append(Base.VersionedParamPath(
+            'members', path='multiple/members', vartype='member'))
+        params.append(Base.VersionedParamPath(
+            'someint', path='someint', vartype='int'))
+
+        self._params = tuple(params)
+
+
+class TestEqual(unittest.TestCase):
+    def test_ordered(self):
+        o1 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+
+        self.assertTrue(o1.equal(o2))
+
+    def test_unordered_entries(self):
+        o1 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', ['b', 'a'], ['c', 'd'], 5)
+
+        self.assertTrue(o1.equal(o2))
+
+    def test_unordered_members(self):
+        o1 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', ['a', 'b'], ['d', 'c'], 5)
+
+        self.assertTrue(o1.equal(o2))
+
+    def test_values_are_unchanged_after_comparison(self):
+        o1 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', ['b', 'a'], ['d', 'c'], 5)
+
+        o1.equal(o2)
+
+        self.assertEqual(o1.entries, ['a', 'b'])
+        self.assertEqual(o1.members, ['c', 'd'])
+        self.assertEqual(o2.entries, ['b', 'a'])
+        self.assertEqual(o2.members, ['d', 'c'])
+
+    def test_str_list_field_is_equal(self):
+        o1 = MyVersionedObject('a', ['a', ], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', 'a', ['c', 'd'], 5)
+
+        self.assertTrue(o1.equal(o2))
+
+    def test_unequal_entries_returns_false(self):
+        o1 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', ['a', 'i'], ['c', 'd'], 5)
+
+        self.assertFalse(o1.equal(o2))
+
+    def test_unequal_members_returns_false(self):
+        o1 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', ['a', 'b'], ['c', 'i'], 5)
+
+        self.assertFalse(o1.equal(o2))
+
+    def test_unequal_ints_returns_false(self):
+        o1 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 5)
+        o2 = MyVersionedObject('a', ['a', 'b'], ['c', 'd'], 6)
+
+        self.assertFalse(o1.equal(o2))
+
+
+class TestTree(unittest.TestCase):
+    def test_dot(self):
+        import pandevice.device as Device
+        expected = 'digraph configtree {graph [rankdir=LR, fontsize=10, margin=0.001];' \
+                   'node [shape=box, fontsize=10, height=0.001, margin=0.1, ordering=out];' \
+                   '"PanDevice : None" [style=filled fillcolor= ' \
+                   'URL="http://pandevice.readthedocs.io/en/latest/module-base.html#pandevice.base.PanDevice" ' \
+                   'target="_blank"];"SystemSettings : " [style=filled fillcolor=lightpink ' \
+                   'URL="http://pandevice.readthedocs.io/en/latest/module-device.html' \
+                   '#pandevice.device.SystemSettings" target="_blank"];' \
+                   '"PanDevice : None" -> "SystemSettings : ";}'
+
+        fw = Base.PanDevice(hostname=None, serial='Serial')
+        sys = Device.SystemSettings()
+        fw.add(sys)
+
+        ret_val = fw.dot()
+        self.assertEqual(ret_val, expected)
 
 
 if __name__=='__main__':

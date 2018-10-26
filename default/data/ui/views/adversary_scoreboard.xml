@@ -3,7 +3,7 @@
   <search id="basesearch">
     <query>
 | tstats summariesonly=t prestats=t values(sourcetype), values(log.log_subtype), values(log.file_hash), values(log.url), values(log.dest_name), values(log.vendor_action), count FROM datamodel="pan_firewall" GROUPBY `session` log.action
-| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.file_hash), count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" GROUPBY log.client_ip log.action
+| tstats summariesonly=t prestats=t append=t values(sourcetype), values(log.log_subtype), values(log.file_hash), count FROM datamodel="pan_traps" WHERE nodename="log.attacks" GROUPBY log.client_ip log.action
 | fillnull value="" log.server_ip log.serial_number log.session_id
 | stats values(sourcetype) AS sourcetype, values(log.log_subtype) AS log.log_subtype, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.vendor_action) AS log.vendor_action, count BY `session` log.action
 | rename log.* as *

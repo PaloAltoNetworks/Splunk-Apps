@@ -1,7 +1,7 @@
 <form>
   <label>Endpoint Security</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t values(log.dest_ip) AS log.dest_ip, values(log.client_ip) AS log.client_ip, values(log.src_host) AS log.src_host, values(log.action) AS log.action count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" $user$ $dest_host$ $dest_ip$ $src_host$ $file_name$ $signature$ $action$ $log_subtype$ GROUPBY _time log.log_subtype log.severity log.user log.file_hash log.file_name log.threat_name log.dest_host | rename log.* AS *</query>
+    <query>| tstats summariesonly=t values(log.dest_ip) AS log.dest_ip, values(log.client_ip) AS log.client_ip, values(log.src_host) AS log.src_host, values(log.action) AS log.action count FROM datamodel="pan_traps" WHERE nodename="log.attacks" "$user|s$" $dest_host$ $dest_ip$ $src_host$ $file_name$ $signature$ $action$ $log_subtype$ GROUPBY _time log.log_subtype log.severity log.user log.file_hash log.file_name log.threat_name log.dest_host | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -16,11 +16,11 @@
     <input type="text" token="log_subtype">
       <label>Event Type</label>
       <default></default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <prefix>log.log_subtype="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="text" token="src_host">
-      <label>ESM</label>
+      <label>Traps Manager</label>
       <default></default>
       <prefix>log.src_host="</prefix>
       <suffix>"</suffix>
@@ -83,7 +83,7 @@
         <option name="charting.layout.splitSeries">0</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <link target="_self">search?q=`pan_traps` log_subtype=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -97,7 +97,7 @@
         <option name="charting.chart">column</option>
         <option name="charting.legend.placement">bottom</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <link target="_self">search?q=`pan_traps` severity=$click.name2|s$ earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest]&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -128,7 +128,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.log_subtype=$click.value$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.log_subtype=$click.value$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -157,7 +157,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.signature=$click.value|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.signature=$click.value|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -178,7 +178,7 @@
             <link target="autofocus">https://autofocus.paloaltonetworks.com/#/sample/$row.file_hash$</link>
           </condition>
           <condition field="*">
-            <link target="_self">search?q=`pan_endpoint` $click.name2$=$click.value2|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+            <link target="_self">search?q=`pan_traps` $click.name2$=$click.value2|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
           </condition>
         </drilldown>
       </table>
@@ -194,7 +194,7 @@
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.dest_ip=$row.dest_ip$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.dest_ip=$row.dest_ip$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -207,7 +207,7 @@
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.user=$row.user|s$</link>
+          <link target="_self">/app/SplunkforPaloAltoNetworks/endpoint_security?form.user=$row.user|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>
@@ -220,7 +220,7 @@
         <option name="drilldown">row</option>
         <option name="wrap">false</option>
         <drilldown>
-          <link target="_self">search?q=`pan_endpoint` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_traps` $click.name$=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </table>
     </panel>

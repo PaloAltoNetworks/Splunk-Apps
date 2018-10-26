@@ -1,7 +1,7 @@
 <form>
   <label>User Behavior</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.http_category) AS log.http_category, values(log.app:is_saas) AS log.app:is_saas, values(log.app:default_ports) AS log.app:default_ports, values(log.app) AS log.app, values(log.user) AS log.user, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.dest_port) AS log.dest_port, values(log.severity) AS log.severity, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.url" OR nodename="log.data") $src_ip$ $dest_ip$ $dest_name$ $log_subtype$ $app$ $category$ $user|s$ $vsys$ $serial$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.src_ip
+    <query>| tstats summariesonly=t latest(_time) AS _time, values(log.log_subtype) AS log.log_subtype, values(log.http_category) AS log.http_category, values(log.app:is_saas) AS log.app:is_saas, values(log.app:default_ports) AS log.app:default_ports, values(log.app) AS log.app, values(log.user) AS log.user, values(log.file_name) AS log.file_name, values(log.file_hash) AS log.file_hash, values(log.url) AS log.url, values(log.dest_name) AS log.dest_name, values(log.dest_port) AS log.dest_port, values(log.severity) AS log.severity, values(log.bytes_in) AS log.bytes_in, values(log.bytes_out) AS log.bytes_out count FROM datamodel="pan_firewall" WHERE (nodename="log.traffic" OR nodename="log.url" OR nodename="log.data") $src_ip$ $dest_ip$ $dest_name$ $log_subtype$ $app$ $category$ "$user|s$" $vsys$ $serial$ GROUPBY sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.src_ip
       | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -16,8 +16,8 @@
     </input>
     <input type="text" token="serial">
       <label>Serial Number</label>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <prefix>log.serial_number="</prefix>
+      <suffix>"</suffix>
       <default></default>
     </input>
     <input type="text" token="vsys">
@@ -29,8 +29,8 @@
     <input type="text" token="user">
       <label>User</label>
       <default></default>
-      <prefix>log.user="</prefix>
-      <suffix>"</suffix>
+      <prefix>log.user=</prefix>
+      <suffix></suffix>
     </input>
     <input type="text" token="log_subtype" searchWhenChanged="true">
       <label>Log Subtype</label>

@@ -3,8 +3,8 @@
   <description></description>
   <search id="basesearch">
     <query>
-| tstats summariesonly=t prestats=t values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count FROM datamodel="pan_firewall" WHERE (nodename="log.url" OR nodename="log.data" OR nodename="log.file" OR nodename="log.wildfire.malicious") log.app:is_saas="yes" $serial$ $vsys$ $client_ip$ $dst_ip$ $user$ $app$ $action$ GROUPBY _time log.file_name log.user
-| tstats summariesonly=t prestats=t append=t values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count FROM datamodel="pan_aperture" WHERE nodename="log.incident" $serial$ $vsys$ $client_ip$ $dst_ip$ $user$ $app$ $action$ GROUPBY _time log.file_name log.user
+| tstats summariesonly=t prestats=t values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count FROM datamodel="pan_firewall" WHERE (nodename="log.url" OR nodename="log.data" OR nodename="log.file" OR nodename="log.wildfire.malicious") log.app:is_saas="yes" $serial$ $vsys$ $client_ip$ $dst_ip$ "$user|s$" $app$ $action$ GROUPBY _time log.file_name log.user
+| tstats summariesonly=t prestats=t append=t values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count FROM datamodel="pan_aperture" WHERE nodename="log.incident" $serial$ $vsys$ $client_ip$ $dst_ip$ "$user|s$" $app$ $action$ GROUPBY _time log.file_name log.user
 | stats values(log.log_subtype) AS log.log_subtype, values(log.app) AS log.app, values(log.action) AS log.action count BY _time log.file_name log.user
 | rename log.* AS *
 </query>
@@ -21,8 +21,8 @@
     <input type="text" token="serial">
       <label>Serial Number</label>
       <default></default>
-      <prefix>(</prefix>
-      <suffix>)</suffix>
+      <prefix>log.serial_number="</prefix>
+      <suffix>"</suffix>
     </input>
     <input type="text" token="vsys">
       <label>Virtual System</label>
@@ -82,7 +82,6 @@
           <li>Firewall or Panorama</li>
         </ul>
         <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#saas-security">More...</a></p>
-          </p>
       </div>
     </html>
     </panel>

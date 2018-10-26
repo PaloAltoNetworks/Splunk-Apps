@@ -4,7 +4,7 @@
   <search id="tokensetter">
     <query>| makeresults count=0</query>
     <done>
-      <eval token="index_match">case('endpoint_event'=="t","eventtype=\"pan_endpoint\" client_ip=\"".'client_ip'."\" _time=\"".'event_time'."\"", 'network_event'=="t","eventtype=\"pan_firewall\" session_id=\"".'session_id'."\" serial_number=\"".'serial_number'."\" client_ip=\"".'client_ip'."\" server_ip=\"".'server_ip'."\"", 'aperture_event'=="t","eventtype=\"pan_aperture\" incident_id=\"".'incident_id'."\"", true(),"error1")</eval>
+      <eval token="index_match">case('endpoint_event'=="t","eventtype=\"pan_traps\" client_ip=\"".'client_ip'."\"", 'network_event'=="t","eventtype=\"pan_firewall\" session_id=\"".'session_id'."\" serial_number=\"".'serial_number'."\" client_ip=\"".'client_ip'."\" server_ip=\"".'server_ip'."\"", 'aperture_event'=="t","eventtype=\"pan_aperture\" incident_id=\"".'incident_id'."\"", true(),"error1")</eval>
     </done>
   </search>
   <fieldset submitButton="false" autoRun="true">
@@ -118,7 +118,7 @@
       <title>Endpoint Incidents On This Client</title>
       <chart>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_endpoint" WHERE nodename="log.attacks" log.client_ip="$client_ip$" GROUPBY _time log.log_subtype | rename log.* AS * | timechart sum(count) by log_subtype</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_traps" WHERE nodename="log.attacks" log.client_ip="$client_ip$" GROUPBY _time log.log_subtype | rename log.* AS * | timechart sum(count) by log_subtype</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -522,7 +522,7 @@
       <title>Similar Endpoint Incidents</title>
       <table>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_endpoint" WHERE log.dest_ip="$client_ip$" OR log.dest_ip="$server_ip$" GROUPBY _time span=1s log.dest_ip log.log_subtype log.file_name log.file_hash log.action
+          <query>| tstats summariesonly=t count FROM datamodel="pan_traps" WHERE log.dest_ip="$client_ip$" OR log.dest_ip="$server_ip$" GROUPBY _time span=1s log.dest_ip log.log_subtype log.file_name log.file_hash log.action
 | rename log.* AS *</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>

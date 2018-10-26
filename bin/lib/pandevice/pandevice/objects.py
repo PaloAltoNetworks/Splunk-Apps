@@ -103,59 +103,79 @@ class AddressGroup(VersionedPanObject):
         self._params = tuple(params)
 
 
-class Tag(PanObject):
+class Tag(VersionedPanObject):
     """Administrative tag
 
     Args:
         name (str): Name of the tag
-        color (str): Color ID or name (eg. 'color1', 'color4', 'purple')
+        color (str): Color ID (eg. 'color1', 'color4', etc). You can
+            use :func:`~pandevice.objects.Tag.color_code` to generate the ID.
         comments (str): Comments
 
     """
     ROOT = Root.VSYS
-    XPATH = "/tag"
     SUFFIX = ENTRY
 
-    COLOR = {
-        "red":         1,
-        "green":       2,
-        "blue":        3,
-        "yello":       4,
-        "copper":      5,
-        "orange":      6,
-        "purple":      7,
-        "gray":        8,
-        "light green": 9,
-        "cyan":        10,
-        "light gray":  11,
-        "blue gray":   12,
-        "lime":        13,
-        "black":       14,
-        "gold":        15,
-        "brown":       16,
-    }
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/tag')
 
-    def __init__(self, *args, **kwargs):
-        super(Tag, self).__init__(*args, **kwargs)
-        if not hasattr(self, "_color"):
-            self._color = None
+        # params
+        params = []
 
-    @classmethod
-    def variables(cls):
-        return (
-            Var("color"),
-            Var("comments"),
-        )
+        params.append(VersionedParamPath(
+            'color', path='color'))
+        params.append(VersionedParamPath(
+            'comments', path='comments'))
 
-    @property
-    def color(self):
-        if self._color in self.COLOR:
-            return "color"+str(self.COLOR[self._color])
-        return self._color
+        self._params = tuple(params)
 
-    @color.setter
-    def color(self, value):
-        self._color = value
+    @staticmethod
+    def color_code(color_name):
+        """Returns the color code for a color
+
+        Args:
+            color_name (str): One of the following colors:
+
+                    * red
+                    * green
+                    * blue
+                    * yellow
+                    * copper
+                    * orange
+                    * purple
+                    * gray
+                    * light green
+                    * cyan
+                    * light gray
+                    * blue gray
+                    * lime
+                    * black
+                    * gold
+                    * brown
+
+        """
+        colors = {
+            'red':         1,
+            'green':       2,
+            'blue':        3,
+            'yellow':      4,
+            'copper':      5,
+            'orange':      6,
+            'purple':      7,
+            'gray':        8,
+            'light green': 9,
+            'cyan':        10,
+            'light gray':  11,
+            'blue gray':   12,
+            'lime':        13,
+            'black':       14,
+            'gold':        15,
+            'brown':       16,
+        }
+        if color_name not in colors:
+            raise ValueError("Color '{0}' is not valid".format(color_name))
+        return "color"+str(colors[color_name])
 
 
 class ServiceObject(VersionedPanObject):
@@ -448,5 +468,47 @@ class ApplicationContainer(VersionedPanObject):
 
         params.append(VersionedParamPath(
             'applications', path='functions', vartype='member'))
+
+        self._params = tuple(params)
+
+
+class SecurityProfileGroup(VersionedPanObject):
+    """Security Profile Group object
+
+    Args:
+        name (str): The group name
+        virus (str): Antivirus profile
+        spyware (str): Anti-spyware profile
+        vulnerability (str): Vulnerability protection profile
+        url_filtering (str): URL filtering profile
+        file_blocking (str): File blocking profile
+        data_filtering (str): Data filtering profile
+        wildfire_analysis (str): WildFire analysis profile
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/profile-group')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'virus', path='virus', vartype='member'))
+        params.append(VersionedParamPath(
+            'spyware', path='spyware', vartype='member'))
+        params.append(VersionedParamPath(
+            'vulnerability', path='vulnerability', vartype='member'))
+        params.append(VersionedParamPath(
+            'url_filtering', path='url-filtering', vartype='member'))
+        params.append(VersionedParamPath(
+            'file_blocking', path='file-blocking', vartype='member'))
+        params.append(VersionedParamPath(
+            'data_filtering', path='data-filtering', vartype='member'))
+        params.append(VersionedParamPath(
+            'wildfire_analysis', path='wildfire-analysis', vartype='member'))
 
         self._params = tuple(params)
