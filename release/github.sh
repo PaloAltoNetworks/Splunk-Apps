@@ -48,8 +48,6 @@ git add ${README}
 git add ${APPCONF}
 git commit -m "Bump version number to ${VERSION}"
 
-git push origin release/"${VERSION}"
-
 # Finish up gitflow and merge back to develop and master
 git flow release finish "${VERSION}"
 
