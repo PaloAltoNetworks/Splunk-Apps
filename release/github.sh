@@ -38,20 +38,20 @@ README=README.md
 git checkout develop
 
 # Release on GitHub
-git flow release start ${VERSION}
+git flow release start "${VERSION}"
 
 # Bump Versions
-release/bumpversion.sh ${VERSION} ${ADDON_VERSION}
+release/bumpversion.sh "${VERSION}" "${ADDON_VERSION}"
 
 # Add and commit version bump
 git add ${README}
 git add ${APPCONF}
 git commit -m "Bump version number to ${VERSION}"
 
-git push origin release/${VERSION}
+git push origin release/"${VERSION}"
 
 # Finish up gitflow and merge back to develop and master
-git flow release finish '${VERSION}'
+git flow release finish "${VERSION}"
 
 echo "Git release is ready. You still need to push develop and master to origin with tags."
 echo "eg. git push origin master develop ${VERSION}"
