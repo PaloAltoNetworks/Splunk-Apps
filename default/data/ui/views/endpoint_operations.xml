@@ -1,7 +1,9 @@
 <form>
   <label>Endpoint Operations</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_host) AS log.dest_host, values(log.src_host) AS log.src_host count FROM datamodel="pan_traps" WHERE nodename="log.operations" "$user|s$" $src_host$ $dest_host$ $dest_ip$ $severity$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
+    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_name) AS log.dest_name, values(log.src_host) AS log.src_host count FROM datamodel="pan_traps" WHERE nodename="log.operations" "$user|s$" $src_host$ $dest_name$ $dest_ip$ $severity$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
+
+    <query>| tstats summariesonly=t values(log.content_version) AS log.content_version, values(log.type) AS log.type, values(log.severity) AS log.severity, values(log.dest_name) AS log.dest_name, values(log.src_host) AS log.src_host count FROM datamodel="pan_traps" WHERE nodename="log.operations" "$user|s$" $src_host$ $dest_name$ $dest_ip$ $severity$ GROUPBY _time log.log_subtype log.user | rename log.* AS *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -24,10 +26,10 @@
       <prefix>log.src_host="</prefix>
       <suffix>"</suffix>
     </input>
-    <input type="text" token="dest_host">
+    <input type="text" token="dest_name">
       <label>Hostname</label>
       <default></default>
-      <prefix>log.dest_host="</prefix>
+      <prefix>log.dest_name="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="dest_ip">
@@ -56,7 +58,7 @@
       <title>Total Endpoints Reporting</title>
       <single>
         <search base="basesearch">
-          <query>| dedup dest_host | stats dc(dest_host)</query>
+          <query>| dedup dest_name | stats dc(dest_name)</query>
         </search>
       </single>
     </panel>
