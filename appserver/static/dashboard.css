@@ -1,14 +1,4 @@
 
-/* Set background */
-.main-section-body {
-    background-color:#dbe6e9;
-    background-image:-webkit-gradient(linear, 0 0, 0 100%, from(#e2e9eb), color-stop(400px, #dbe6e9), to(#dbe6e9));
-    background-image:-webkit-linear-gradient(#e2e9eb, #dbe6e9 400px, #dbe6e9);
-    background-image:-moz-linear-gradient(top, #e2e9eb, #dbe6e9 400px, #dbe6e9);
-    background-image:-o-linear-gradient(#e2e9eb, #dbe6e9 400px, #dbe6e9);
-    background-image:linear-gradient(#e2e9eb, #dbe6e9 400px, #dbe6e9);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffe2e9eb', endColorstr='#ffdbe6e9', GradientType=0);
-}
 
 /* Make the forms look like they are in a panel */
 /*.fieldset {
