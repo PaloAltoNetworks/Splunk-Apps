@@ -75,7 +75,7 @@ class MasterP(splunk.rest.BaseRestHandler):
         # Retrieve the pcap file.
         logger.info('Retrieving pcap file')
         dev.xapi.export(
-            'threat-pcap', search_time=cfg.search_time, pcapid=cfg.pcap_id)
+            'threat-pcap', search_time=cfg.search_time, pcapid=cfg.pcap_id, serialno=cfg.serial)
         if not dev.xapi.export_result or not dev.xapi.export_result['content']:
             raise ValueError('File not present or file is empty')
 
