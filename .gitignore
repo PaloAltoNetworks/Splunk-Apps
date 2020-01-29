@@ -84,3 +84,4 @@ pandoc-config.json
 
 # Working directory for builder
 working/
+.vscode/sftp.json
