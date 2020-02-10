@@ -85,3 +85,6 @@ pandoc-config.json
 # Working directory for builder
 working/
 .vscode/sftp.json
+appinspect.sh
+release/app_inspect_api.py
+release/appinspect.sh
