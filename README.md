@@ -2,8 +2,6 @@
 Palo Alto Networks App for Splunk
 =================================
 
-Copyright (C) 2012-2016 Palo Alto Networks Inc. All Rights Reserved.
-
 * **App Homepage:** https://splunkbase.splunk.com/app/491
 * **Authors:** Brian Torres-Gil, Paul Nguyen, Garfield Freeman - Palo Alto Networks
 * **App Version:** 6.2.0
@@ -47,3 +45,5 @@ From the directory `$SPLUNK_HOME/etc/apps/`, type the following command:
 
 **Pan-Python:** [Github] (https://github.com/kevinsteves/pan-python)  
 **PanDevice:** [Github] (https://github.com/PaloAltoNetworks/pandevice)
+
+Copyright (C) 2012-2020 Palo Alto Networks Inc. All Rights Reserved.
