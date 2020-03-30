@@ -1,0 +1,3 @@
+#: appserver/static/js/constants/messageDict.js:3
+msgid "Delete Confirmation"
+msgstr "确认删除"

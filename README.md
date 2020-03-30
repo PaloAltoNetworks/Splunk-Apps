@@ -1,49 +1,51 @@
+<p align="center" style="color: #343a40">
+  <img src=".github/splunk-logo.png" alt="Splunk" height="120">
+  <h1 align="center">Splunk App and Add-on</h1>
+</p>
+<h3 align="center" style="font-size: 1.2rem;">The official Palo Alto Networks Splunk App and Add-on</h3>
 
-Palo Alto Networks App for Splunk
-=================================
+>This monorepo contains both the App and Add-on for Splunk, including tests, release scripts, and CI/CD configuration
 
-* **App Homepage:** https://splunkbase.splunk.com/app/491
-* **Authors:** Brian Torres-Gil, Paul Nguyen, Garfield Freeman - Palo Alto Networks
-* **App Version:** 6.2.0
-* **Required Add-on (TA) Version:** Splunk_TA_paloalto 6.2.0
 
-### Description ###
+<!-- ![CI/CD](https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks/workflows/CI/CD/badge.svg?branch=master)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) -->
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org/)
+[![GitHub
+contributors](https://img.shields.io/github/contributors/PaloAltoNetworks/SplunkforPaloAltoNetworks)](https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks/graphs/contributors/)
 
-Palo Alto Networks and Splunk have partnered to deliver an advanced
-security reporting and analysis tool. The collaboration delivers
-operational reporting as well as simplified and configurable dashboard
-views across Palo Alto Networks family of next-generation firewalls.
+### 📖 Documentation
 
-Palo Alto Networks App for Splunk leverages the data visibility provided
-by Palo Alto Networks next-generation firewalls and endpoint security with
-Splunk's extensive investigation and visualization capabilities to deliver
-an advanced security reporting and analysis tool. This app enables security
-analysts, administrators, and architects to correlate application and user
-activities across all network and security infrastructures from a real-time
-and historical perspective. Complicated incident analysis that previously
-consumed days of manual and error-prone data mining can now be completed in a
-fraction of the time, saving not only manpower but also enabling key enterprise
-security resources to focus on critical, time-sensitive investigations.
+https://splunk.paloaltonetworks.com
 
-### Documentation ###
+### ⬇️ Download
 
-**Installation and Getting Started:** http://splunk.paloaltonetworks.com/getting_started.html  
-**Release Notes:** http://splunk.paloaltonetworks.com/release-notes.html  
-**Support:** http://splunk.paloaltonetworks.com/support.html
+- [Splunk App on SplunkBase](https://splunkbase.splunk.com/app/491)
+- [Splunk Add-on on SplunkBase](https://splunkbase.splunk.com/app/2757)
 
-### Install from Git ###
+### 💬 Support
 
-This app is available on [Splunkbase](http://splunkbase.splunk.com/app/491)
-and [Github](https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks).
-Optionally, you can clone the github repository to install the app.
+- [Troubleshooting Guide](https://splunk.paloaltonetworks.com/troubleshoot.html)
+- [Ask a Question](https://answers.splunk.com/answers/ask.html?appid=491)
+- [Report a bug](https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks/issues)
 
-From the directory `$SPLUNK_HOME/etc/apps/`, type the following command:
+### 🐛 Bugs / Issues / Feature Requests
 
-    git clone https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks.git SplunkforPaloAltoNetworks
-    
-### Libraries Included ###
+Please open all issues, feature requests, and pull requests for the App or
+Add-on here in this repository. We welcome your feedback and contributions! Let
+us know how we're doing! 🙏
 
-**Pan-Python:** [Github] (https://github.com/kevinsteves/pan-python)  
-**PanDevice:** [Github] (https://github.com/PaloAltoNetworks/pandevice)
+### 📚 App and Add-on READMEs
 
-Copyright (C) 2012-2020 Palo Alto Networks Inc. All Rights Reserved.
+- [Splunk App README](SplunkforPaloAltoNetworks)
+- [Splunk Add-on README](Splunk_TA_paloalto)
+
+### 📂 File structure of this repo
+
+- **SplunkforPaloAltoNetworks**: Official Splunk App
+- **Splunk_TA_paloalto**: Official Splunk Add-on (TA)
+- **.github**: CI/CD workflows
+- **scripts**: Build and AppInspect validation scripts
+- **test**: Test suites and test/development environments
+- **release.config.js**: Release configuration for CI/CD Release workflow
+

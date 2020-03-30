@@ -1,0 +1,114 @@
+version: '3.7'
+
+volumes:
+  dep1-etc:
+  dep1-var:
+  sh1-etc:
+  sh1-var:
+  sh2-etc:
+  sh2-var:
+  idx1-etc:
+  idx1-var:
+  idx2-etc:
+  idx2-var:
+
+networks:
+  splunk-net:
+    driver: bridge
+    attachable: true
+
+services:
+  dep1:
+    image: splunk/splunk:8.0
+    hostname: dep1
+    networks:
+      - default
+      - splunk-net
+    volumes:
+      - dep1-etc:/opt/splunk/etc
+      - dep1-var:/opt/splunk/var
+      - ../Splunk.License:/splunk.lic
+      - ../../Splunk_TA_paloalto:/tmp/Splunk_TA_paloalto
+      - ../../SplunkforPaloAltoNetworks:/tmp/SplunkforPaloAltoNetworks
+    env_file:
+      - '../test.env'
+      - './env'
+    environment:
+      - SPLUNK_ROLE=splunk_deployer
+      # - SPLUNK_APPS_URL=/tmp/Splunk_TA_paloalto,/tmp/SplunkforPaloAltoNetworks
+    ports:
+      - 127.0.0.1:8001:8000
+
+  sh1:
+    image: splunk/splunk:8.0
+    hostname: sh1
+    networks:
+      - default
+      - splunk-net
+    volumes:
+      - sh1-etc:/opt/splunk/etc
+      - sh1-var:/opt/splunk/var
+      - ../Splunk.License:/splunk.lic
+    env_file:
+      - '../test.env'
+      - './env'
+    environment:
+      - SPLUNK_ROLE=splunk_search_head_captain
+      - SPLUNK_SHC_PASS4SYMMKEY=password
+    ports:
+      - 127.0.0.1:8002:8000
+
+  sh2:
+    image: splunk/splunk:8.0
+    hostname: sh2
+    networks:
+      - default
+      - splunk-net
+    volumes:
+      - sh2-etc:/opt/splunk/etc
+      - sh2-var:/opt/splunk/var
+      - ../Splunk.License:/splunk.lic
+    env_file:
+      - '../test.env'
+      - './env'
+    environment:
+      - SPLUNK_ROLE=splunk_search_head
+      - SPLUNK_SHC_PASS4SYMMKEY=password
+    ports:
+      - 127.0.0.1:8003:8000
+
+  idx1:
+    image: splunk/splunk:8.0
+    hostname: idx1
+    networks:
+      - default
+      - splunk-net
+    volumes:
+      - idx1-etc:/opt/splunk/etc
+      - idx1-var:/opt/splunk/var
+      - ../Splunk.License:/splunk.lic
+    env_file:
+      - '../test.env'
+      - './env'
+    environment:
+      - SPLUNK_ROLE=splunk_indexer
+    ports:
+      - 127.0.0.1:8004:8000
+
+  idx2:
+    image: splunk/splunk:8.0
+    hostname: idx2
+    networks:
+      - default
+      - splunk-net
+    volumes:
+      - idx2-etc:/opt/splunk/etc
+      - idx2-var:/opt/splunk/var
+      - ../Splunk.License:/splunk.lic
+    env_file:
+      - '../test.env'
+      - './env'
+    environment:
+      - SPLUNK_ROLE=splunk_indexer
+    ports:
+      - 127.0.0.1:8005:8000

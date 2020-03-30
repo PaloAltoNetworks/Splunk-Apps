@@ -1,6 +1,14 @@
-# Borrowed from https://github.com/splunk/splunk-app-splunkgit
-# and combined with https://github.com/github/gitignore/blob/master/Python.gitignore
+### Splunk ###
+test/*.lic
+test/*.license
+test/*.License
+_build/
 
+### IDE ###
+.vscode/
+.idea/
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -11,9 +19,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
 build/
-_build/
 develop-eggs/
 dist/
 downloads/
@@ -23,14 +29,19 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
+*.spec
 
 # Installer logs
 pip-log.txt
@@ -39,12 +50,16 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
-*,cover
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -52,39 +67,77 @@ coverage.xml
 
 # Django stuff:
 *.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
 
 # Sphinx documentation
 docs/_build/
-docs/html/
 
 # PyBuilder
 target/
 
-# OSX noise
-.DS_Store
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# Eclipse project files
-.project
-.pydevproject
+# IPython
+profile_default/
+ipython_config.py
 
-# Local Splunk App configuration
-local.meta
-local/*
-!local/inputs.conf.sample
+# pyenv
+.python-version
 
-# Git repositories folder
-git-repositories/
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
 
-# PyCharm/IntelliJ meta-directory
-.idea
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
 
-# Sublime Text
-sftp-config.json
-pandoc-config.json
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
 
-# Working directory for builder
-working/
-.vscode/sftp.json
-appinspect.sh
-release/app_inspect_api.py
-release/appinspect.sh
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+### Exceptions ###
+!**/app.manifest
+!**/README/*.spec

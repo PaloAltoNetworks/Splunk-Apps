@@ -1,0 +1,116 @@
+name: CI/CD
+
+# Trigger the workflow on push or pull request
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    if: "! ( github.event_name == 'push' && github.ref == 'refs/heads/master')"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Add-on
+        id: build-addon
+        run: scripts/build.sh -a addon
+      - name: Build App
+        id: build-app
+        run: scripts/build.sh -a app
+      - uses: actions/upload-artifact@v1
+        with:
+          name: SplunkforPaloAltoNetworks-${{ github.run_id }}
+          path: ${{ steps.build-addon.outputs.path }}
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Splunk_TA_paloalto-${{ github.run_id }}
+          path: ${{ steps.build-app.outputs.path }}
+
+  appinspect-addon:
+    name: AppInspect (Add-on)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Add-on
+        id: build-addon
+        run: scripts/build.sh -a addon
+      - name: AppInspect
+        run: scripts/appinspect.sh -a addon -r
+        env:
+          SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
+          SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
+      - name: Save report
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
+        with:
+          name: Report-Splunk_TA_paloalto-${{ github.run_id }}.html
+          path: _build/Splunk_TA_paloalto-${{ github.run_id }}.html
+
+  appinspect-app:
+    name: AppInspect (App)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build App
+        id: build-app
+        run: scripts/build.sh -a app
+      - name: AppInspect
+        run: scripts/appinspect.sh -a app -r
+        env:
+          SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
+          SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
+      - name: Save report
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
+        with:
+          name: Report-SplunkforPaloAltoNetworks-${{ github.run_id }}.html
+          path: _build/SplunkforPaloAltoNetworks-${{ github.run_id }}.html
+
+  release:
+    name: Release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: [appinspect-addon, appinspect-app]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache npm modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-global-install
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install semantic-release
+        run: |
+          npm install -g \
+          semantic-release@^17.0.4 \
+          @semantic-release/exec@^5.0.0 \
+          @semantic-release/git@^9.0.0 \
+          conventional-changelog-conventionalcommits@^4.2.3
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+      - name: Build Add-on
+        id: build-addon
+        run: scripts/build.sh -a addon
+      - name: Build App
+        id: build-app
+        run: scripts/build.sh -a app
+      - uses: actions/upload-artifact@v1
+        with:
+          name: SplunkforPaloAltoNetworks-${{ github.run_id }}
+          path: ${{ steps.build-addon.outputs.path }}
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Splunk_TA_paloalto-${{ github.run_id }}
+          path: ${{ steps.build-app.outputs.path }}
