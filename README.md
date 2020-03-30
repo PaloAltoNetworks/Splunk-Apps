@@ -4,8 +4,15 @@
 </p>
 <h3 align="center" style="font-size: 1.2rem;">The official Palo Alto Networks Splunk App and Add-on</h3>
 
->This monorepo contains both the App and Add-on for Splunk, including tests,
-release scripts, and CI/CD configuration
+>This monorepo contains both the App and Add-on for Splunk, including tests, release scripts, and CI/CD configuration
+
+
+<!-- ![CI/CD](https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks/workflows/CI/CD/badge.svg?branch=master)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) -->
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org/)
+[![GitHub
+contributors](https://img.shields.io/github/contributors/PaloAltoNetworks/SplunkforPaloAltoNetworks)](https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks/graphs/contributors/)
 
 ### 📖 Documentation
 
@@ -30,8 +37,8 @@ us know how we're doing! 🙏
 
 ### 📚 App and Add-on READMEs
 
-- [Splunk App README](SplunkforPaloAltoNetworks/README.md)
-- [Splunk Add-on README](Splunk_TA_paloalto/README.md)
+- [Splunk App README](SplunkforPaloAltoNetworks)
+- [Splunk Add-on README](Splunk_TA_paloalto)
 
 ### 📂 File structure of this repo
 
