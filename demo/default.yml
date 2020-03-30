@@ -1,0 +1,144 @@
+---
+ansible_connection: local
+ansible_environment: {}
+ansible_post_tasks: null
+ansible_pre_tasks: null
+cert_prefix: https
+config:
+  baked: default.yml
+  defaults_dir: /tmp/defaults
+  env:
+    headers: null
+    var: SPLUNK_DEFAULTS_URL
+    verify: true
+  host:
+    headers: null
+    url: null
+    verify: true
+  max_delay: 60
+  max_retries: 3
+  max_timeout: 1200
+dmc_asset_interval: 3,18,33,48 * * * *
+dmc_forwarder_monitoring: false
+docker: true
+hide_password: false
+java_download_url: null
+java_update_version: null
+java_version: null
+retry_delay: 6
+retry_num: 60
+shc_sync_retry_num: 60
+splunk:
+  admin_user: admin
+  allow_upgrade: true
+  app_paths:
+    default: /opt/splunk/etc/apps
+    deployment: /opt/splunk/etc/deployment-apps
+    httpinput: /opt/splunk/etc/apps/splunk_httpinput
+    idxc: /opt/splunk/etc/master-apps
+    shc: /opt/splunk/etc/shcluster/apps
+  asan: false
+  cluster_master_url: null
+  conf:
+    web:
+      directory: /opt/splunk/etc/system/local
+      content:
+        default:
+        settings:
+          updateCheckerBaseUrl: 0
+    telemetry:
+      directory: /opt/splunk/etc/apps/splunk_instrumentation/local
+      content:
+        general:
+          sendAnonymizedUsage: 0
+          sendLicenseUsage: 0
+          showOptInModal: 0
+    user-prefs:
+      directory: /opt/splunk/etc/users/admin/user-prefs/local
+      content:
+        general:
+          render_version_messages: 0
+          dismissedInstrumentationOptInVersion: 4
+          hideInstrumentationOptInModal: 1
+          notification_python_3_impact: false
+          default_namespace: SplunkforPaloAltoNetworks
+          tz: America/Los_Angeles
+          # display.page.home.dashboardId: /servicesNS/nobody/SplunkforPaloAltoNetworks/data/ui/views/incident_feed
+    ui-prefs:
+      directory: /opt/splunk/etc/users/admin/launcher/local
+      content:
+        home:
+          display.page.home.showGettingStarted: 0
+    ui-tour:
+      directory: /opt/splunk/etc/users/admin/SplunkforPaloAltoNetworks/local
+      content:
+        incident_feed-tour:enterprise:
+          viewed: 1
+  deployer_url: null
+  dfs:
+    dfc_num_slots: 4
+    dfw_num_slots: 10
+    dfw_num_slots_enabled: false
+    enable: false
+    port: 9000
+    spark_master_host: 127.0.0.1
+    spark_master_webui_port: 8080
+  enable_service: false
+  exec: /opt/splunk/bin/splunk
+  group: splunk
+  hec:
+    enable: true
+    port: 8088
+    ssl: true
+    token: 859590c3-6329-476b-a852-0d44f57777eb
+  home: /opt/splunk
+  http_enableSSL: false
+  http_enableSSL_cert: null
+  http_enableSSL_privKey: null
+  http_enableSSL_privKey_password: null
+  http_port: 8000
+  idxc:
+    label: idxc_label
+    pass4SymmKey: LIjrWol4OBYOvZvhsR0JhkD8bTLNAIcl
+    replication_factor: 3
+    replication_port: 9887
+    search_factor: 3
+    secret: LIjrWol4OBYOvZvhsR0JhkD8bTLNAIcl
+  ignore_license: false
+  launch: {}
+  license_download_dest: /tmp/splunk.lic
+  license_master_url: null
+  multisite_master_port: 8089
+  multisite_replication_factor_origin: 2
+  multisite_replication_factor_total: 3
+  multisite_search_factor_origin: 1
+  multisite_search_factor_total: 3
+  opt: /opt
+  pass4SymmKey: null
+  password: paloalto
+  pid: /opt/splunk/var/run/splunk/splunkd.pid
+  root_endpoint: null
+  s2s:
+    ca: null
+    cert: null
+    enable: true
+    password: null
+    port: 9997
+    ssl: false
+  search_head_captain_url: null
+  secret: null
+  service_name: splunk
+  set_search_peers: true
+  shc:
+    label: shc_label
+    pass4SymmKey: EDkrTGZVZaZcZ8tWRqA0rgFwoTy6hT+b
+    replication_factor: 3
+    replication_port: 9887
+    secret: EDkrTGZVZaZcZ8tWRqA0rgFwoTy6hT+b
+  smartstore: null
+  svc_port: 8089
+  tar_dir: splunk
+  user: splunk
+  wildcard_license: false
+splunk_home_ownership_enforcement: true
+wait_for_splunk_retry_num: 60

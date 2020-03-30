@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "reset_demo_function"
+version = "0.1.0"
+description = "Cloud Function to reset the PANW Splunk demo"
+authors = ["Brian Torres-Gil <btorres-gil@paloaltonetworks.com>"]
+license = "ISC"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+google-auth = "^1.13.1"
+google-cloud-container = "^0.4.0"
+kubernetes = "^11.0.0"
+
+[tool.poetry.dev-dependencies]
+black = "^19.10b0"
+isort = "^4.3.21"
+bandit = "^1.6.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

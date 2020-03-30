@@ -1,0 +1,13 @@
+- name: "Create a Demo User"
+  command: "{{ splunk.exec }} add user demo -password paloalto -role user -auth {{ splunk.admin_user }}:{{ splunk.password }}" 
+  register: add_demo_user
+  changed_when: "'User added.' in start_splunk.stdout"
+  become: yes
+  become_user: "{{ splunk.user }}"
+
+- name: "Copy admin config to demo user"
+  copy:
+    src: /opt/splunk/etc/users/admin/
+    dest: /opt/splunk/etc/users/demo/
+    owner: "{{ splunk.user }}"
+    mode: preserve

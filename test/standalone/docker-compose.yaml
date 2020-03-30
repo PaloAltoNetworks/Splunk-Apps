@@ -14,6 +14,7 @@ services:
       - ../Splunk.License:/splunk.lic
       - ../../Splunk_TA_paloalto:/opt/splunk/etc/apps/Splunk_TA_paloalto
       - ../../SplunkforPaloAltoNetworks:/opt/splunk/etc/apps/SplunkforPaloAltoNetworks
+      - ../../pan_datagen:/opt/splunk/etc/apps/pan_datagen
     env_file:
       - '../test.env'
     # environment:
@@ -25,10 +26,13 @@ services:
   reloader:
     image: splunkdev-watchman:latest
     build: ../../../splunkdev-watchman
+    depends_on:
+      - so1
     volumes:
       - so1-etc:/so1/etc
       - ../../Splunk_TA_paloalto:/so1/Splunk_TA_paloalto
       - ../../SplunkforPaloAltoNetworks:/so1/SplunkforPaloAltoNetworks
+      - ../../pan_datagen:/so1/pan_datagen
     env_file:
       - '../test.env'
     environment:

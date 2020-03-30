@@ -1,0 +1,140 @@
+Apr 09 23:26:41 1,2012/04/09 23:26:41,001606001116,CONFIG,0,0,2012/02/25 00:51:50,192.168.0.2,,set,admin,Web,Succeeded, config shared local-user-database user  badguy,0,0x0
+Apr 09 23:26:26 1,2012/04/09 23:26:26,001606001116,CONFIG,0,0,2012/02/25 00:52:24,192.168.0.2,,set,admin,Web,Succeeded, config shared local-user-database user-group  admin,0,0x0
+Apr 09 23:25:56 1,2012/04/09 23:25:56,001606001116,CONFIG,0,0,2012/02/25 00:53:22,192.168.0.2,,set,admin,Web,Succeeded, config mgt-config users  badguy,0,0x0
+Apr 09 23:25:45 1,2012/04/09 23:25:45,001606001116,CONFIG,0,0,2012/02/25 00:53:40,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr 09 23:25:35 1,2012/04/09 23:25:35,001606001116,SYSTEM,routing,0,2012/02/25 00:53:53,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr 09 23:25:30 1,2012/04/09 23:25:30,001606001116,SYSTEM,vpn,0,2012/02/25 00:53:56,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr 09 23:25:25 1,2012/04/09 23:25:25,001606001116,SYSTEM,routing,0,2012/02/25 00:54:16,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr 09 23:25:20 1,2012/04/09 23:25:20,001606001116,SYSTEM,ras,0,2012/02/25 00:54:16,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr 09 23:23:45 1,2012/04/09 23:23:45,001606001116,CONFIG,0,0,2012/02/25 00:57:17,192.168.0.2,,edit,badguy,Web,Succeeded, vsys  vsys1 profiles url-filtering  monzyspolicy,0,0x0
+Apr 09 23:23:40 1,2012/04/09 23:23:40,001606001116,CONFIG,0,0,2012/02/25 00:57:36,192.168.0.2,,commit,badguy,Web,Submitted,,0,0x0
+Apr 09 23:23:25 1,2012/04/09 23:23:25,001606001116,SYSTEM,routing,0,2012/02/25 00:57:49,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr 09 23:23:25 1,2012/04/09 23:23:25,001606001116,SYSTEM,vpn,0,2012/02/25 00:57:52,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr 09 23:23:20 1,2012/04/09 23:23:20,001606001116,SYSTEM,ras,0,2012/02/25 00:57:56,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr 09 23:23:10 1,2012/04/09 23:23:10,001606001116,SYSTEM,routing,0,2012/02/25 00:58:12,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr 09 23:23:10 1,2012/04/09 23:23:10,001606001116,SYSTEM,vpn,0,2012/02/25 00:58:12,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr 09 23:23:10 1,2012/04/09 23:23:10,001606001116,SYSTEM,ras,0,2012/02/25 00:58:12,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr 09 23:23:10 1,2012/04/09 23:23:10,001606001116,SYSTEM,general,1,2012/02/25 00:58:14,,unknown,,0,0,general,informational,Config installed,909,0x0
+Apr 09 23:22:29 1,2012/04/09 23:22:29,001606001116,SYSTEM,general,0,2012/02/25 00:59:36,,general,,0,0,general,informational,Log type config cleared by user badguy ,0,0x0
+Apr 10 03:11:57 1,2012/04/10 03:11:57,001606001116,SYSTEM,general,1,2012/04/10 03:11:57,,unknown,,0,0,general,informational,Config installed,884,0x0
+Apr 10 03:11:56 1,2012/04/10 03:11:56,001606001116,SYSTEM,ras,0,2012/04/10 03:11:56,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr 10 03:11:56 1,2012/04/10 03:11:56,001606001116,SYSTEM,vpn,0,2012/04/10 03:11:56,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr 10 03:11:56 1,2012/04/10 03:11:56,001606001116,SYSTEM,routing,0,2012/04/10 03:11:56,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr 10 03:06:11 1,2012/04/10 03:06:11,001606001116,SYSTEM,ras,0,2012/04/10 03:06:11,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr 10 03:06:05 1,2012/04/10 03:06:05,001606001116,SYSTEM,vpn,0,2012/04/10 03:06:05,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr 10 03:06:00 1,2012/04/10 03:06:00,001606001116,SYSTEM,routing,0,2012/04/10 03:06:00,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 09:02:53 1,2012/04/09 09:02:53,001606001116,SYSTEM,general,1,2012/04/09 09:02:53,,unknown,,0,0,general,informational,Config installed,840,0x0
+Apr  9 09:02:52 1,2012/04/09 09:02:52,001606001116,SYSTEM,ras,0,2012/04/09 09:02:52,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 09:02:52 1,2012/04/09 09:02:52,001606001116,SYSTEM,vpn,0,2012/04/09 09:02:52,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 09:02:52 1,2012/04/09 09:02:52,001606001116,SYSTEM,routing,0,2012/04/09 09:02:52,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 09:00:55 1,2012/04/09 09:00:55,001606001116,SYSTEM,ras,0,2012/04/09 09:00:55,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 09:00:52 1,2012/04/09 09:00:52,001606001116,SYSTEM,vpn,0,2012/04/09 09:00:52,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 09:00:48 1,2012/04/09 09:00:48,001606001116,SYSTEM,routing,0,2012/04/09 09:00:48,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 09:00:35 1,2012/04/09 09:00:35,001606001116,CONFIG,0,0,2012/04/09 09:00:35,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  9 09:00:20 1,2012/04/09 09:00:20,001606001116,CONFIG,0,0,2012/04/09 09:00:20,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles data-objects  PII,0,0x0
+Apr  9 03:21:54 1,2012/04/09 03:21:54,001606001116,SYSTEM,general,1,2012/04/09 03:21:53,,unknown,,0,0,general,informational,Config installed,821,0x0
+Apr  9 03:21:53 1,2012/04/09 03:21:53,001606001116,SYSTEM,ras,0,2012/04/09 03:21:53,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:21:53 1,2012/04/09 03:21:53,001606001116,SYSTEM,vpn,0,2012/04/09 03:21:53,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:21:53 1,2012/04/09 03:21:53,001606001116,SYSTEM,routing,0,2012/04/09 03:21:53,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:18:33 1,2012/04/09 03:18:33,001606001116,SYSTEM,ras,0,2012/04/09 03:18:33,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 03:18:30 1,2012/04/09 03:18:30,001606001116,SYSTEM,vpn,0,2012/04/09 03:18:30,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 03:18:26 1,2012/04/09 03:18:26,001606001116,SYSTEM,routing,0,2012/04/09 03:18:26,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 03:18:14 1,2012/04/09 03:18:14,001606001116,CONFIG,0,0,2012/04/09 03:18:14,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  9 03:18:00 1,2012/04/09 03:18:00,001606001116,CONFIG,0,0,2012/04/09 03:18:00,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles data-objects  PII,0,0x0
+Apr  9 03:09:28 1,2012/04/09 03:09:28,001606001116,SYSTEM,general,1,2012/04/09 03:09:27,,unknown,,0,0,general,informational,Config installed,812,0x0
+Apr  9 03:09:27 1,2012/04/09 03:09:27,001606001116,SYSTEM,ras,0,2012/04/09 03:09:27,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:09:27 1,2012/04/09 03:09:27,001606001116,SYSTEM,vpn,0,2012/04/09 03:09:27,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:09:27 1,2012/04/09 03:09:27,001606001116,SYSTEM,routing,0,2012/04/09 03:09:27,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:05:19 1,2012/04/09 03:05:19,001606001116,SYSTEM,ras,0,2012/04/09 03:05:19,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 03:05:16 1,2012/04/09 03:05:16,001606001116,SYSTEM,vpn,0,2012/04/09 03:05:16,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 03:05:12 1,2012/04/09 03:05:12,001606001116,SYSTEM,routing,0,2012/04/09 03:05:12,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 03:04:59 1,2012/04/09 03:04:59,001606001116,CONFIG,0,0,2012/04/09 03:04:59,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  9 03:04:38 1,2012/04/09 03:04:38,001606001116,CONFIG,0,0,2012/04/09 03:04:38,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles data-objects  PII,0,0x0
+Apr  9 03:04:30 1,2012/04/09 03:04:30,001606001116,CONFIG,0,0,2012/04/09 03:04:30,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles data-objects  PII,0,0x0
+Apr  9 03:00:25 1,2012/04/09 03:00:25,001606001116,SYSTEM,general,1,2012/04/09 03:00:24,,unknown,,0,0,general,informational,Config installed,803,0x0
+Apr  9 03:00:23 1,2012/04/09 03:00:23,001606001116,SYSTEM,ras,0,2012/04/09 03:00:23,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:00:23 1,2012/04/09 03:00:23,001606001116,SYSTEM,vpn,0,2012/04/09 03:00:23,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 03:00:23 1,2012/04/09 03:00:23,001606001116,SYSTEM,routing,0,2012/04/09 03:00:23,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  9 02:56:06 1,2012/04/09 02:56:06,001606001116,SYSTEM,ras,0,2012/04/09 02:56:06,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 02:56:03 1,2012/04/09 02:56:03,001606001116,SYSTEM,vpn,0,2012/04/09 02:56:03,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 02:55:59 1,2012/04/09 02:55:59,001606001116,SYSTEM,routing,0,2012/04/09 02:55:59,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  9 02:55:47 1,2012/04/09 02:55:47,001606001116,CONFIG,0,0,2012/04/09 02:55:47,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  9 02:55:32 1,2012/04/09 02:55:32,001606001116,CONFIG,0,0,2012/04/09 02:55:32,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles data-objects  PII,0,0x0
+Apr  8 04:59:25 1,2012/04/08 04:59:25,001606001116,SYSTEM,general,1,2012/04/08 04:59:24,,unknown,,0,0,general,informational,Config installed,779,0x0
+Apr  8 04:59:24 1,2012/04/08 04:59:24,001606001116,SYSTEM,ras,0,2012/04/08 04:59:24,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 04:59:24 1,2012/04/08 04:59:24,001606001116,SYSTEM,vpn,0,2012/04/08 04:59:24,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 04:59:24 1,2012/04/08 04:59:24,001606001116,SYSTEM,routing,0,2012/04/08 04:59:24,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 04:59:08 1,2012/04/08 04:59:08,001606001116,SYSTEM,ras,0,2012/04/08 04:59:08,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 04:59:05 1,2012/04/08 04:59:05,001606001116,SYSTEM,vpn,0,2012/04/08 04:59:05,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 04:59:01 1,2012/04/08 04:59:01,001606001116,SYSTEM,routing,0,2012/04/08 04:59:01,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 04:58:48 1,2012/04/08 04:58:48,001606001116,CONFIG,0,0,2012/04/08 04:58:48,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 04:58:34 1,2012/04/08 04:58:34,001606001116,CONFIG,0,0,2012/04/08 04:58:34,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles file-blocking  DbDP,0,0x0
+Apr  8 04:56:48 1,2012/04/08 04:56:48,001606001116,CONFIG,0,0,2012/04/08 04:56:48,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles file-blocking  DbDP,0,0x0
+Apr  8 03:36:08 1,2012/04/08 03:36:08,001606001116,SYSTEM,general,1,2012/04/08 03:36:08,,unknown,,0,0,general,informational,Config installed,763,0x0
+Apr  8 03:36:07 1,2012/04/08 03:36:07,001606001116,SYSTEM,ras,0,2012/04/08 03:36:07,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:36:07 1,2012/04/08 03:36:07,001606001116,SYSTEM,vpn,0,2012/04/08 03:36:07,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:36:07 1,2012/04/08 03:36:07,001606001116,SYSTEM,routing,0,2012/04/08 03:36:07,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:31:40 1,2012/04/08 03:31:40,001606001116,SYSTEM,ras,0,2012/04/08 03:31:40,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:31:36 1,2012/04/08 03:31:36,001606001116,SYSTEM,vpn,0,2012/04/08 03:31:36,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:31:32 1,2012/04/08 03:31:32,001606001116,SYSTEM,routing,0,2012/04/08 03:31:32,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:31:19 1,2012/04/08 03:31:19,001606001116,CONFIG,0,0,2012/04/08 03:31:19,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 03:31:05 1,2012/04/08 03:31:05,001606001116,CONFIG,0,0,2012/04/08 03:31:05,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles data-objects  PII,0,0x0
+Apr  8 03:26:23 1,2012/04/08 03:26:23,001606001116,SYSTEM,general,1,2012/04/08 03:26:23,,unknown,,0,0,general,informational,Config installed,754,0x0
+Apr  8 03:26:22 1,2012/04/08 03:26:22,001606001116,SYSTEM,ras,0,2012/04/08 03:26:22,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:26:22 1,2012/04/08 03:26:22,001606001116,SYSTEM,vpn,0,2012/04/08 03:26:22,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:26:22 1,2012/04/08 03:26:22,001606001116,SYSTEM,routing,0,2012/04/08 03:26:22,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:26:06 1,2012/04/08 03:26:06,001606001116,SYSTEM,ras,0,2012/04/08 03:26:06,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:26:03 1,2012/04/08 03:26:03,001606001116,SYSTEM,vpn,0,2012/04/08 03:26:03,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:26:00 1,2012/04/08 03:26:00,001606001116,SYSTEM,routing,0,2012/04/08 03:25:59,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:25:46 1,2012/04/08 03:25:46,001606001116,CONFIG,0,0,2012/04/08 03:25:46,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 03:25:23 1,2012/04/08 03:25:23,001606001116,CONFIG,0,0,2012/04/08 03:25:23,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles data-filtering  PII,0,0x0
+Apr  8 03:24:18 1,2012/04/08 03:24:18,001606001116,SYSTEM,general,1,2012/04/08 03:24:18,,unknown,,0,0,general,informational,Config installed,745,0x0
+Apr  8 03:24:17 1,2012/04/08 03:24:17,001606001116,SYSTEM,ras,0,2012/04/08 03:24:17,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:24:17 1,2012/04/08 03:24:17,001606001116,SYSTEM,vpn,0,2012/04/08 03:24:17,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:24:17 1,2012/04/08 03:24:17,001606001116,SYSTEM,routing,0,2012/04/08 03:24:17,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:24:00 1,2012/04/08 03:24:00,001606001116,SYSTEM,ras,0,2012/04/08 03:24:00,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:23:57 1,2012/04/08 03:23:57,001606001116,SYSTEM,vpn,0,2012/04/08 03:23:57,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:23:53 1,2012/04/08 03:23:53,001606001116,SYSTEM,routing,0,2012/04/08 03:23:53,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:23:40 1,2012/04/08 03:23:40,001606001116,CONFIG,0,0,2012/04/08 03:23:40,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 03:23:26 1,2012/04/08 03:23:26,001606001116,CONFIG,0,0,2012/04/08 03:23:26,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles url-filtering  monzyspolicy,0,0x0
+Apr  8 03:11:52 1,2012/04/08 03:11:52,001606001116,SYSTEM,general,1,2012/04/08 03:11:51,,unknown,,0,0,general,informational,Config installed,734,0x0
+Apr  8 03:11:51 1,2012/04/08 03:11:51,001606001116,SYSTEM,ras,0,2012/04/08 03:11:51,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:11:51 1,2012/04/08 03:11:51,001606001116,SYSTEM,vpn,0,2012/04/08 03:11:51,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:11:51 1,2012/04/08 03:11:51,001606001116,SYSTEM,routing,0,2012/04/08 03:11:51,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:11:36 1,2012/04/08 03:11:36,001606001116,SYSTEM,ras,0,2012/04/08 03:11:36,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:11:32 1,2012/04/08 03:11:32,001606001116,SYSTEM,vpn,0,2012/04/08 03:11:32,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:11:29 1,2012/04/08 03:11:29,001606001116,SYSTEM,routing,0,2012/04/08 03:11:29,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:11:16 1,2012/04/08 03:11:16,001606001116,CONFIG,0,0,2012/04/08 03:11:16,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 03:11:02 1,2012/04/08 03:11:02,001606001116,CONFIG,0,0,2012/04/08 03:11:02,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profile-group  FullSpectrum,0,0x0
+Apr  8 03:07:49 1,2012/04/08 03:07:49,001606001116,SYSTEM,general,1,2012/04/08 03:07:49,,unknown,,0,0,general,informational,Config installed,725,0x0
+Apr  8 03:07:48 1,2012/04/08 03:07:48,001606001116,SYSTEM,ras,0,2012/04/08 03:07:48,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:07:48 1,2012/04/08 03:07:48,001606001116,SYSTEM,vpn,0,2012/04/08 03:07:48,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:07:48 1,2012/04/08 03:07:48,001606001116,SYSTEM,routing,0,2012/04/08 03:07:48,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 03:05:29 1,2012/04/08 03:05:29,001606001116,SYSTEM,ras,0,2012/04/08 03:05:29,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:05:25 1,2012/04/08 03:05:25,001606001116,SYSTEM,vpn,0,2012/04/08 03:05:25,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:05:21 1,2012/04/08 03:05:21,001606001116,SYSTEM,routing,0,2012/04/08 03:05:21,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 03:05:09 1,2012/04/08 03:05:09,001606001116,CONFIG,0,0,2012/04/08 03:05:09,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 03:04:52 1,2012/04/08 03:04:52,001606001116,CONFIG,0,0,2012/04/08 03:04:52,192.168.0.2,,set,admin,Web,Succeeded, vsys  vsys1 profiles data-filtering  PII,0,0x0
+Apr  8 03:04:35 1,2012/04/08 03:04:35,001606001116,CONFIG,0,0,2012/04/08 03:04:35,192.168.0.2,,set,admin,Web,Succeeded, vsys  vsys1 profiles data-objects  PII,0,0x0
+Apr  8 02:16:31 1,2012/04/08 02:16:31,001606001116,SYSTEM,general,1,2012/04/08 02:16:30,,unknown,,0,0,general,informational,Config installed,716,0x0
+Apr  8 02:16:30 1,2012/04/08 02:16:30,001606001116,SYSTEM,ras,0,2012/04/08 02:16:30,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 02:16:30 1,2012/04/08 02:16:30,001606001116,SYSTEM,vpn,0,2012/04/08 02:16:30,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 02:16:30 1,2012/04/08 02:16:30,001606001116,SYSTEM,routing,0,2012/04/08 02:16:30,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 02:16:14 1,2012/04/08 02:16:14,001606001116,SYSTEM,ras,0,2012/04/08 02:16:14,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 02:16:11 1,2012/04/08 02:16:11,001606001116,SYSTEM,vpn,0,2012/04/08 02:16:11,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 02:16:07 1,2012/04/08 02:16:07,001606001116,SYSTEM,routing,0,2012/04/08 02:16:07,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 02:15:55 1,2012/04/08 02:15:55,001606001116,CONFIG,0,0,2012/04/08 02:15:55,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 02:15:42 1,2012/04/08 02:15:42,001606001116,CONFIG,0,0,2012/04/08 02:15:42,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles url-filtering  monzyspolicy,0,0x0
+Apr  8 02:10:15 1,2012/04/08 02:10:15,001606001116,SYSTEM,general,1,2012/04/08 02:10:14,,unknown,,0,0,general,informational,Config installed,705,0x0
+Apr  8 02:10:14 1,2012/04/08 02:10:14,001606001116,SYSTEM,ras,0,2012/04/08 02:10:14,,rasmgr-config-p2-success,,0,0,general,informational,RASMGR daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 02:10:14 1,2012/04/08 02:10:14,001606001116,SYSTEM,vpn,0,2012/04/08 02:10:14,,ike-config-p2-success,,0,0,general,informational,IKE daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 02:10:14 1,2012/04/08 02:10:14,001606001116,SYSTEM,routing,0,2012/04/08 02:10:14,,routed-config-p2-success,,0,0,general,informational,Route daemon configuration load phase-2 succeeded.,0,0x0
+Apr  8 02:09:57 1,2012/04/08 02:09:57,001606001116,SYSTEM,ras,0,2012/04/08 02:09:57,,rasmgr-config-p1-success,,0,0,general,informational,RASMGR daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 02:09:54 1,2012/04/08 02:09:54,001606001116,SYSTEM,vpn,0,2012/04/08 02:09:54,,ike-config-p1-success,,0,0,general,informational,IKE daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 02:09:50 1,2012/04/08 02:09:50,001606001116,SYSTEM,routing,0,2012/04/08 02:09:50,,routed-config-p1-success,,0,0,general,informational,Route daemon configuration load phase-1 succeeded.,0,0x0
+Apr  8 02:09:37 1,2012/04/08 02:09:37,001606001116,CONFIG,0,0,2012/04/08 02:09:37,192.168.0.2,,commit,admin,Web,Submitted,,0,0x0
+Apr  8 02:08:52 1,2012/04/08 02:08:52,001606001116,CONFIG,0,0,2012/04/08 02:08:52,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles url-filtering  alert_all,0,0x0
+Apr  8 02:08:14 1,2012/04/08 02:08:14,001606001116,CONFIG,0,0,2012/04/08 02:08:14,192.168.0.2,,rename,admin,Web,Succeeded, vsys  vsys1 profiles url-filtering  monzyspolicy-1,0,0x0
+Apr  8 02:08:14 1,2012/04/08 02:08:14,001606001116,CONFIG,0,0,2012/04/08 02:08:14,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles url-filtering  monzyspolicy-1,0,0x0
+Apr  8 02:07:03 1,2012/04/08 02:07:03,001606001116,CONFIG,0,0,2012/04/08 02:07:03,192.168.0.2,,clone,admin,Web,Succeeded, vsys  vsys1 profiles url-filtering,0,0x0
+Apr  8 02:07:00 1,2012/04/08 02:07:00,001606001116,CONFIG,0,0,2012/04/08 02:07:00,192.168.0.2,,edit,admin,Web,Succeeded, vsys  vsys1 profiles url-filtering  monzyspolicy,0,0x0
