@@ -46,6 +46,7 @@ us know how we're doing! 🙏
 - **Splunk_TA_paloalto**: Official Splunk Add-on (TA)
 - **.github**: CI/CD workflows
 - **scripts**: Build and AppInspect validation scripts
+- **demo**: Docker-based demo with sample data generator
 - **test**: Test suites and test/development environments
 - **release.config.js**: Release configuration for CI/CD Release workflow
 
