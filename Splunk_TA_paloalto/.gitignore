@@ -88,6 +88,8 @@ working/
 #Eventgen
 samples/
 default/eventgen.conf
+bin/eventgen_kvstore_loader.py
+README/eventgen.conf.spec
 bin/cred-init.json
 
 !app.manifest

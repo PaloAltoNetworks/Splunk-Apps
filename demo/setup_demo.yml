@@ -1,0 +1,22 @@
+- name: "setup_demo : Copy eventgen config to TA"
+  copy:
+    src: /tmp/datagen/
+    dest: /opt/splunk/etc/apps/Splunk_TA_paloalto/
+    owner: "{{ splunk.user }}"
+    mode: preserve
+    
+- name: "setup_demo : Create a Demo User"
+  command: "{{ splunk.exec }} add user demo -password paloalto -role user -auth {{ splunk.admin_user }}:{{ splunk.password }}" 
+  when: lookup('env', 'DEMO_USER') == 'true'
+  register: add_demo_user
+  changed_when: "'User added.' in start_splunk.stdout"
+  become: yes
+  become_user: "{{ splunk.user }}"
+
+- name: "setup_demo : Copy admin config to demo user"
+  when: lookup('env', 'DEMO_USER') == 'true'
+  copy:
+    src: /opt/splunk/etc/users/admin/
+    dest: /opt/splunk/etc/users/demo/
+    owner: "{{ splunk.user }}"
+    mode: preserve

@@ -16,15 +16,17 @@ print_usage () {
     echo ""
     echo "Usage:"
     echo ""
-    echo "build.sh -a <app or addon>"
+    echo "build.sh -a <app or addon> [-o filename] [-l]"
     echo ""
     echo "  -a What to build. Must be either 'app' or 'addon'."
+    echo "  -o The filename of the output package"
+    echo "  -l Build from local files, not from git-archive"
     echo ""
 }
 
 APP='Splunk_TA_paloalto'
 
-while getopts a:h FLAG; do
+while getopts a:o:lh FLAG; do
   case $FLAG in
     a)
       if [ "$OPTARG" == "app" ]; then
@@ -36,6 +38,12 @@ while getopts a:h FLAG; do
         exit 1
       fi
       ;;
+    o)
+      OUTPUT_FILE="$OPTARG"
+      ;;
+    l)
+      BUILD_LOCAL="true"
+      ;;
     h)
       print_usage
       ;;
@@ -46,24 +54,37 @@ while getopts a:h FLAG; do
   esac
 done
 
-# Get the current version from the app
-VERSION=$(get_version "$ROOT/$APP")
-BRANCH=$(get_branch)
-BUILD=$(get_build)
-
-log_info "Building ${APP} version ${VERSION} build ${BUILD} from branch ${BRANCH}"
-
-# Create tar file of App
+# Clean up previous builds
 rm -rf "${ROOT}/_build/tmp" 2>/dev/null
 mkdir -p "${ROOT}/_build/tmp"
-cd "${ROOT}/${APP}"
-git archive --format=tar --prefix="${APP}/" HEAD ./ | gzip >"${ROOT}/_build/tmp/${APP}-${VERSION}-${BUILD}-temp.tgz"
 
-# Uncompress the App
-cd "${ROOT}/_build/tmp"
-rm -rf "${APP}" >/dev/null
-tar xzf "${APP}-${VERSION}-${BUILD}-temp.tgz"
-rm "${APP}-${VERSION}-${BUILD}-temp.tgz"
+# Get the current version from the app
+VERSION=$(get_version "$ROOT/$APP")
+
+if [ -z "$BUILD_LOCAL" ]; then
+    BRANCH=$(get_branch)
+    BUILD=$(get_build)
+
+    log_info "Building ${APP} version ${VERSION} build ${BUILD} from branch ${BRANCH}"
+
+    cd "${ROOT}/${APP}"
+    # Use GIT to build a temp archive
+    git archive --format=tar --prefix="${APP}/" HEAD ./ | gzip >"${ROOT}/_build/tmp/${APP}-${VERSION}-${BUILD}-temp.tgz"
+    # Uncompress the App
+    cd "${ROOT}/_build/tmp"
+    rm -rf "${APP}" >/dev/null
+    tar xzf "${APP}-${VERSION}-${BUILD}-temp.tgz"
+    rm "${APP}-${VERSION}-${BUILD}-temp.tgz"
+else
+    BRANCH=no-branch
+    BUILD=local
+
+    log_info "Building ${APP} version ${VERSION} build ${BUILD} from branch ${BRANCH}"
+
+    # Just copy the files, don't use git. Safe during CI, but not anywhere else.
+    cp -R "${ROOT}/${APP}" "${ROOT}/_build/tmp/"
+    cd "${ROOT}/_build/tmp"
+fi
 
 # Strip out stuff that SplunkBase doesn't like
 # such as hidden files and Makefiles
@@ -74,7 +95,11 @@ rm "${APP}/bin/lib/pandevice/docs/Makefile"
 rm "${APP}/bin/lib/pan-python/doc/Makefile"
 rm -rf "${APP}/release"
 
-FILENAME=$(get_build_filename "$APP" "$VERSION" "$BRANCH" "$BUILD")
+if [ -z "$OUTPUT_FILE" ]; then
+    FILENAME=$(get_build_filename "$APP" "$VERSION" "$BRANCH" "$BUILD")
+else
+    FILENAME="$OUTPUT_FILE"
+fi
 
 # Re-compress to tar file and clean up
 tar czf "${ROOT}/_build/${FILENAME}" "${APP}"

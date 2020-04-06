@@ -1,7 +1,7 @@
 ---
 ansible_connection: local
 ansible_environment: {}
-ansible_post_tasks: null
+ansible_post_tasks: file:///tmp/setup_demo.yml
 ansible_pre_tasks: null
 cert_prefix: https
 config:
@@ -74,6 +74,21 @@ splunk:
       content:
         incident_feed-tour:enterprise:
           viewed: 1
+    datamodels:
+      directory: /opt/splunk/etc/system/local
+      content:
+        pan_firewall:
+          acceleration: 1
+          acceleration.earliest_time: -1w
+        pan_traps:
+          acceleration: 1
+          acceleration.earliest_time: -1w
+        pan_wildfire_report:
+          acceleration: 1
+          acceleration.earliest_time: -1mon
+        pan_aperture:
+          acceleration: 1
+          acceleration.earliest_time: -1w
   deployer_url: null
   dfs:
     dfc_num_slots: 4

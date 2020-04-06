@@ -7,7 +7,9 @@ volumes:
 services:
   so1:
     image: splunk-panw-demo
-    build: ../../demo
+    build: 
+      context: ../..
+      dockerfile: demo/Dockerfile
     hostname: so1
     volumes:
       - so1-etc:/opt/splunk/etc
@@ -18,7 +20,7 @@ services:
     env_file:
       - '../test.env'
     environment:
-      - SPLUNK_APPS_URL=/panw-apps/eventgen.tgz
+      - SPLUNK_APPS_URL=/tmp/eventgen.tgz
     ports:
       - 127.0.0.1:8001:8000
       - 127.0.0.1:8002:8089

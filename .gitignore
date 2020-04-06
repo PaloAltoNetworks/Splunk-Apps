@@ -7,6 +7,7 @@ _build/
 ### IDE ###
 .vscode/
 .idea/
+.envrc
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -141,3 +142,4 @@ dmypy.json
 ### Exceptions ###
 !**/app.manifest
 !**/README/*.spec
+!demo/conf/eventgen_conf/eventgen.conf.spec
