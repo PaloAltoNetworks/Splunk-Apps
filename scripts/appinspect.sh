@@ -34,7 +34,7 @@ print_usage () {
     echo ""
     echo "appinspect.sh -a <APP NAME> [-f <FILENAME>] [-j] [-r]"
     echo ""
-    echo "  -a Name of the App to inspect"
+    echo "  -a What to inspect. Must be either 'app' or 'addon'."
     echo "  -f File to submit for inspection"
     echo "  -j Output a JSON report with details of all checks"
     echo "  -r Create an HTML report file with details of all checks"
@@ -136,6 +136,7 @@ while getopts a:f:jrh FLAG; do
         ;;
         h)
         print_usage
+        exit 0
         ;;
         j)
         JSON_REPORT=true

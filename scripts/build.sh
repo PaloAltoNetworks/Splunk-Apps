@@ -46,6 +46,7 @@ while getopts a:o:lh FLAG; do
       ;;
     h)
       print_usage
+      exit 0
       ;;
     \?) #unrecognized option - show help
       print_usage
