@@ -93,3 +93,4 @@ README/eventgen.conf.spec
 bin/cred-init.json
 
 !app.manifest
+!appserver/static/js/build
