@@ -14,6 +14,7 @@ ADDON=Splunk_TA_paloalto
 APPCONF=default/app.conf
 README=README.md
 APPMANIFEST=app.manifest
+GLOBALCONFIG=appserver/static/js/build/globalConfig.json
 
 # Exit immediatly if any command exits with a non-zero status
 set -e
@@ -113,3 +114,9 @@ FILE="${ROOT}/${ADDON}/${README}"
 [ "$DEBUG" ] && log_debug "Set Addon ${README} Version to ${NEW_VERSION}"
 grep -E 'Add-on Version:\*\* .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/Add-on Version:\*\* .+/Add-on Version:** ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
+
+FILE="${ROOT}/${ADDON}/${GLOBALCONFIG}"
+
+[ "$DEBUG" ] && log_debug "Set Addon GlobalConfig Version to ${NEW_VERSION}"
+grep -E '\"version\": .+' "$FILE" >/dev/null
+sed -i.bak -E "s/version\": .+/version\": \"${NEW_VERSION}\",/" "$FILE" && rm "${FILE}.bak"
