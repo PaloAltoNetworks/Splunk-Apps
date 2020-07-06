@@ -721,8 +721,8 @@ SEE ALSO
 
  pan.xapi, panconf.py
 
- PAN-OS XML API Reference
-  https://www.paloaltonetworks.com/documentation/71/pan-os/xml-api
+ PAN-OS and Panorama API Guide
+  https://docs.paloaltonetworks.com/pan-os/9-1/pan-os-panorama-api.html
 
  PAN-OS XML API Labs with pan-python
   http://api-lab.paloaltonetworks.com/

@@ -1,6 +1,112 @@
 Release History
 ===============
 
+0.16.0 (2020-01-11)
+-------------------
+
+- pan.config: Support 9.1.0 config for set format.
+
+- pan.licapi: 'version' field in request header should use version
+  attribute and not int().  This was not noticed because version:256
+  would previously use the current API version of 1.  Bug found by
+  Stacey Sheldon.
+
+- pan.licapi.rst: Document pan.licapi._ApiVersion int() layout
+  correctly.
+
+- Use 9.1 documentation links.
+
+- panwfapi.py: Fix 'SyntaxWarning: "is" with a literal. Did you mean
+  "=="?' warning from Python 3.8.
+
+- setup.py: Add Python 3.8.
+
+0.15.0 (2019-07-18)
+-------------------
+
+- pan.afapi: Automatic int conversions have been deprecated in
+  Python3.  See: https://bugs.python.org/issue27672
+
+- Use 9.0 documentation links.
+
+- pan.wfapi, panwfapi.py, pan.wfapi.rst, panwfapi.rst: Add support for
+  retrieving additional malware test file types.
+
+- pycodestyle fixes.
+
+- pan.licapi, pan.afapi: Remove verbose argument from namedtuple() for
+  Python 3.7.  From Michael Richardson.
+
+0.14.0 (2018-12-22)
+-------------------
+
+- setup.py: Cleanup and switch to setuptools.  Will now also publish
+  wheels to PyPI.  Classify as Production/Stable.
+
+- Rename README.txt to README.rst and shrink.
+
+- pan.config: Support 9.0.0 config for set format.
+
+0.13.0 (2018-04-29)
+-------------------
+
+- Documentation fixes.
+
+- pan.config: Support 8.1.0 config for set format.
+
+- Use 8.1 documentation links.
+
+0.12.0 (2017-05-28)
+-------------------
+
+- Add documentation for panafapi.py.
+
+- Documentation fixes.
+
+- panxapi.py: For json.dumps() use separators=(',', ': ') so -j output
+  is the same with py2 and py3 (this is the default when indent is not
+  None starting in 3.4).
+
+- panxapi.py: Allow -t '' which is the same as no tag but can also be
+  used to create tag-less entries for a .panrc.
+
+- pan.config: Quote set argument with single quotes if it contains a
+  double quote.
+
+0.11.0 (2017-03-31)
+-------------------
+
+- pan.wfapi.rst, panwfapi.rst: Reference "WildFire API Reference" for
+  platform ID documentation.
+
+- Use 8.0 documentation links.
+
+- pan.config: Add XPaths for 8.0.
+
+- Add a Python and command line interface to the PAN-OS licensing API.
+
+- panwfapi.py, pan.wfapi: Add phishing verdict.
+
+- pan.xapi: When URLError try to deduce if it's a SSL handshake error
+  and if OpenSSL may not support TLS 1.1, and log warning at DEBUG1
+  that PAN-OS 8.0 does not allow TLS 1.0 connections by default.
+
+- pan.xapi, pan.afapi, pan.wfapi: log ssl.OPENSSL_VERSION at DEBUG3.
+
+- pan.xapi.rst: Fix cut-paste error in xml_result().
+
+- Remove Python 3.[23] and add 3.5 to supported list.  3.[23] should
+  continue to work however I'm not testing with them.
+
+- pan.wfapi, pan.xapi: Handle ssl.CertificateError exception.
+
+- pan.wfapi: Fix raise of PanXapiError vs. PanWFapiError.
+
+- pan.config: Add XPaths used for XML to set translation in 7.0 and 7.1.
+
+- pan.xapi: Add undocumented feature to use pre PAN-OS 4.1 API request
+  URI and commit request.  From Darlene Wong.
+
 0.10.0 (2016-07-23)
 -------------------
 

@@ -521,7 +521,7 @@ xml_root()
 xml_result()
 ~~~~~~~~~~~~
 
- The xml_root() method returns the XML document from the previous
+ The xml_result() method returns the XML document from the previous
  request as a string starting at the child of the result element.
 
 status
@@ -655,8 +655,8 @@ SEE ALSO
 
  panxapi.py
 
- PAN-OS XML API Reference
-  https://www.paloaltonetworks.com/documentation/71/pan-os/xml-api
+ PAN-OS and Panorama API Guide
+  https://docs.paloaltonetworks.com/pan-os/9-1/pan-os-panorama-api.html
 
 AUTHORS
 =======

@@ -67,9 +67,9 @@ DESCRIPTION
  Request                     PanAFapi Method                  API Resource URI
  =========================   ==============================   ================
  Search samples              samples_search()                 /samples/search/
- Get samples results         samples_search_results()         /samples/results/
+ Get samples results         samples_results()                /samples/results/
  Search sessions             sessions_search()                /sessions/search/
- Get sessions results        sessions_search_results()        /sessions/results/
+ Get sessions results        sessions_results()               /sessions/results/
  Get histogram of sessions   sessions_histogram_search()      /sessions/histogram/search/
  Get histogram results       sessions_histogram_results()     /sessions/histogram/results/
  Get aggregate of sessions   sessions_aggregate_search()      /sessions/aggregate/search/
@@ -131,7 +131,7 @@ class pan.afapi.PanAFapi()
                            sleeper=None)
 
  **api_version**
-  API version as a string in the form v\ **major**.\ **minor** or
+  API version is a string in the form v\ **major**.\ **minor** or
   **major**.\ **minor** (e.g., *v1.0*).  The API version is used to determine
   the PanAFapi class implementation to use.
 
@@ -448,7 +448,7 @@ sample_analysis(data=None, sampleid=None)
  sample's WildFire analysis.
 
  **sampleid**
-  The AutoFocus sample ID.
+  The SHA256 hash of the sample.
 
 export(data=None)
 ~~~~~~~~~~~~~~~~~
@@ -554,8 +554,8 @@ SEE ALSO
 
  panafapi.py
 
- AutoFocus API Reference
-  https://www.paloaltonetworks.com/documentation/autofocus/autofocus/autofocus_api.html
+ AutoFocus API Reference Guide
+  https://docs.paloaltonetworks.com/autofocus/autofocus-api.html
 
 AUTHORS
 =======

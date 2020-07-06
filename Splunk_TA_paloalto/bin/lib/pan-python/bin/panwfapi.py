@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Copyright (c) 2013-2016 Kevin Steves <kevin.steves@pobox.com>
+# Copyright (c) 2013-2017 Kevin Steves <kevin.steves@pobox.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -226,8 +226,8 @@ def main():
                         d = d - timedelta(-x)
                         kwargs['date'] = d.isoformat()
                         if options['debug']:
-                            print('relative date(%d): %s' % (x, kwargs['date']),
-                                  file=sys.stderr)
+                            print('relative date(%d): %s' %
+                                  (x, kwargs['date']), file=sys.stderr)
 
             wfapi.verdicts_changed(**kwargs)
             print_status(wfapi, action)
@@ -237,7 +237,7 @@ def main():
         if options['testfile']:
             action = 'testfile'
 
-            wfapi.testfile()
+            wfapi.testfile(options['type'])
             print_status(wfapi, action)
             print_response(wfapi, options)
             save_file(wfapi, options)
@@ -304,8 +304,8 @@ def process_arg(s, list=False):
         print('lines:', lines, file=sys.stderr)
 
     if list:
-        l = [x.rstrip('\r\n') for x in lines]
-        return l
+        _lines = [x.rstrip('\r\n') for x in lines]
+        return _lines
 
     lines = ''.join(lines)
     return lines
@@ -316,6 +316,7 @@ def process_verdict(verdict):
         'benign': pan.wfapi.BENIGN,
         'malware': pan.wfapi.MALWARE,
         'grayware': pan.wfapi.GRAYWARE,
+        'phishing': pan.wfapi.PHISHING,
     }
 
     try:
@@ -343,6 +344,7 @@ def parse_opts():
         'email': None,
         'comment': None,
         'testfile': False,
+        'type': None,
         'format': None,
         'date': None,
         'dst': None,
@@ -368,7 +370,7 @@ def parse_opts():
                     'pcap', 'changed',
                     'hash=', 'platform=', 'testfile',
                     'new-verdict=', 'email=', 'comment=',
-                    'format=', 'date=', 'dst=',
+                    'type=', 'format=', 'date=', 'dst=',
                     'http', 'ssl=', 'cafile=', 'capath=',
                     ]
 
@@ -411,6 +413,8 @@ def parse_opts():
             options['comment'] = arg
         elif opt == '--testfile':
             options['testfile'] = True
+        elif opt == '--type':
+            options['type'] = arg
         elif opt == '--format':
             options['format'] = arg
         elif opt == '--date':
@@ -529,11 +533,11 @@ def print_status(wfapi, action, exception_msg=None):
 
 
 def print_response(wfapi, options):
-    if wfapi.response_type is 'html' and wfapi.response_body is not None:
+    if wfapi.response_type == 'html' and wfapi.response_body is not None:
         if options['print_html']:
             print(wfapi.response_body.rstrip())
 
-    elif wfapi.response_type is 'xml' and wfapi.response_body is not None:
+    elif wfapi.response_type == 'xml' and wfapi.response_body is not None:
         if options['print_xml']:
             print(wfapi.response_body.rstrip())
 
@@ -628,10 +632,11 @@ def usage():
     --changed             get changed verdicts
     --hash hash           query MD5 or SHA256 hash
     --platform id         platform ID for sandbox environment
-    --new-verdict verdict benign|malware|grayware
+    --new-verdict verdict benign|malware|grayware|phishing
     --email address       notification e-mail address
     --comment comment     change request explanation
     --testfile            get sample malware test file
+    --type type           test file type
     --format format       report output format
     --date date           start date for changed verdicts
                           (YYYY-MM-DD or -days)
@@ -652,6 +657,7 @@ def usage():
     --help                display usage
 '''
     print(usage % os.path.basename(sys.argv[0]), end='')
+
 
 if __name__ == '__main__':
     main()

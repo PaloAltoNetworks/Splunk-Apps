@@ -1,7 +1,9 @@
-RST2HTML = rst2html
+RST2HTML = rst2html.py
 OPTIONS =
 SOURCE = panrc.html panxapi.html pan.xapi.html panconf.html \
-	panwfapi.html pan.wfapi.html pan.afapi.html
+	panwfapi.html pan.wfapi.html \
+	panafapi.html pan.afapi.html \
+	panlicapi.html pan.licapi.html
 
 .SUFFIXES: .rst .html
 .rst.html:

@@ -7,3 +7,5 @@ Patches and Suggestions
 - Brian Torres-Gil
 - Jonathan Kaplan
 - Andrew Stanton
+- Darlene Wong
+- Michael Richardson
