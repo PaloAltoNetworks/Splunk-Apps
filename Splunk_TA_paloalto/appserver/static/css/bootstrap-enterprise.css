@@ -3222,7 +3222,6 @@ table.form tr:last-child .help-block {
 
 .shared-controls-syntheticradiocontrol .btn-radio.disabled:before {
   background: #e6e6e6;
-  -webkit-filter: none;
   filter: none;
   border-color: #ccc;
 }
@@ -3469,6 +3468,14 @@ table.form tr:last-child .help-block {
 
 .controls.input-append, .controls.input-prepend {
 	display: block;
+}
+
+.controls-split.input-prepend .btn-group {
+    margin-right: -1px;
+}
+
+.controls-split.input-append .btn-group {
+    margin-left: -1px;
 }
 
 .input-append input + .add-on.dropdown-toggle {
@@ -4646,7 +4653,6 @@ body.print .header-table-docked,
 
 .tourbar .btn {
   background: transparent;
-  -webkit-filter: none;
   filter: none;
   border-color: #999;
   color: #eee;
@@ -6506,7 +6512,6 @@ button.close {
     .btn.disabled:focus,
     .btn[disabled]:focus {
   background: #e6e6e6;
-  -webkit-filter: none;
   filter: none;
   border-color: #ccc;
   border-top-color: #ccc;
@@ -6531,7 +6536,6 @@ button.close {
   box-shadow: 0px 1px 1px rgba(0,0,0,0.08);
   color: #333;
   text-decoration: none;
-  -webkit-filter: none;
   filter: none;
   color: #333;
 }
@@ -6594,7 +6598,6 @@ button.close {
   box-shadow: 0px 1px 1px rgba(0,0,0,0.08);
   color: #fff;
   text-decoration: none;
-  -webkit-filter: none;
   filter: none;
   color: #fff;
 }
@@ -7457,8 +7460,10 @@ body.locale-de .btn-group-radio.locale-responsive-layout .btn:last-child {
   right: 0;
   bottom: 0;
   transform: skew(20deg, 0);
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   /*  See https://github.com/twitter/bootstrap/issues/5319 */
+  -webkit-backface-visibility: visible;
   backface-visibility: visible;
   background-color: rgb(243, 243, 243);
   background-image: linear-gradient(to bottom, rgb(247, 247, 247), #eee);
@@ -7522,8 +7527,10 @@ body.locale-de .btn-group-radio.locale-responsive-layout .btn:last-child {
   border-top-color: #bfbfbf;
   border-bottom: 1px solid #fff;
   transform: skew(-20deg, 0);
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   /*  See https://github.com/twitter/bootstrap/issues/5319 */
+  -webkit-backface-visibility: visible;
   backface-visibility: visible;
   bottom: 0;
 }
@@ -7541,8 +7548,10 @@ body.locale-de .btn-group-radio.locale-responsive-layout .btn:last-child {
   border-top: 1px solid #bfbfbf;
   border-bottom: 1px solid #fff;
   transform: skew(20deg, 0);
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   /*  See https://github.com/twitter/bootstrap/issues/5319 */
+  -webkit-backface-visibility: visible;
   backface-visibility: visible;
 }
 
@@ -9921,7 +9930,7 @@ a.label:hover,
   width: 16px;
   height: 16px;
   margin-left: -8px;
-  margin-top: -8px;
+  margin-top: -9px;
   text-indent: 0;
   font-size: 11px;
   font-family: "Splunk Icons";
@@ -9940,7 +9949,7 @@ a.label:hover,
 
 .ui-datepicker .ui-datepicker-prev .ui-icon:after {
   content: "\25C0";
-  margin-left: -5px
+  margin-left: -4px
 }
 
 .ui-datepicker .ui-datepicker-next {
@@ -9951,7 +9960,7 @@ a.label:hover,
 
 .ui-datepicker .ui-datepicker-next .ui-icon:after {
   content: "\25B6";
-  margin-left: -4px;
+  margin-left: -3px;
   /*  not sure why this doesn't match up */
 }
 
@@ -10159,6 +10168,7 @@ a.label:hover,
 .dashboard-header {
   margin-bottom: 10px;
   padding-top: 10px;
+  min-height: 28px;
 
   /* .dashboard-view-controls { */
   /*   > a:first-child { */
@@ -11250,30 +11260,6 @@ a.label:hover,
   font-weight: normal;
 }
 
-/*  SPL-65856 - workaround for time range picker in modal */
-.timerange > label {
-  color: #000;
-  float: left;
-  width: 160px;
-  padding-top: 5px;
-  text-align: right;
-}
-.timerange > .controls {
-  margin-left: 180px;
-}
-
-/*  even more ghetto we can't re-use the same selectors from above ;_; */
-.timerange > .control-group > label {
-  color: #000;
-  float: left;
-  width: 160px;
-  padding-top: 5px;
-  text-align: right;
-}
-.timerange > .control-group > .controls {
-  margin-left: 180px;
-}
-
 /*  Licensing tab content */
 .page-licensing .tab-content {
   background-color: rgb(252, 252, 252);
@@ -11474,6 +11460,9 @@ a.label:hover,
 }
 .input-editor-body .input-editor-format .dynamic-input-settings-body .splunk-timerange {
   margin-bottom: 10px;
+}
+.input-editor-body .input-editor-format .dynamic-input-settings-body .search-field-wrapper {
+  width: 220px;
 }
 .input-editor-body .control-label {
   width: 125px;
