@@ -1,379 +1,607 @@
 {
     "meta": {
-        "name": "Splunk_TA_paloalto",
-        "displayName": "Palo Alto Networks Add-on",
-        "version": "6.2.0",
-        "apiVersion": "3.0.0",
-        "restRoot": "Splunk_TA_paloalto"
-    },
+        "version": "6.2.0", 
+        "restRoot": "Splunk_TA_paloalto", 
+        "name": "Splunk_TA_paloalto", 
+        "displayName": "Palo Alto Networks Add-on for Splunk", 
+        "apiVersion": "3.0.1"
+    }, 
     "pages": {
-        "configuration": {
-            "title": "Configuration",
-            "description": "Set up your add-on",
-            "tabs": [
-                {
-                    "name": "account",
-                    "title": "Account",
-                    "table": {
-                        "header": [
-                            {
-                                "field": "name",
-                                "label": "Account name"
-                            },
-                            {
-                                "field": "username",
-                                "label": "Username"
-                            }
-                        ],
-                        "actions": [
-                            "edit",
-                            "delete",
-                            "clone"
-                        ]
-                    },
-                    "entity": [
-                        {
-                            "field": "name",
-                            "label": "Account name",
-                            "type": "text",
-                            "required": true,
-                            "help": "Enter a unique name for this account.",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 50,
-                                    "errorMsg": "Length of Account name should be between 1 and 50"
-                                },
-                                {
-                                    "type": "regex",
-                                    "pattern": "^[a-zA-Z]\\w*$",
-                                    "errorMsg": "Account name must start with a letter and followed by alphabetic letters, digits or underscores."
-                                }
-                            ]
-                        },
-                        {
-                            "field": "username",
-                            "label": "Username",
-                            "type": "text",
-                            "required": true,
-                            "help": "Enter the username for this account.",
-                            "options": {
-                                "placeholder": "Enter the username here"
-                            },
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 200,
-                                    "errorMsg": "Length of username should be between 1 and 200"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "password",
-                            "label": "Password",
-                            "type": "text",
-                            "encrypted": true,
-                            "required": true,
-                            "help": "Enter the password for this account.",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Length of password should be between 1 and 8192"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "proxy",
-                    "title": "Proxy",
-                    "entity": [
-                        {
-                            "field": "proxy_enabled",
-                            "label": "Enable",
-                            "type": "checkbox"
-                        },
-                        {
-                            "field": "proxy_type",
-                            "label": "Proxy Type",
-                            "type": "singleSelect",
-                            "options": {
-                                "disableSearch": true,
-                                "autoCompleteFields": [
-                                    {
-                                        "label": "http",
-                                        "value": "http"
-                                    },
-                                    {
-                                        "label": "socks4",
-                                        "value": "socks4"
-                                    },
-                                    {
-                                        "label": "socks5",
-                                        "value": "socks5"
-                                    }
-                                ]
-                            },
-                            "defaultValue": "http"
-                        },
-                        {
-                            "field": "proxy_url",
-                            "label": "Host",
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 4096,
-                                    "errorMsg": "Max host length is 4096"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "proxy_port",
-                            "label": "Port",
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "type": "number",
-                                    "range": [
-                                        1,
-                                        65535
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "field": "proxy_username",
-                            "label": "Username",
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 50,
-                                    "errorMsg": "Max length of username is 50"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "proxy_password",
-                            "label": "Password",
-                            "type": "text",
-                            "encrypted": true,
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of password is 8192"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "proxy_rdns",
-                            "label": "Remote DNS resolution",
-                            "type": "checkbox"
-                        }
-                    ],
-                    "options": {
-                        "saveValidator": "function(formData) { if(!formData.proxy_enabled || formData.proxy_enabled === '0') {return true; } if(!formData.proxy_url) { return 'Proxy Host can not be empty'; } if(!formData.proxy_port) { return 'Proxy Port can not be empty'; } return true; }"
-                    }
-                },
-                {
-                    "name": "logging",
-                    "title": "Logging",
-                    "entity": [
-                        {
-                            "field": "loglevel",
-                            "label": "Log level",
-                            "type": "singleSelect",
-                            "options": {
-                                "disableSearch": true,
-                                "autoCompleteFields": [
-                                    {
-                                        "label": "DEBUG",
-                                        "value": "DEBUG"
-                                    },
-                                    {
-                                        "label": "INFO",
-                                        "value": "INFO"
-                                    },
-                                    {
-                                        "label": "WARNING",
-                                        "value": "WARNING"
-                                    },
-                                    {
-                                        "label": "ERROR",
-                                        "value": "ERROR"
-                                    },
-                                    {
-                                        "label": "CRITICAL",
-                                        "value": "CRITICAL"
-                                    }
-                                ]
-                            },
-                            "defaultValue": "INFO"
-                        }
-                    ]
-                }
-            ]
-        },
         "inputs": {
-            "title": "Inputs",
-            "description": "Manage your data inputs",
             "table": {
                 "header": [
                     {
-                        "field": "name",
+                        "field": "name", 
                         "label": "Name"
                     },
                     {
-                        "field": "interval",
+                        "field": "services",
+                        "label": "Service"
+                    }, 
+                    {
+                        "field": "interval", 
                         "label": "Interval"
+                    }, 
+                    {
+                        "field": "indicator_timeout",
+                        "label": "Indicator Timeout"
                     },
                     {
-                        "field": "index",
+                        "field": "index", 
                         "label": "Index"
+                    }, 
+                    {
+                        "field": "disabled", 
+                        "label": "Status"
                     },
                     {
-                        "field": "disabled",
-                        "label": "Status"
-                    }
-                ],
+                        "field": "feed_url", 
+                        "label": "Output Node Feed URL"
+                    },
+                    {
+                        "field": "credentials", 
+                        "label": "Feed Credentials"
+                    } 
+                ], 
                 "moreInfo": [
                     {
-                        "field": "name",
+                        "field": "name", 
                         "label": "Name"
-                    },
+                    }, 
                     {
-                        "field": "interval",
+                        "field": "interval", 
                         "label": "Interval"
-                    },
+                    }, 
                     {
-                        "field": "index",
+                        "field": "index", 
                         "label": "Index"
-                    },
+                    }, 
                     {
-                        "field": "disabled",
+                        "field": "disabled", 
                         "label": "Status"
-                    },
+                    }, 
                     {
-                        "field": "api_key_id",
-                        "label": "API Key ID"
-                    },
+                        "field": "label", 
+                        "label": "Label"
+                    }, 
                     {
-                        "field": "api_key",
-                        "label": "API Key"
+                        "field": "global_account", 
+                        "label": "Global Account"
                     }
-                ],
+                ], 
                 "actions": [
-                    "edit",
-                    "enable",
-                    "delete",
+                    "edit", 
+                    "enable", 
+                    "delete", 
                     "clone"
                 ]
-            },
+            }, 
             "services": [
                 {
-                    "name": "cortex_xdr",
-                    "title": "Cortex XDR",
+                    "name": "autofocus_export", 
                     "entity": [
                         {
-                            "field": "name",
-                            "label": "Name",
-                            "type": "text",
-                            "help": "Enter a unique name for the data input",
-                            "required": true,
+                            "required": true, 
+                            "type": "text", 
+                            "label": "Name", 
+                            "field": "name", 
+                            "help": "Enter a unique name for the data input", 
                             "validators": [
                                 {
-                                    "type": "regex",
-                                    "pattern": "^[a-zA-Z]\\w*$",
-                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores."
-                                },
+                                    "pattern": "^[a-zA-Z]\\w*$", 
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "type": "regex"
+                                }, 
                                 {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 100,
-                                    "errorMsg": "Length of input name should be between 1 and 100"
+                                    "minLength": 1, 
+                                    "errorMsg": "Length of input name should be between 1 and 100", 
+                                    "type": "string", 
+                                    "maxLength": 100
                                 }
                             ]
-                        },
+                        }, 
                         {
-                            "field": "interval",
-                            "label": "Interval",
-                            "type": "text",
-                            "required": true,
-                            "help": "Time interval of input in seconds.",
+                            "required": true, 
+                            "type": "text", 
+                            "label": "Interval", 
+                            "field": "interval", 
+                            "help": "Time interval of input in seconds.", 
                             "validators": [
                                 {
-                                    "type": "regex",
-                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$",
-                                    "errorMsg": "Interval must be an integer."
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$", 
+                                    "errorMsg": "Interval must be an integer.", 
+                                    "type": "regex"
                                 }
                             ]
-                        },
+                        }, 
                         {
-                            "field": "index",
-                            "label": "Index",
-                            "type": "singleSelect",
-                            "defaultValue": "default",
+                            "required": true, 
+                            "type": "singleSelect", 
+                            "label": "Index", 
+                            "field": "index", 
+                            "defaultValue": "default", 
                             "options": {
-                                "endpointUrl": "data/indexes",
-                                "blackList": "^_.*$",
-                                "createSearchChoice": true
-                            },
-                            "required": true,
+                                "blackList": "^_.*$", 
+                                "createSearchChoice": true, 
+                                "endpointUrl": "data/indexes"
+                            }, 
                             "validators": [
                                 {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 80,
-                                    "errorMsg": "Length of index name should be between 1 and 80."
+                                    "minLength": 1, 
+                                    "errorMsg": "Length of index name should be between 1 and 80.", 
+                                    "type": "string", 
+                                    "maxLength": 80
                                 }
                             ]
-                        },
+                        }, 
                         {
-                            "field": "api_key_id",
-                            "label": "API Key ID",
-                            "help": "",
-                            "required": true,
-                            "type": "text",
+                            "required": false, 
+                            "type": "text", 
+                            "label": "Label", 
+                            "field": "label", 
+                            "help": "", 
                             "validators": [
                                 {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of text input is 8192"
-                                }
-                            ],
-                            "options": {
-                                "placeholder": "1"
-                            }
-                        },
-                        {
-                            "field": "api_key",
-                            "label": "API Key",
-                            "help": "",
-                            "required": true,
-                            "type": "text",
-                            "encrypted": true,
-                            "validators": [
-                                {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of password is 8192"
+                                    "minLength": 0, 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "type": "string", 
+                                    "maxLength": 8192
                                 }
                             ]
                         }
+                    ], 
+                    "title": "AutoFocus Export"
+                }, 
+                {
+                    "name": "aperture", 
+                    "entity": [
+                        {
+                            "required": true, 
+                            "type": "text", 
+                            "label": "Name", 
+                            "field": "name", 
+                            "help": "Enter a unique name for the data input", 
+                            "validators": [
+                                {
+                                    "pattern": "^[a-zA-Z]\\w*$", 
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "type": "regex"
+                                }, 
+                                {
+                                    "minLength": 1, 
+                                    "errorMsg": "Length of input name should be between 1 and 100", 
+                                    "type": "string", 
+                                    "maxLength": 100
+                                }
+                            ]
+                        }, 
+                        {
+                            "required": true, 
+                            "type": "text", 
+                            "label": "Interval", 
+                            "field": "interval", 
+                            "help": "Time interval of input in seconds.", 
+                            "validators": [
+                                {
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$", 
+                                    "errorMsg": "Interval must be an integer.", 
+                                    "type": "regex"
+                                }
+                            ]
+                        }, 
+                        {
+                            "required": true, 
+                            "type": "singleSelect", 
+                            "label": "Index", 
+                            "field": "index", 
+                            "defaultValue": "default", 
+                            "options": {
+                                "blackList": "^_.*$", 
+                                "createSearchChoice": true, 
+                                "endpointUrl": "data/indexes"
+                            }, 
+                            "validators": [
+                                {
+                                    "minLength": 1, 
+                                    "errorMsg": "Length of index name should be between 1 and 80.", 
+                                    "type": "string", 
+                                    "maxLength": 80
+                                }
+                            ]
+                        },
+                        {
+                            "label": "Region",
+                            "field": "region",
+                            "defaultValue": "us",
+                            "type": "singleSelect",
+                            "options": {
+                                "autoCompleteFields": [
+                                    {
+                                        "label": "US",
+                                        "value": "us"
+                                    },
+                                    {
+                                        "label": "Europe",
+                                        "value": "eu"
+                                    },
+                                    {
+                                        "label": "Asia Pacific",
+                                        "value": "apac"
+                                    }
+                                ],
+                                "disableSearch": true
+                            },
+                            "required": true
+                        },
+                        {
+                            "required": true, 
+                            "type": "singleSelect", 
+                            "label": "Global Account", 
+                            "field": "global_account", 
+                            "help": "", 
+                            "options": {
+                                "referenceName": "account"
+                            }
+                        }
+                    ], 
+                    "title": "Aperture"
+                },
+                {
+                    "title": "MineMeld Feed", 
+                    "name": "minemeld_feed",
+                    "entity": [
+                        {
+                            "field": "name", 
+                            "help": "Enter a unique name for the data input", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                }, 
+                                {
+                                    "errorMsg": "Length of input name should be between 1 and 100", 
+                                    "type": "string", 
+                                    "maxLength": 100, 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "type": "text", 
+                            "label": "Name"
+                        }, 
+                        {
+                            "field": "interval", 
+                            "help": "Time interval of input in seconds.", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Interval must be an integer.", 
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ], 
+                            "type": "text", 
+                            "label": "Interval"
+                        }, 
+                        {
+                            "field": "index", 
+                            "validators": [
+                                {
+                                    "errorMsg": "Length of index name should be between 1 and 80.", 
+                                    "type": "string", 
+                                    "maxLength": 80, 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "required": true, 
+                            "defaultValue": "default", 
+                            "options": {
+                                "blackList": "^_.*$", 
+                                "endpointUrl": "data/indexes", 
+                                "createSearchChoice": true
+                            }, 
+                            "type": "singleSelect", 
+                            "label": "Index"
+                        }, 
+                        {
+                            "field": "feed_url", 
+                            "help": "", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "type": "string", 
+                                    "maxLength": 8192, 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "type": "text", 
+                            "label": "Output Node Feed URL"
+                        }, 
+                        {
+                            "field": "indicator_timeout",
+                            "help": "How long to retain indicators (in hours)",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be an integer.",
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ],
+                            "type": "text",
+                            "label": "Indicator Timeout"
+                        },
+                        {
+                            "field": "credentials", 
+                            "help": "", 
+                            "required": false, 
+                            "options": {
+                                "referenceName": "account"
+                            }, 
+                            "type": "singleSelect", 
+                            "label": "Feed Credentials"
+                        }
                     ]
                 }
-            ]
+            ], 
+            "description": "Manage your data inputs", 
+            "title": "Inputs"
+        }, 
+        "configuration": {
+            "tabs": [
+                {
+                    "table": {
+                        "header": [
+                            {
+                                "field": "name", 
+                                "label": "Account name"
+                            }, 
+                            {
+                                "field": "username", 
+                                "label": "Username"
+                            }
+                        ], 
+                        "actions": [
+                            "edit", 
+                            "delete", 
+                            "clone"
+                        ]
+                    }, 
+                    "name": "account", 
+                    "entity": [
+                        {
+                            "required": true, 
+                            "type": "text", 
+                            "label": "Account name", 
+                            "field": "name", 
+                            "help": "Enter a unique name for this account.", 
+                            "validators": [
+                                {
+                                    "minLength": 1, 
+                                    "errorMsg": "Length of ID should be between 1 and 50", 
+                                    "type": "string", 
+                                    "maxLength": 50
+                                }, 
+                                {
+                                    "pattern": "^[a-zA-Z]\\w*$", 
+                                    "errorMsg": "Account name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "type": "regex"
+                                }
+                            ]
+                        }, 
+                        {
+                            "required": true, 
+                            "type": "text", 
+                            "label": "Username", 
+                            "field": "username", 
+                            "help": "Enter the username for this account.", 
+                            "options": {
+                                "placeholder": "Enter the username here"
+                            }, 
+                            "validators": [
+                                {
+                                    "minLength": 1, 
+                                    "errorMsg": "Length of username should be between 1 and 200", 
+                                    "type": "string", 
+                                    "maxLength": 200
+                                }
+                            ]
+                        }, 
+                        {
+                            "encrypted": true, 
+                            "required": true, 
+                            "type": "text", 
+                            "label": "Password", 
+                            "field": "password", 
+                            "help": "Enter the password for this account.", 
+                            "validators": [
+                                {
+                                    "minLength": 1, 
+                                    "errorMsg": "Length of password should be between 1 and 8192", 
+                                    "type": "string", 
+                                    "maxLength": 8192
+                                }
+                            ]
+                        }
+                    ], 
+                    "title": "Account"
+                }, 
+                {
+                    "options": {
+                        "saveValidator": "function(formData) { if(!formData.proxy_enabled || formData.proxy_enabled === '0') {return true; } if(!formData.proxy_url) { return 'Proxy Host can not be empty'; } if(!formData.proxy_port) { return 'Proxy Port can not be empty'; } return true; }"
+                    }, 
+                    "name": "proxy", 
+                    "entity": [
+                        {
+                            "field": "proxy_enabled", 
+                            "type": "checkbox", 
+                            "label": "Enable"
+                        }, 
+                        {
+                            "field": "proxy_type", 
+                            "defaultValue": "http", 
+                            "options": {
+                                "autoCompleteFields": [
+                                    {
+                                        "label": "http", 
+                                        "value": "http"
+                                    }, 
+                                    {
+                                        "label": "socks4", 
+                                        "value": "socks4"
+                                    }, 
+                                    {
+                                        "label": "socks5", 
+                                        "value": "socks5"
+                                    }
+                                ], 
+                                "disableSearch": true
+                            }, 
+                            "type": "singleSelect", 
+                            "label": "Proxy Type"
+                        }, 
+                        {
+                            "field": "proxy_url", 
+                            "validators": [
+                                {
+                                    "minLength": 0, 
+                                    "errorMsg": "Max host length is 4096", 
+                                    "type": "string", 
+                                    "maxLength": 4096
+                                }
+                            ], 
+                            "type": "text", 
+                            "label": "Host"
+                        }, 
+                        {
+                            "field": "proxy_port", 
+                            "validators": [
+                                {
+                                    "range": [
+                                        1, 
+                                        65535
+                                    ], 
+                                    "type": "number"
+                                }
+                            ], 
+                            "type": "text", 
+                            "label": "Port"
+                        }, 
+                        {
+                            "field": "proxy_username", 
+                            "validators": [
+                                {
+                                    "minLength": 0, 
+                                    "errorMsg": "Max length of username is 50", 
+                                    "type": "string", 
+                                    "maxLength": 50
+                                }
+                            ], 
+                            "type": "text", 
+                            "label": "Username"
+                        }, 
+                        {
+                            "field": "proxy_password", 
+                            "encrypted": true, 
+                            "validators": [
+                                {
+                                    "minLength": 0, 
+                                    "errorMsg": "Max length of password is 8192", 
+                                    "type": "string", 
+                                    "maxLength": 8192
+                                }
+                            ], 
+                            "type": "text", 
+                            "label": "Password"
+                        }, 
+                        {
+                            "field": "proxy_rdns", 
+                            "type": "checkbox", 
+                            "label": "Reverse DNS resolution"
+                        }
+                    ], 
+                    "title": "Proxy"
+                }, 
+                {
+                    "name": "logging", 
+                    "entity": [
+                        {
+                            "field": "loglevel", 
+                            "defaultValue": "INFO", 
+                            "options": {
+                                "autoCompleteFields": [
+                                    {
+                                        "label": "DEBUG", 
+                                        "value": "DEBUG"
+                                    }, 
+                                    {
+                                        "label": "INFO", 
+                                        "value": "INFO"
+                                    }, 
+                                    {
+                                        "label": "WARNING", 
+                                        "value": "WARNING"
+                                    }, 
+                                    {
+                                        "label": "ERROR", 
+                                        "value": "ERROR"
+                                    }, 
+                                    {
+                                        "label": "CRITICAL", 
+                                        "value": "CRITICAL"
+                                    }
+                                ], 
+                                "disableSearch": true
+                            }, 
+                            "type": "singleSelect", 
+                            "label": "Log level"
+                        }
+                    ], 
+                    "title": "Logging"
+                }, 
+                {
+                    "name": "additional_parameters", 
+                    "entity": [
+                        {
+                            "encrypted": true, 
+                            "type": "text", 
+                            "label": "AutoFocus API Key", 
+                            "field": "autofocus_api_key", 
+                            "defaultValue": "", 
+                            "help": "Used to retrieve metadata about AutoFocus tags. Requires a MineMeld Feed input to download threat indicators. More info: https://splunk.paloaltonetworks.com/autofocus-and-minemeld.html",
+                            "validators": [
+                                {
+                                    "minLength": 0, 
+                                    "errorMsg": "Max length of password is 8192", 
+                                    "type": "string", 
+                                    "maxLength": 8192
+                                }
+                            ]
+                        }, 
+                        {
+                            "encrypted": true, 
+                            "type": "text", 
+                            "label": "WildFire API Key", 
+                            "field": "wildfire_api_key", 
+                            "defaultValue": "", 
+                            "help": "Used to retrieve reports from the WildFire Cloud.  An API Key is available from the WildFire Portal. https://wildfire.paloaltonetworks.com",
+                            "validators": [
+                                {
+                                    "minLength": 0, 
+                                    "errorMsg": "Max length of password is 8192", 
+                                    "type": "string", 
+                                    "maxLength": 8192
+                                }
+                            ]
+                        }
+                    ], 
+                    "title": "Add-on Settings"
+                }
+            ], 
+            "description": "Set up your add-on", 
+            "title": "Configuration"
         }
     }
 }
