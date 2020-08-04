@@ -13,6 +13,7 @@
     <view name="file_activity" />
     <view name="web_activity" />
     <view name="globalprotect" />
+    <view name="globalprotect_legacy" />
   </collection>
   
   <collection label="Threats">

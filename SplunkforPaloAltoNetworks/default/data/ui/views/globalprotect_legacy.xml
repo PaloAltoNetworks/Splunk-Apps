@@ -1,7 +1,7 @@
 <form>
-  <label>GlobalProtect (PANOS &gt;= 9.1)</label>
+  <label>GlobalProtect</label>
   <search id="basesearch">
-    <query>| tstats summariesonly=t latest(log.event_id) AS latest_event, values(log.log_subtype) AS log.log_subtype, values(log.src_ip) AS log.src_ip, values(log.result) AS log.result, values(log.client_ip) AS log.client_ip count FROM datamodel="pan_firewall" WHERE nodename="log.GlobalProtect" $src_ip$ $serial$ $vsys$ "$user|s$" $object$ groupby _time log.event_id log.user
+    <query>| tstats summariesonly=t latest(log.event_id) AS latest_event, values(log.agent_message) AS log.agent_message, values(log.src_ip) AS log.src_ip count FROM datamodel="pan_firewall" WHERE nodename="log.system.globalprotect" $src_ip$ $serial$ $vsys$ "$user|s$" $object$ groupby _time log.event_id log.user
       | rename log.* as *</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -46,9 +46,9 @@
   <row>
     <panel>
       <chart>
-        <title>Connection Events</title>
+        <title>Login/Logout Events</title>
         <search base="basesearch">
-          <query>| where log_subtype="login" OR log_subtype="logout" | timechart values(count) by event_id | eval event=event_id </query>
+          <query>| where event_id="globalprotectgateway-logout-succ" OR event_id="globalprotectgateway-regist-succ" | timechart values(count) by event_id | eval event=event_id | rename globalprotectgateway-regist-succ AS "Login" | rename globalprotectgateway-logout-succ AS Logout</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -75,7 +75,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">search?q=`pan_globalprotect` (log_subtype="login" OR log_subtype="logout") earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] | where ($click.name2|s$=="Login" AND log_subtype=="login") OR ($click.name2|s$=="Logout" AND log_subtyp=="logout")&amp;earliest=$earliest$&amp;latest=$latest$</link>
+          <link target="_self">search?q=`pan_globalprotect` (event_id="globalprotectgateway-logout-succ" OR event_id="globalprotectgateway-regist-succ") earliest=$click.value$ [| stats count | eval latest = $click.value$ %2b 300 | fields latest] | where ($click.name2|s$=="Login" AND event_id=="globalprotectgateway-regist-succ") OR ($click.name2|s$=="Logout" AND event_id=="globalprotectgateway-logout-succ")&amp;earliest=$earliest$&amp;latest=$latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -83,7 +83,7 @@
       <chart>
         <title>Events by User</title>
         <search base="basesearch">
-          <query>| timechart values(count) by user</query>
+          <query>| search src_ip != "10.*" | timechart values(count) by user</query>
           <earliest>$earliest$</earliest>
           <latest>$latest$</latest>
         </search>
@@ -121,7 +121,7 @@
       <chart>
         <title>Events by Source IP</title>
         <search base="basesearch">
-          <query>| stats count(count) by src_ip</query>
+          <query>| search NOT src_ip="192.*" NOT src_ip="10.*" | stats count(count) by src_ip</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -155,7 +155,7 @@
       <chart>
         <title>Failed Login by User</title>
         <search base="basesearch">
-          <query>| where result="failure" | stats count(count) by user</query>
+          <query>| where event_id="globalprotectportal-auth-fail" | stats count(count) by user</query>
         </search>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
@@ -185,7 +185,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">right</option>
         <drilldown>
-          <link target="_self">search?q=`pan_globalprotect` result="failure" user=$click.value|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_globalprotect` event_id="*fail*" user=$click.value|s$&amp;form.time.earliest=$time.earliest$&amp;form.time.latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -240,9 +240,9 @@
   <row>
     <panel>
       <chart>
-        <title>Connected by User</title>
+        <title>Logins by User</title>
         <search base="basesearch">
-          <query>| where log_subtype="connected" | stats count(count) by user | `top(20)`</query>
+          <query>| where event_id="globalprotectgateway-auth-succ" | stats count(count) by user | `top(20)`</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -271,7 +271,7 @@
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <drilldown>
-          <link target="_self">search?q=`pan_globalprotect` log_subtype="connected" user=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_self">search?q=`pan_globalprotect` event_id="globalprotectgateway-auth-succ" user=$click.value|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -279,7 +279,7 @@
       <single>
         <title>Total Users Logged In</title>
         <search base="basesearch">
-          <query>| where log_subtype="connected" OR event_id="logout" | search latest_event="gateway-connected" | stats count(count) by user | stats dc(user)</query>
+          <query>| where event_id="globalprotectgateway-regist-succ" OR event_id="globalprotectgateway-logout-succ" | search latest_event="globalprotectgateway-regist-succ" | stats count(count) by user | stats dc(user)</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -301,7 +301,7 @@
       <table>
         <title>Users Logged In</title>
         <search base="basesearch">
-          <query>| where log_subtype="connected" OR log_subtype="logout" | search latest_event="gateway-connected" | stats count(count) by user | table user</query>
+          <query>| where event_id="globalprotectgateway-regist-succ" OR event_id="globalprotectgateway-logout-succ" | search latest_event="globalprotectgateway-regist-succ" | stats count(count) by user | table user</query>
         </search>
         <html tokens="true">
           <div class="footnote">
@@ -324,7 +324,7 @@
       <map>
         <title>User Location by Source IP</title>
         <search base="basesearch">
-          <query>| where log_subtype="connected" OR log_subtype="logout" | iplocation src_ip | geostats count by user</query>
+          <query>| where event_id="globalprotectgateway-regist-succ" OR event_id="globalprotectgateway-logout-succ" | iplocation src_ip | geostats count by user</query>
         </search>
         <option name="drilldown">all</option>
         <option name="mapping.choroplethLayer.colorBins">5</option>
