@@ -82,7 +82,7 @@ def main_cli():
     # Grab WildFire data
     data = retrieveWildFireData(options.apikey, options.file_digest)
     # Parse XML for fields
-    print data
+    print(data)
     sys.exit(0)
 
 

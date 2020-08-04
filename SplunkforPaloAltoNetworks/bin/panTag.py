@@ -228,7 +228,7 @@ def main_splunk():
     ## Make the API calls to the User-ID API of each firewall
 
     try:
-        for fw in firewall.values():
+        for fw in list(firewall.values()):
             fw.userid.batch_end()
 
     except pan.xapi.PanXapiError as e:

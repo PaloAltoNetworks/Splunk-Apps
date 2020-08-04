@@ -89,11 +89,11 @@ def get_firewall_credentials(session_key):
         exit_with_error("Could not get %s credentials from splunk. \
                          Error: %s" % (APPNAME, str(e)))
     # Check for username and passwords
-    for i, c in accounts.items():
+    for i, c in list(accounts.items()):
         if i.lower() == 'firewall' or i.lower() == 'panorama':
             username = accounts[i]['username']
 
-    for i, c in entities.items():
+    for i, c in list(entities.items()):
         if c['username'] == 'Firewall``splunk_cred_sep``1':
             logger.debug('Match found for firewall credentials')
             clear_password = json.loads(c['clear_password'])
@@ -148,7 +148,7 @@ def get_firewall_apikey(session_key):
         exit_with_error("Could not get %s credentials from splunk. "
                         "Error: %s" % (APPNAME, str(e)))
 
-    for i, c in entities.items():
+    for i, c in list(entities.items()):
         if c['username'] == 'firewall_api_key':
             return c['clear_password']
     raise NoCredentialsFound

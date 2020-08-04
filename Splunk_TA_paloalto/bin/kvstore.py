@@ -2,9 +2,11 @@ import json
 import splunk
 import splunk.rest
 import time
-import urllib
-import urllib2
-
+try:
+    from urllib.parse import quote, urlencode
+except ImportError:
+    from urllib2 import quote, urlencode
+from six import string_types
 
 class KvStoreHandler(object):
 
@@ -44,7 +46,7 @@ class KvStoreHandler(object):
         
         response, content = None, None
         
-        if key and isinstance(key, basestring):
+        if key and isinstance(key, string_types):
             uri = '/servicesNS/{owner}/{app}/storage/collections/data/{collection}/{key}'.format(key=key, **options)
             response, content = splunk.rest.simpleRequest(uri, sessionKey=session_key, method="DELETE")
     
@@ -61,7 +63,7 @@ class KvStoreHandler(object):
         if delete and json_query:
             method = "DELETE"
         
-        query = urllib2.quote(json.dumps(json_query))
+        query = quote(json.dumps(json_query))
         uri = '/servicesNS/{owner}/{app}/storage/collections/data/{collection}?query={query}'.format(query=query, **options)
         response, content = splunk.rest.simpleRequest(uri, sessionKey=session_key, method=method)
         return response, content
@@ -77,11 +79,11 @@ class KvStoreHandler(object):
         
         options = {}
 
-        for k, v in getargs.iteritems():
+        for k, v in iter(getargs.items()):
             if k == 'query':
                 options['query'] = json.dumps(v)
             elif k == 'fields':
-                if isinstance(v, basestring):
+                if isinstance(v, string_types):
                     options['fields'] = v
                 elif isinstance(v, list):
                     options['fields'] = ','.join(v)
@@ -89,11 +91,11 @@ class KvStoreHandler(object):
                     raise ValueError('Invalid value for fields parameter in KV store query.')
             elif k in ['limit', 'skip']:
                 # May raise ValueError
-                options[k] = str(int(v))
+                options[k] = string_types(int(v))
             elif k == 'sort':
                 # Since sort order can be a bit complex, we just expect the 
                 # consumer to construct their own sort string here. 
-                if isinstance(v, basestring):
+                if isinstance(v, string_types):
                     options['sort'] = v
                 else:
                     raise ValueError('Invalid value for sort parameter in KV store query.')
@@ -101,7 +103,7 @@ class KvStoreHandler(object):
                 # Invalid parameter is ignored.
                 pass
 
-        params = urllib.urlencode(options)
+        params = urlencode(options)
         uri = '/servicesNS/{owner}/{app}/storage/collections/data/{collection}?{params}'.format(params=params, **url_options)
         response, content = splunk.rest.simpleRequest(uri, sessionKey=session_key)
         return response, content

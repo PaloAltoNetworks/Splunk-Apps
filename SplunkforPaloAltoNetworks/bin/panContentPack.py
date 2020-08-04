@@ -51,6 +51,7 @@ import common
 import environment
 import xmltodict
 from collections import OrderedDict
+from six import string_types 
 
 logger = common.logging.getLogger().getChild('updateAppsThreats')
 
@@ -70,7 +71,7 @@ try:
     import pandevice.base
     import pan.xapi
 except ImportError:
-    print "Unable to import libraries. Please run command from app's bin directory where the script is located."
+    print("Unable to import libraries. Please run command from app's bin directory where the script is located.")
     exit(3)
 
 from common import log
@@ -101,7 +102,7 @@ def parse_apps(apps_xml):
             a['app:able_to_transfer_file'] = app['able-to-transfer-file']
             a['app:has_known_vulnerability'] = app['has-known-vulnerability']
             a['app:tunnels_other_application'] = app['tunnel-other-application']
-            if a['app:tunnels_other_application'] != u"yes" and a['app:tunnels_other_application'] != u"no":
+            if a['app:tunnels_other_application'] != "yes" and a['app:tunnels_other_application'] != "no":
                 a['app:tunnels_other_application'] = a['app:tunnels_other_application']['#text']
             a['app:prone_to_misuse'] = app['prone-to-misuse']
             a['app:pervasive_use'] = app['pervasive-use']
@@ -120,15 +121,15 @@ def parse_apps(apps_xml):
             except KeyError:
                 pass
             else:
-                if not isinstance(a['app:default_ports'], basestring):
+                if not isinstance(a['app:default_ports'], string_types):
                     a['app:default_ports'] = "|".join(a['app:default_ports'])
         except Exception as e:
             logger.error("Error parsing app: %s" % app['@name'])
             logger.error(traceback.format_exc())
-            common.exit_with_error(str(e))
+            common.exit_with_error(string_types(e))
         # convert all out of unicode
         for key in a:
-            a[key] = str(a[key])
+            a[key] = string_types(a[key])
         csv_apps.append(a)
     logger.info("Found %s apps" % len(csv_apps))
     return csv_apps
@@ -154,7 +155,7 @@ def parse_threats(threats_xml):
             a['threat:cve'] = threat.get('cve', None)
             if a['threat:cve'] is not None:
                 a['threat:cve'] = threat['cve']['member']
-                if not isinstance(a['threat:cve'], basestring):
+                if not isinstance(a['threat:cve'], string_types):
                     a['threat:cve'] = ", ".join(a['threat:cve'])
             else:
                 a['threat:cve'] = ""
@@ -163,7 +164,7 @@ def parse_threats(threats_xml):
             raise e
         # convert all out of unicode
         for key in a:
-            a[key] = str(a[key])
+            a[key] = string_types(a[key])
         csv_threats.append(a)
     logger.info("Found %s threats" % len(csv_threats))
     return csv_threats
@@ -219,7 +220,7 @@ def main():
             csv = parse_threats(threat_xml)
 
     except pan.xapi.PanXapiError as e:
-        common.exit_with_error(str(e))
+        common.exit_with_error(string_types(e))
 
 
     # output results

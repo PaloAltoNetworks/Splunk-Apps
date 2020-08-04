@@ -98,11 +98,11 @@ class SplunkConnector(object):
                                  'splunk. Error: %s' % (self.APPNAME, str(e)))
 
         # Check for username and passwords
-        for i, c in accounts.items():
+        for i, c in list(accounts.items()):
             if i.lower() == 'firewall' or i.lower() == 'panorama':
                 username = accounts[i]['username']
 
-        for i, c in entities.items():
+        for i, c in list(entities.items()):
             if c['username'] == 'Firewall``splunk_cred_sep``1':
                 self.logger.debug('Match found for firewall credentials')
                 clear_password = json.loads(c['clear_password'])
@@ -155,7 +155,7 @@ class SplunkConnector(object):
             self.exit_with_error("Could not get %s credentials from splunk. "
                                  "Error: %s" % (self.APPNAME, str(e)))
         else:
-            for i, c in entities.items():
+            for i, c in list(entities.items()):
                 if c['username'] == 'firewall_api_key':
                     return c['clear_password']
             raise NoCredentialsFound
@@ -276,7 +276,7 @@ class SplunkConnector(object):
         except Exception as e:
             self.exit_with_error("Could not get %s credentials from splunk. Error: %s" % (self.APPNAME, str(e)))
         # return first set of credentials
-        for v in entities.values():
+        for v in list(entities.values()):
             try:
                 info = json.loads(v['clear_password'])
             except ValueError:

@@ -100,7 +100,7 @@ def pull_tags(apikey, stats):
     all_tags = []
     counter = itertools.count()
     while True:
-        req = {'pageSize': MAX_PAGE_SIZE, 'pageNum': counter.next()}
+        req = {'pageSize': MAX_PAGE_SIZE, 'pageNum': next(counter)}
 
         # Perform the operation
         r = c.tags(data=json.dumps(req))
@@ -121,7 +121,7 @@ def pull_tags(apikey, stats):
     normalized = []
     for elm in all_tags:
         d = {}
-        for k, v in elm.items():
+        for k, v in list(elm.items()):
             d['aftag:{0}'.format(k)] = v
         normalized.append(d)
 

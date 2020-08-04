@@ -138,8 +138,9 @@ def get_feed_entries(helper, name, start, stats):
     feed_headers = {}
     # If auth is specified, add it as a header.
     if feed_creds is not None:
-        auth = '{0}:{1}'.format(feed_creds['username'], feed_creds['password'])
-        auth = base64.encodestring(auth).replace('\n', '')
+        auth = '{0}:{1}'.format(feed_creds['username'], feed_creds['password']).encode('ascii')
+        auth = base64.b64encode(auth)
+        auth = auth.decode('utf-8')
         feed_headers['Authorization'] = 'Basic {0}'.format(auth)
 
     # Pull events as json.
@@ -174,7 +175,7 @@ def merge_entries(mmf_entries, kvs_entries, start, indicator_timeout, stats):
             kvse['is_present'] = True
             mmfe['_key'] = kvse['_key']
 
-    for info in kvs_entries.itervalues():
+    for info in iter(kvs_entries.values()):
         if info['is_present']:
             pass
         elif info['splunk_last_seen'] + indicator_timeout < start:

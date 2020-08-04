@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import gzip
 import csv
@@ -114,7 +115,7 @@ class PantagModularAction(ModularAction):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] != "--execute":
-        print >> sys.stderr, "FATAL Unsupported execution mode (expected --execute flag)"
+        print("FATAL Unsupported execution mode (expected --execute flag)", file=sys.stderr)
         sys.exit(1)
 
     logger = ModularAction.setup_logger('pantag_modalert')
@@ -144,5 +145,5 @@ if __name__ == "__main__":
         except:
             logger.critical(e)
             traceback.print_exc(file=sys.stderr)
-        print >> sys.stderr, "ERROR Unexpected error: %s" % e
+        print("ERROR Unexpected error: %s" % e, file=sys.stderr)
         sys.exit(3)

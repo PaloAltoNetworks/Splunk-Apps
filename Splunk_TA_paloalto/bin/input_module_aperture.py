@@ -46,8 +46,8 @@ def get_auth_token(helper, opt_global_account, proxy_enabled):
     method = "POST"
     parameters = {'scope': 'api_access',
                   'grant_type': 'client_credentials'}
-    auth = base64.encodestring('{0}:{1}'.format(client_id, secret)) \
-        .replace('\n', '')
+    auth = base64.b64encode('{0}:{1}'.format(client_id, secret).encode('ascii'))
+    auth = auth.decode('utf-8')
     header = {'Authorization': 'Basic ' + auth,
               'Content-Type': 'application/x-www- \
               form-urlencoded; charset=ISO-8859-1',
