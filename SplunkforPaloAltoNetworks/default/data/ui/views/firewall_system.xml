@@ -68,10 +68,10 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
         <option name="wrap">false</option>
-        <option name="displayRowNumbers">true</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
         <option name="count">10</option>
+        <option name="rowNumbers">true</option>
         <drilldown>
           <link field="_time">
             <![CDATA[
@@ -104,7 +104,6 @@
 	  ]]>
           </link>
         </drilldown>
-        <option name="rowNumbers">false</option>
       </table>
     </panel>
   </row>

@@ -3,8 +3,8 @@
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true">
       <default>
-        <earliestTime>-60m</earliestTime>
-        <latestTime>now</latestTime>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
       </default>
     </input>
     <input type="text" token="serial">
@@ -73,7 +73,7 @@
         <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
         <option name="charting.legend.placement">bottom</option>
         <option name="wrap">false</option>
-        <option name="displayRowNumbers">true</option>
+        <option name="rowNumbers">true</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
         <option name="count">10</option>
@@ -119,7 +119,6 @@
 	  ]]>
           </link>
         </drilldown>
-        <option name="rowNumbers">false</option>
       </table>
     </panel>
   </row>
