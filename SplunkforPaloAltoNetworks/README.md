@@ -4,8 +4,8 @@ Palo Alto Networks App for Splunk
 
 * **App Homepage:** https://splunkbase.splunk.com/app/491
 * **Authors:** Brian Torres-Gil, Paul Nguyen, Garfield Freeman - Palo Alto Networks
-* **App Version:** 6.2.0
-* **Required Add-on (TA) Version:** Splunk_TA_paloalto 6.2.0
+* **App Version:** 6.3.0
+* **Required Add-on (TA) Version:** Splunk_TA_paloalto 6.3.0
 
 ### Description ###
 
