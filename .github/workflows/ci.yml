@@ -28,7 +28,7 @@ jobs:
 
   appinspect-addon:
     name: AppInspect (Add-on)
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -50,7 +50,7 @@ jobs:
 
   appinspect-app:
     name: AppInspect (App)
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
