@@ -118,3 +118,14 @@ jobs:
         with:
           name: Splunk_TA_paloalto-${{ github.run_id }}
           path: ${{ steps.build-addon.outputs.path }}
+      - name: Publish App to SplunkBase
+        run: scripts/publish.sh -a app
+        env:
+          SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
+          SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
+      - name: Publish Add-on to SplunkBase
+        run: scripts/publish.sh -a addon
+        env:
+          SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
+          SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
+        
