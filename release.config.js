@@ -14,11 +14,10 @@ var commitTemplate = `*{{#if scope}} **{{scope}}:**
 {{~!-- commit references --}} {{#if references~}}
   -
   {{~#each references}} {{#if @root.linkReferences~}}
-    [
     {{~#if this.owner}}
       {{~this.owner}}/
     {{~/if}}
-    {{~this.repository}}{{this.prefix}}{{this.issue}}]({{issueUrlFormat}})
+    {{~this.repository}}{{this.prefix}}{{this.issue}}
   {{~else}}
     {{~#if this.owner}}
       {{~this.owner}}/

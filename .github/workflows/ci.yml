@@ -20,11 +20,11 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: SplunkforPaloAltoNetworks-${{ github.run_id }}
-          path: ${{ steps.build-addon.outputs.path }}
+          path: ${{ steps.build-app.outputs.path }}
       - uses: actions/upload-artifact@v1
         with:
           name: Splunk_TA_paloalto-${{ github.run_id }}
-          path: ${{ steps.build-app.outputs.path }}
+          path: ${{ steps.build-addon.outputs.path }}
 
   appinspect-addon:
     name: AppInspect (Add-on)
@@ -109,8 +109,8 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: SplunkforPaloAltoNetworks-${{ github.run_id }}
-          path: ${{ steps.build-addon.outputs.path }}
+          path: ${{ steps.build-app.outputs.path }}
       - uses: actions/upload-artifact@v1
         with:
           name: Splunk_TA_paloalto-${{ github.run_id }}
-          path: ${{ steps.build-app.outputs.path }}
+          path: ${{ steps.build-addon.outputs.path }}
