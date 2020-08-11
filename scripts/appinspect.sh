@@ -173,7 +173,7 @@ if [ "$REQUEST_ID" == "null" ]; then
 fi
 
 STATUS="PROCESSING"
-while [ "$STATUS" == "PROCESSING" ] || [ "$STATUS" == "PREPARING" ]; do
+while [ "$STATUS" == "PROCESSING" ] || [ "$STATUS" == "PREPARING" ] || [ "$STATUS" == "PENDING" ]; do
     # sets STATUS, ERRORS, and CHECKS
     check_status "$REQUEST_ID" "$TOKEN"
     log_debug "STATUS $STATUS"
