@@ -80,7 +80,7 @@ directories and reloads them in Splunk when a change is detected.
 
 Requires node and semantic-release npm package
 
-```shell
+```
 # Test the release process on develop
 semantic-release --dry-run --no-ci --branches=develop
 
@@ -101,8 +101,11 @@ git push origin master
 
 # Now, sync your local with the remote to pull the new
 # commits made by the release bot.
+git fetch --all --tags
 git pull origin master
 git checkout develop
 git merge master
 git push origin develop
+
+# Now you're ready to branch again and work on the next feature.
 ```
