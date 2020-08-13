@@ -1,12 +1,7 @@
-FROM splunk/splunk:8.0.2.1
+FROM splunk/splunk:8.0.2.1-debian
 LABEL authors "Brian Torres-Gil <brian@ixi.us>,Paul Nguyen <panguyen@paloaltonetworks.com>"
 
 USER root
-
-# Install 'find' for the app build process
-RUN microdnf -y update && \
-    microdnf -y --nodocs install findutils && \
-    microdnf clean all
 
 # Build app and add-on
 COPY Splunk_TA_paloalto /tmp/splunk/Splunk_TA_paloalto
