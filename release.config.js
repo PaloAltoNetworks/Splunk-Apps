@@ -44,6 +44,7 @@ module.exports = {
       '@semantic-release/exec',
       {
         prepareCmd: 'DEBUG=true scripts/set-version.sh ${nextRelease.version}',
+        publish: 'scripts/build.sh -a app && scripts/build.sh -a addon && scripts/publish.sh -a app && scripts/publish.sh -a addon',
       },
     ],
     [
