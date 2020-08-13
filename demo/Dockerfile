@@ -1,4 +1,4 @@
-FROM splunk/splunk:8.0
+FROM splunk/splunk:8.0.2.1
 LABEL authors "Brian Torres-Gil <brian@ixi.us>,Paul Nguyen <panguyen@paloaltonetworks.com>"
 
 USER root
