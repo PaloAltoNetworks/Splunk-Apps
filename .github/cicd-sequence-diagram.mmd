@@ -1,0 +1,32 @@
+sequenceDiagram
+  %% This is a mermaid file
+  %% See https://mermaid-js.github.io
+
+  participant G as GitHub
+  note right of G: Push to master triggers sequence
+  participant A as GH Actions
+  participant S as SplunkBase
+  participant I as Splunk AppInspect
+  participant D as Docker Hub
+  participant K as GCP GKE
+
+  G->>+D: Triggers demo build
+  D->>-D: Build demo docker image
+  
+  G->>+A: Triggers GitHub Action
+  A->>A: Build App & Add-on
+  A->>+I: Trigger AppInspect of App and Add-on
+  I->>-A: AppInspect completed
+  A->>+I: Request HTML report
+  I->>-A: Return HTML report
+  A->>A: Increment version
+  A->>G: Commit new version to master
+  A->>G: Create git tag of version
+  A->>G: Create GH Release w/ release note
+  A->>A: Build App & Add-on w/ incremented version
+  A->>S: Publish
+  A->>-S: Verify Publish
+  
+	K->>+K: Triggers weekly
+  K->>D: Pull latest docker demo
+  K->>-K: Restart Demo
