@@ -1,10 +1,10 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "Palo Alto Networks Add-on for Splunk",
+    "title": "Palo Alto Networks App for Splunk",
     "id": {
       "group": null,
-      "name": "Splunk_TA_paloalto",
+      "name": "SplunkforPaloAltoNetworks",
       "version": "6.3.1"
     },
     "author": [
@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": null,
-    "description": "The Palo Alto Networks Add-on allows a Splunk Enterprise administrator to collect data from Palo Alto Networks Next-Generation Firewall devices, Panorama, Advanced Endpoint Protection, Aperture SaaS Security, AutoFocus Threat Intelligence, and MineMeld.",
+    "description": "The Palo Alto Networks App for Splunk is a set of reports and dashboards which provide visibility into the Palo Alto Networks Next-generation Firewall, Panorama, and Advanced Endpoint Security logs.",
     "classification": {
       "intendedAudience": null,
       "categories": [],
@@ -38,10 +38,10 @@
       "uri": null
     }
   },
-  "dependencies": {},
-  "tasks": [],
-  "inputGroups": {},
-  "incompatibleApps": {},
+  "dependencies": null,
+  "tasks": null,
+  "inputGroups": null,
+  "incompatibleApps": null,
   "platformRequirements": {
     "splunk": {
       "Enterprise": "*"
@@ -53,8 +53,6 @@
     "_search_head_clustering"
   ],
   "targetWorkloads": [
-    "_search_heads",
-    "_indexers",
-    "_forwarders"
+    "_search_heads"
   ]
 }

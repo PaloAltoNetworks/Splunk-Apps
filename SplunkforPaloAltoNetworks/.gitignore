@@ -88,3 +88,6 @@ working/
 appinspect.sh
 release/app_inspect_api.py
 release/appinspect.sh
+
+# App Manifest file
+!app.manifest
