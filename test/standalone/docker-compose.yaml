@@ -24,8 +24,7 @@ services:
       - 127.0.0.1:8002:8089
 
   reloader:
-    image: splunkdev-watchman:latest
-    build: ../../../splunkdev-watchman
+    image: paloaltonetworks/splunkdev-watchman:latest
     depends_on:
       - so1
     volumes:
