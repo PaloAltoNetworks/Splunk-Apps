@@ -1,4 +1,4 @@
-<nav search_view="search">
+<nav search_view="search" color="#FFFFFF">
 
   <collection label="Palo Alto Networks">
     <a href="/app/Splunk_TA_paloalto">Configuration</a>
