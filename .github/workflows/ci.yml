@@ -100,16 +100,12 @@ jobs:
           @semantic-release/exec@^5.0.0 \
           @semantic-release/git@^9.0.0 \
           conventional-changelog-conventionalcommits@^4.2.3
-      - name: Create release
+      - name: Create GH release, build, and publish to SplunkBase
+        run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
-      - name: Build Add-on
-        id: build-addon
-        run: scripts/build.sh -a addon
-      - name: Build App
-        id: build-app
-        run: scripts/build.sh -a app
+          SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
+          SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
       - uses: actions/upload-artifact@v1
         with:
           name: SplunkforPaloAltoNetworks-${{ github.run_id }}
