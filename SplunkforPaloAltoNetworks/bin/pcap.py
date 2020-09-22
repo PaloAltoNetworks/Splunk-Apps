@@ -10,7 +10,7 @@ import sys
 libpath = os.path.dirname(os.path.abspath(__file__))
 sys.path[:0] = [os.path.join(libpath, 'lib')]
 sys.path[:0] = [os.path.join(libpath, 'lib', 'pan-python', 'lib')]
-sys.path[:0] = [os.path.join(libpath, 'lib', 'pandevice')]
+sys.path[:0] = [os.path.join(libpath, 'lib', 'pan-os-python')]
 
 import time
 import common
@@ -18,9 +18,9 @@ import json
 import splunk
 import splunk.mining.dcutils as dcu
 
-import pandevice.base
-import pandevice.panorama
-import pandevice.firewall
+import panos.base
+import panos.panorama
+import panos.firewall
 
 logger = dcu.getLogger()
 
@@ -59,15 +59,15 @@ class MasterP(splunk.rest.BaseRestHandler):
 
         # Connect to the firewall / panorama.
         logger.info('Creating connection object for given hostname')
-        o = pandevice.base.PanDevice.create_from_device(
+        o = panos.base.PanDevice.create_from_device(
             cfg.hostname, api_key=cfg.api_key)
 
         # Set the serial target (if present and this is a panorama).
-        if isinstance(o, pandevice.panorama.Panorama):
+        if isinstance(o, panos.panorama.Panorama):
             if not cfg.serial:
                 raise ValueError('Host is panorama, serial number is required')
             logger.info('This is a panorama device, creating sub-object')
-            dev = pandevice.firewall.Firewall(serial=cfg.serial)
+            dev = panos.firewall.Firewall(serial=cfg.serial)
             o.add(dev)
         else:
             dev = o

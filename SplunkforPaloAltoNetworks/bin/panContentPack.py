@@ -66,9 +66,9 @@ except ImportError as e:
 libpath = os.path.dirname(os.path.abspath(__file__))
 sys.path[:0] = [os.path.join(libpath, 'lib')]
 sys.path[:0] = [os.path.join(libpath, 'lib', 'pan-python', 'lib')]
-sys.path[:0] = [os.path.join(libpath, 'lib', 'pandevice')]
+sys.path[:0] = [os.path.join(libpath, 'lib', 'pan-os-python')]
 try:
-    import pandevice.base
+    import panos.base
     import pan.xapi
 except ImportError:
     print("Unable to import libraries. Please run command from app's bin directory where the script is located.")
@@ -200,7 +200,7 @@ def main():
     # Get the API key from the Splunk store or from the device at hostname if no apikey is stored
     apikey = common.apikey(sessionKey, args[0], debug)
 
-    device = pandevice.base.PanDevice(args[0], api_key=apikey)
+    device = panos.base.PanDevice(args[0], api_key=apikey)
     device.refresh_system_info()
 
     try:

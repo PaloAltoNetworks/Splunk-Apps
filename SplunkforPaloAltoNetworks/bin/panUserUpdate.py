@@ -67,9 +67,9 @@ try:
     sys.path[:0] = [os.path.join(libpath, 'lib')]
     sys.path[:0] = [os.path.join(libpath, 'lib', 'pan-python', 'lib')]
     sys.path[:0] = [os.path.join(libpath, 'lib', 'pandevice')]
-    import pandevice
-    from pandevice.panorama import Panorama
-    from pandevice.firewall import Firewall
+    import panos 
+    from  panos.panorama import Panorama
+    from  panos.firewall import Firewall
     import pan.xapi
 
     from common import log

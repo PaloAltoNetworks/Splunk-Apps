@@ -25,7 +25,7 @@ sys.path.append(make_splunkhome_path(["etc", "apps", "Splunk_SA_CIM", "lib"]))
 sys.path.append(make_splunkhome_path(["etc", "apps", "SA-Utils", "lib"]))
 sys.path.append(make_splunkhome_path(["etc", "apps", "Splunk_TA_paloalto", "bin", "lib"]))
 sys.path.append(make_splunkhome_path(["etc", "apps", "Splunk_TA_paloalto", "bin", "lib", "pan-python", "lib"]))
-sys.path.append(make_splunkhome_path(["etc", "apps", "Splunk_TA_paloalto", "bin", "lib", "pandevice"]))
+sys.path.append(make_splunkhome_path(["etc", "apps", "Splunk_TA_paloalto", "bin", "lib", "pan-os-python"]))
 
 from cim_actions import ModularAction
 import common
