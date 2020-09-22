@@ -1,6 +1,6 @@
 
 Palo Alto Networks App for Splunk
-=================================
+pan-os-python=================================
 
 * **App Homepage:** https://splunkbase.splunk.com/app/491
 * **Authors:** Brian Torres-Gil, Paul Nguyen, Garfield Freeman - Palo Alto Networks
@@ -44,6 +44,6 @@ From the directory `$SPLUNK_HOME/etc/apps/`, type the following command:
 ### Libraries Included ###
 
 **Pan-Python:** [Github] (https://github.com/kevinsteves/pan-python)  
-**PanDevice:** [Github] (https://github.com/PaloAltoNetworks/pandevice)
+**PAN-OS-Python:** [Github] (https://github.com/PaloAltoNetworks/pan-os-python)
 
 Copyright (C) 2012-2020 Palo Alto Networks Inc. All Rights Reserved.
