@@ -29,7 +29,7 @@ rm ${NAME}-${VERSION}-${BUILD}-temp.tgz
 find . -type f -name ".*" -exec rm {} \;
 find ${NAME}/bin -type f -name "*.py" -exec chmod +x {} \;
 rm ${NAME}/Makefile
-rm ${NAME}/bin/lib/pandevice/docs/Makefile
+rm ${NAME}/bin/lib/pan-os-python/docs/Makefile
 rm ${NAME}/bin/lib/pan-python/doc/Makefile
 rm -rf ${NAME}/release
 

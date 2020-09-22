@@ -92,8 +92,8 @@ fi
 find . -type f -name ".*" -exec rm {} \;
 find "${APP}/bin" -type f -name "*.py" -exec chmod +x {} \;
 rm "${APP}/Makefile"
-rm "${APP}/bin/lib/pandevice/docs/Makefile"
-rm "${APP}/bin/lib/pandevice/docs/make.bat"
+rm "${APP}/bin/lib/pan-os-python/docs/Makefile"
+rm "${APP}/bin/lib/pan-os-python/docs/make.bat"
 rm "${APP}/bin/lib/pan-python/doc/Makefile"
 rm -rf "${APP}/release"
 
