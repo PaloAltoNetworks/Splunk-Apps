@@ -3,6 +3,190 @@
 History
 =======
 
+0.14.0
+------
+
+Released: 2020-01-14
+
+Status: Alpha
+
+New Classes:
+
+- `objects.DynamicUserGroup`
+- `policies.PolicyBasedForwarding`
+
+Other Updates:
+
+- Added dynamic user group (DUG) support to the userid namespace
+- Fixes to `network.AggregateInterface`
+- Removed default value from `network.IkeGateway.peer_id_check`
+- Docstring updates
+
+0.13.0
+------
+
+Released: 2019-10-29
+
+Status: Alpha
+
+- New flag added to examples/dyn_address_group.py to specify the vsys
+- Fixes to `network.AggregateInterface`
+- Update to version parsing to handle xfr PAN-OS releases
+- Fixes to Panorama commit functions
+- Various enhancements to HA support
+
+0.12.0
+------
+
+Released: 2019-09-24
+
+Status: Alpha
+
+New Classes:
+
+- `panorama.TemplateVariable`
+
+Other updates:
+
+- New params added to ethernet interfaces
+- Fixed `show_system_resources()` for PAN-OS 9.0+
+- Added `.rename()` to rename objects.
+- Documentation fixes
+- Various bug fixes
+
+0.11.1
+------
+
+Released: 2019-06-10
+
+Status: Alpha
+
+- Changed various log forwarding class names
+- Fixed numerous docstrings
+- Fixed some parameter paths
+
+0.11.0
+-----
+
+Released: 2019-06-06
+
+Status: Alpha
+
+- Added `network.GreTunnel`
+- Added `uuid` params for security and NAT rules
+- Fixed User-ID's `get_registered_ip()`
+- Added `objects.LogForwardingProfile` and related sub-objects
+- Added `device.SnmpServerProfile` and related sub-objects
+- Added `device.EmailServerProfile` and related sub-objects
+- Added `device.SyslogServerProfile` and related sub-objects
+- Added `device.HttpServerProfile` and related sub-objects
+
+0.10.0
+------
+
+Released: 2019-05-07
+
+Status: Alpha
+
+- Added `device.Telemetry`
+
+0.9.1
+-----
+
+Released: 2019-04-24
+
+Status: Alpha
+
+- Added additional handling for authcode activation responses from PAN-OS.
+
+0.9.0
+-----
+
+Released: 2019-04-22
+
+Status: Alpha
+
+- Added `VlanInterface.set_vlan_interface()`
+- Minor bug fix
+
+0.8.0
+-----
+
+Released: 2019-03-25
+
+Status: Alpha
+
+- Added flag to control VsysOperation's filtering on `refreshall()`
+- Fixed virtual router's childtypes - `RedistributionProfileIPv6` now shows up
+
+0.7.0
+-----
+
+Released: 2019-03-15
+
+Status: Alpha
+
+- Added `next-vr` as an option for static route next hop types
+- Updated `set_vsys()` / `set_virtual_router()` / `set_vlan()` / `set_zone()` work with templates and template stacks
+- Added panorama functions for VM auth keys
+- Added child object support for template stacks
+- Added `objects.CustomUrlCategory`
+- Added `network.Bgp`
+- Added `network.RedistributionProfile`
+- Added `network.RedistributionProfileIPv6`
+- Added `network.BgpRoutingOptions`
+- Added `network.BgpOutboundRouteFilter`
+- Added `network.BgpDampeningProfile`
+- Added `network.BgpAuthProfile`
+- Added `network.BgpPeerGroup`
+- Added `network.BgpPeer`
+- Added `network.BgpPolicyFilter`
+- Added `network.BgpPolicyNonExistFilter`
+- Added `network.BgpPolicyAdvertiseFilter`
+- Added `network.BgpPolicySuppressFilter`
+- Added `network.BgpPolicyConditionalAdvertisement`
+- Added `network.BgpPolicyRule`
+- Added `network.BgpPolicyImportRule`
+- Added `network.BgpPolicyExportRule`
+- Added `network.BgpPolicyAddressPrefix`
+- Added `network.BgpPolicyAggregationAddress`
+- Added `network.BgpRedistributionRule`
+- Minor bug fixes
+
+0.6.6
+-----
+
+Released: 2018-10-16
+
+Status: Alpha
+
+- Added `test_security_policy_match()` to PanDevice objects
+
+0.6.5
+-----
+
+Released: 2018-10-07
+
+Status: Alpha
+
+- Fixed: ICMP Unreachable param type in security rules
+- Fixed: Content upgrade error
+- Fixed: (Python3) The comparison of encrypted types
+- Various documentation fixes
+
+0.6.4
+-----
+
+Released: 2018-07-10
+
+Status: Alpha
+
+- Added .move() function to move config elements
+- Added objects.SecurityProfileGroup
+- Added "devices" param to panorama.TemplateStack
+- Added dynamic NAT translation support for PAN-OS 8.1+
+- Fixed ha.HighAvailability for PAN-OS 8.1+
+
 0.6.3
 -----
 

@@ -2,10 +2,10 @@
 Palo Alto Networks Device Framework
 ===================================
 
-The Palo Alto Networks Device Framework is a way to interact with Palo Alto
-Networks devices (including Next-generation Firewalls and Panorama) using the
-device API that is object oriented and conceptually similar to interaction
-with the device via the GUI or CLI.
+The Device Framework is a mechanism for interacting with Palo Alto Networks
+devices (including physical and virtualized Next-generation Firewalls and
+Panorama).  The Device Framework is object oriented and mimics the traditional
+interaction with the device via the GUI or CLI/API.
 
 * Documentation: http://pandevice.readthedocs.io
 * Overview: http://paloaltonetworks.github.io/pandevice
@@ -81,7 +81,7 @@ The following examples assume the modules were imported as such::
 
 Create a subinterface and commit::
 
-    fw = firewall.Firewall("10.0.0.1", username="admin", password="admin")
+    fw = firewall.Firewall("10.0.0.1", api_username="admin", api_password="admin")
     eth = fw.add(network.EthernetInterface("ethernet1/1", mode="layer3"))
     subeth = eth.add(network.Layer3Subinterface("ethernet1/1.30", ip="4.4.4.4/24", tag=30))
     subeth.create()
@@ -89,8 +89,8 @@ Create a subinterface and commit::
 
 Operational commands leverage the 'op' method of the device::
 
-    fw = firewall.Firewall("10.0.0.1", username="admin", password="admin")
-    print fw.op("show system info", xml=True)
+    fw = firewall.Firewall("10.0.0.1", api_username="admin", api_password="admin")
+    print fw.op("show system info")
 
 Some operational commands have methods to refresh the variables in an object::
 
@@ -128,6 +128,7 @@ Contributors
 - Brian Torres-Gil - `github <https://github.com/btorresgil>`__
 - Garfield Freeman - `github <https://github.com/shinmog>`__
 - John Anderson - `github <https://github.com/lampwins>`__
+- Aditya Sripal - `github <https://github.com/AdityaSripal>`__
 
 Thank you to Kevin Steves, creator of the pan-python library:
     https://github.com/kevinsteves/pan-python
