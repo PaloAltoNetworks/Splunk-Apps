@@ -91,6 +91,12 @@ sed -i.bak -E "s/App Version:\*\* .+/App Version:** ${NEW_VERSION}/" "$FILE" && 
 grep -E 'Splunk_TA_paloalto .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/Splunk_TA_paloalto .+/Splunk_TA_paloalto ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
+FILE="${ROOT}/${APP}/${APPMANIFEST}"
+
+[ "$DEBUG" ] && log_debug "Set App ${APPMANIFEST} version to ${NEW_VERSION}"
+grep -E '\"version\": .+' "$FILE" >/dev/null
+sed -i.bak -E "s/version\": .+/version\": \"${NEW_VERSION}\"/" "$FILE" && rm "${FILE}.bak"
+
 # Set Add-on versions
 
 FILE="${ROOT}/${ADDON}/${APPCONF}"
