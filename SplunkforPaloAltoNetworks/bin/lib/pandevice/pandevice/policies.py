@@ -39,8 +39,9 @@ class Rulebase(VersionedPanObject):
     """
     ROOT = Root.VSYS
     CHILDTYPES = (
-        "policies.SecurityRule",
         "policies.NatRule",
+        "policies.PolicyBasedForwarding",
+        "policies.SecurityRule",
     )
 
     def _setup(self):
@@ -75,6 +76,8 @@ class SecurityRule(VersionedPanObject):
         fromzone (list): From zones
         tozone (list): To zones
         source (list): Source addresses
+        source_user (list): Source users and groups
+        hip_profiles (list): GlobalProtect host integrity profiles
         destination (list): Destination addresses
         application (list): Applications
         service (list): Destination services (ports) (Default:
@@ -110,6 +113,7 @@ class SecurityRule(VersionedPanObject):
             (applies to panorama/device groups only)
         target (list): Apply this policy to the listed firewalls only
             (applies to panorama/device groups only)
+        uuid (str): (PAN-OS 9.0+) The UUID for this rule.
 
     """
     # TODO: Add QoS variables
@@ -160,7 +164,7 @@ class SecurityRule(VersionedPanObject):
         params.append(VersionedParamPath(
             'schedule', path='schedule'))
         params.append(VersionedParamPath(
-            'icmp_unreachable', path='icmp-unreachable'))
+            'icmp_unreachable', path='icmp-unreachable', vartype='yesno'))
         params.append(VersionedParamPath(
             'disable_server_response_inspection', vartype='yesno',
             path='option/disable-server-response-inspection'))
@@ -179,6 +183,12 @@ class SecurityRule(VersionedPanObject):
             params.append(VersionedParamPath(
                 p, vartype='member',
                 path='profile-setting/profiles/{0}'.format(p)))
+
+        params.append(VersionedParamPath(
+            'uuid', exclude=True))
+        params[-1].add_profile(
+            '9.0.0',
+            vartype='attrib', path='uuid')
 
         self._params = tuple(params)
 
@@ -241,6 +251,7 @@ class NatRule(VersionedPanObject):
         target (list): Apply this policy to the listed firewalls only
             (applies to panorama/device groups only)
         tag (list): Administrative tags
+        uuid (str): (PAN-OS 9.0+) The UUID for this rule.
 
     """
     SUFFIX = ENTRY
@@ -427,5 +438,148 @@ class NatRule(VersionedPanObject):
             '8.1.0',
             path='dynamic-destination-translation/distribution',
             values=('round-robin', ))
+        params.append(VersionedParamPath(
+            'uuid', exclude=True))
+        params[-1].add_profile(
+            '9.0.0',
+            vartype='attrib', path='uuid')
+
+        self._params = tuple(params)
+
+
+class PolicyBasedForwarding(VersionedPanObject):
+    """PBF rule.
+
+    Args:
+        description (str): The descripton
+        tags (str/list): List of tags
+        from_type (str): Source from type.  Valid values are 'zone' (default)
+            or 'interface'.
+        from_values (str/list): The source values for the given type.
+        source_addresses (str/list): List of source IP addresses.
+        source_users (str/list): List of source users.
+        negate_source (bool): Set to negate the source.
+        destination_addresses (str/list): List of destination addresses.
+        negate_destination (bool): Set to negate the destination.
+        applications (str/list): List of applications.
+        services (str/list): List of services.
+        schedule (str): The schedule.
+        disabled (bool): Set to disable this rule.
+        action (str): The action to take.  Valid values are 'forward'
+            (default), 'forward-to-vsys', 'discard', or 'no-pbf'.
+        forward_vsys (str): The vsys to forward to if action is set to
+            forward to a vsys.
+        forward_egress_interface (str): The egress interface.
+        forward_next_hop_type (str): The next hop type.  Valid values
+            are 'ip-address', 'fqdn', or None (default).
+        forward_next_hop_value (str): The next hop value if the forward
+            next hop type is not None.
+        forward_monitor_profile (str): The monitor profile to use.
+        forward_monitor_ip_address (str): The monitor IP address.
+        forward_monitor_disable_if_unreachable (bool): Set to disable
+            this rule if nexthop / monitor IP is unreachable.
+        enable_enforce_symmetric_return (bool): Set to enforce
+            symmetric return.
+        symmetric_return_addresses (str/list): List of symmetric return
+            addresses.
+        target (list): Apply this policy to the listed firewalls only
+            (applies to panorama/device groups only)
+        negate_target (bool): Target all but the listed target firewalls
+            (applies to panorama/device groups only)
+        uuid (str): (PAN-OS 9.0+) The UUID for this rule.
+
+    """
+    SUFFIX = ENTRY
+    ROOT = Root.VSYS
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/pbf/rules')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'description', path='description'))
+        params.append(VersionedParamPath(
+            'tags', vartype='member', path='tag'))
+        params.append(VersionedParamPath(
+            'from_type', default='zone',
+            values=['zone', 'interface'], path='from/{from_type}'))
+        params.append(VersionedParamPath(
+            'from_value',  vartype='member',
+            path='from/{from_type}'))
+        params.append(VersionedParamPath(
+            'source_addresses', vartype='member', path='source'))
+        params.append(VersionedParamPath(
+            'source_users', vartype='member', path='source-user'))
+        params.append(VersionedParamPath(
+            'negate_source', vartype='yesno', path='negate-source'))
+        params.append(VersionedParamPath(
+            'destination_addresses', vartype='member', path='destination'))
+        params.append(VersionedParamPath(
+            'negate_destination', vartype='yesno', path='negate-destination'))
+        params.append(VersionedParamPath(
+            'applications', vartype='member', path='application'))
+        params.append(VersionedParamPath(
+            'services', vartype='member', path='service'))
+        params.append(VersionedParamPath(
+            'schedule', path='schedule'))
+        params.append(VersionedParamPath(
+            'disabled', vartype='yesno', path='disabled'))
+        params.append(VersionedParamPath(
+            'action', default='forward',
+            values=['forward', 'forward-to-vsys', 'discard', 'no-pbf'],
+            path='action/{action}'))
+        params.append(VersionedParamPath(
+            'forward_vsys',
+            condition={'action': 'forward-to-vsys'},
+            path='action/{action}/forward-to-vsys'))
+        params.append(VersionedParamPath(
+            'forward_egress_interface',
+            condition={'action': 'forward'},
+            path='action/{action}/egress-interface'))
+        params.append(VersionedParamPath(
+            'forward_next_hop_type',
+            condition={'action': 'forward'},
+            values=['ip-address', 'fqdn', None],
+            path='action/{action}/nexthop/{forward_next_hop_type}'))
+        params.append(VersionedParamPath(
+            'forward_next_hop_value',
+            condition={
+                'action': 'forward',
+                'forward_next_hop_type': ['ip-address', 'fqdn'],
+            },
+            path='action/{action}/nexthop/{forward_next_hop_type}'))
+        params.append(VersionedParamPath(
+            'forward_monitor_profile',
+            condition={'action': 'forward'},
+            path='action/{action}/monitor/profile'))
+        params.append(VersionedParamPath(
+            'forward_monitor_ip_address',
+            condition={'action': 'forward'},
+            path='action/{action}/monitor/ip-address'))
+        params.append(VersionedParamPath(
+            'forward_monitor_disable_if_unreachable', vartype='yesno',
+            condition={'action': 'forward'},
+            path='action/{action}/monitor/disable-if-unreachable'))
+        params.append(VersionedParamPath(
+            'enable_enforce_symmetric_return', vartype='yesno',
+            path='enforce-symmetric-return/enabled'))
+        params.append(VersionedParamPath(
+            'symmetric_return_addresses', vartype='entry',
+            path='enforce-symmetric-return/nexthop-address-list'))
+        params.append(VersionedParamPath(
+            'active_active_device_binding',
+            path='active-active-device-binding'))
+        params.append(VersionedParamPath(
+            'target', vartype='entry', path='target/devices'))
+        params.append(VersionedParamPath(
+            'negate_target', vartype='yesno', path='target/negate'))
+        params.append(VersionedParamPath(
+            'uuid', exclude=True))
+        params[-1].add_profile(
+            '9.0.0',
+            vartype='attrib', path='uuid')
 
         self._params = tuple(params)

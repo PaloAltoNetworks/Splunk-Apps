@@ -67,6 +67,11 @@ class Firewall(PanDevice):
         "device.SystemSettings",
         "device.PasswordProfile",
         "device.Administrator",
+        "device.Telemetry",
+        "device.SnmpServerProfile",
+        "device.EmailServerProfile",
+        "device.SyslogServerProfile",
+        "device.HttpServerProfile",
         "ha.HighAvailability",
         "objects.AddressObject",
         "objects.AddressGroup",
@@ -76,6 +81,9 @@ class Firewall(PanDevice):
         "objects.ApplicationGroup",
         "objects.ApplicationFilter",
         "objects.SecurityProfileGroup",
+        "objects.CustomUrlCategory",
+        "objects.LogForwardingProfile",
+        "objects.DynamicUserGroup",
         "policies.Rulebase",
         "network.EthernetInterface",
         "network.AggregateInterface",
@@ -90,6 +98,7 @@ class Firewall(PanDevice):
         "network.IpsecTunnel",
         "network.IpsecCryptoProfile",
         "network.IkeCryptoProfile",
+        "network.GreTunnel",
     )
 
     def __init__(self,
@@ -339,7 +348,10 @@ class Firewall(PanDevice):
     def show_system_resources(self):
         self.xapi.op(cmd="show system resources", cmd_xml=True)
         result = self.xapi.xml_root()
-        regex = re.compile(r"load average: ([\d.]+).* ([\d.]+)%id.*Mem:.*?([\d.]+)k total.*?([\d]+)k free", re.DOTALL)
+        if self._version_info >= (9, 0, 0):
+            regex = re.compile(r'load average: ([\d\.]+).*? ([\d\.]+) id,.*KiB Mem : (\d+) total,.*? (\d+) free', re.DOTALL)
+        else:
+            regex = re.compile(r"load average: ([\d.]+).* ([\d.]+)%id.*Mem:.*?([\d.]+)k total.*?([\d]+)k free", re.DOTALL)
         match = regex.search(result)
         if match:
             """
@@ -356,11 +368,11 @@ class Firewall(PanDevice):
                                      pan_device=self)
 
     def commit_device_and_network(self, sync=False, exception=False):
-        return self._commit(sync=sync, exclude="device-and-network",
+        return self._commit(sync=sync, exclude="policy-and-objects",
                             exception=exception)
 
     def commit_policy_and_objects(self, sync=False, exception=False):
-        return self._commit(sync=sync, exclude="policy-and-objects",
+        return self._commit(sync=sync, exclude="device-and-network",
                             exception=exception)
 
     def organize_into_vsys(self, create_vsys_objects=True, refresh_vsys=True):

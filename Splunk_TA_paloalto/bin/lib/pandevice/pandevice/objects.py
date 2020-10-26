@@ -75,6 +75,7 @@ class AddressGroup(VersionedPanObject):
     """Address Group
 
     Args:
+        name (str): Name of the address group
         static_value (list): Values for a static address group
         dynamic_value (str): Registered-ip tags for a dynamic address group
         description (str): Description of this object
@@ -103,59 +104,79 @@ class AddressGroup(VersionedPanObject):
         self._params = tuple(params)
 
 
-class Tag(PanObject):
+class Tag(VersionedPanObject):
     """Administrative tag
 
     Args:
         name (str): Name of the tag
-        color (str): Color ID or name (eg. 'color1', 'color4', 'purple')
+        color (str): Color ID (eg. 'color1', 'color4', etc). You can
+            use :func:`~pandevice.objects.Tag.color_code` to generate the ID.
         comments (str): Comments
 
     """
     ROOT = Root.VSYS
-    XPATH = "/tag"
     SUFFIX = ENTRY
 
-    COLOR = {
-        "red":         1,
-        "green":       2,
-        "blue":        3,
-        "yello":       4,
-        "copper":      5,
-        "orange":      6,
-        "purple":      7,
-        "gray":        8,
-        "light green": 9,
-        "cyan":        10,
-        "light gray":  11,
-        "blue gray":   12,
-        "lime":        13,
-        "black":       14,
-        "gold":        15,
-        "brown":       16,
-    }
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/tag')
 
-    def __init__(self, *args, **kwargs):
-        super(Tag, self).__init__(*args, **kwargs)
-        if not hasattr(self, "_color"):
-            self._color = None
+        # params
+        params = []
 
-    @classmethod
-    def variables(cls):
-        return (
-            Var("color"),
-            Var("comments"),
-        )
+        params.append(VersionedParamPath(
+            'color', path='color'))
+        params.append(VersionedParamPath(
+            'comments', path='comments'))
 
-    @property
-    def color(self):
-        if self._color in self.COLOR:
-            return "color"+str(self.COLOR[self._color])
-        return self._color
+        self._params = tuple(params)
 
-    @color.setter
-    def color(self, value):
-        self._color = value
+    @staticmethod
+    def color_code(color_name):
+        """Returns the color code for a color
+
+        Args:
+            color_name (str): One of the following colors:
+
+                    * red
+                    * green
+                    * blue
+                    * yellow
+                    * copper
+                    * orange
+                    * purple
+                    * gray
+                    * light green
+                    * cyan
+                    * light gray
+                    * blue gray
+                    * lime
+                    * black
+                    * gold
+                    * brown
+
+        """
+        colors = {
+            'red':         1,
+            'green':       2,
+            'blue':        3,
+            'yellow':      4,
+            'copper':      5,
+            'orange':      6,
+            'purple':      7,
+            'gray':        8,
+            'light green': 9,
+            'cyan':        10,
+            'light gray':  11,
+            'blue gray':   12,
+            'lime':        13,
+            'black':       14,
+            'gold':        15,
+            'brown':       16,
+        }
+        if color_name not in colors:
+            raise ValueError("Color '{0}' is not valid".format(color_name))
+        return "color"+str(colors[color_name])
 
 
 class ServiceObject(VersionedPanObject):
@@ -448,5 +469,268 @@ class ApplicationContainer(VersionedPanObject):
 
         params.append(VersionedParamPath(
             'applications', path='functions', vartype='member'))
+
+        self._params = tuple(params)
+
+
+class SecurityProfileGroup(VersionedPanObject):
+    """Security Profile Group object
+
+    Args:
+        name (str): The group name
+        virus (str): Antivirus profile
+        spyware (str): Anti-spyware profile
+        vulnerability (str): Vulnerability protection profile
+        url_filtering (str): URL filtering profile
+        file_blocking (str): File blocking profile
+        data_filtering (str): Data filtering profile
+        wildfire_analysis (str): WildFire analysis profile
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/profile-group')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'virus', path='virus', vartype='member'))
+        params.append(VersionedParamPath(
+            'spyware', path='spyware', vartype='member'))
+        params.append(VersionedParamPath(
+            'vulnerability', path='vulnerability', vartype='member'))
+        params.append(VersionedParamPath(
+            'url_filtering', path='url-filtering', vartype='member'))
+        params.append(VersionedParamPath(
+            'file_blocking', path='file-blocking', vartype='member'))
+        params.append(VersionedParamPath(
+            'data_filtering', path='data-filtering', vartype='member'))
+        params.append(VersionedParamPath(
+            'wildfire_analysis', path='wildfire-analysis', vartype='member'))
+
+        self._params = tuple(params)
+
+
+class CustomUrlCategory(VersionedPanObject):
+    """Custom url category group
+
+    Args:
+        name (str): The name
+        url_value (list): Values to include in custom URL category object
+        description (str): Description of this object
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/profiles/custom-url-category')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'url_value', path='list', vartype='member'))
+        params.append(VersionedParamPath(
+            'description', path='description'))
+
+        self._params = tuple(params)
+
+
+class LogForwardingProfile(VersionedPanObject):
+    """A log forwarding profile.
+
+    Note:  This is valid for PAN-OS 8.0+
+
+    Args:
+        name (str): The name
+        description (str): The description
+        enhanced_logging (bool): (PAN-OS 8.1+) Enabling enhanced application
+            logging
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+    CHILDTYPES = (
+        "objects.LogForwardingProfileMatchList",
+    )
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/log-settings/profiles')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'description', path='description'))
+        params.append(VersionedParamPath(
+            'enhanced_logging', exclude=True))
+        params[-1].add_profile(
+            '8.1.0',
+            vartype='yesno', path='enhanced-application-logging')
+
+        self._params = tuple(params)
+
+
+class LogForwardingProfileMatchList(VersionedPanObject):
+    """A log forwarding profile match list entry.
+
+    Note: This is valid for PAN-OS 8.0+
+
+    Args:
+        name (str): The name
+        description (str): Description
+        log_type (str): Log type. Valid values are traffic, threat, wildfire,
+            url, data, gtp, tunnel, auth, or sctp (PAN-OS 8.1+).
+        filter (str): The filter.
+        send_to_panorama (bool): Send to panorama or not
+        snmp_profiles (str/list): List of SnmpServerProfiles.
+        email_profiles (str/list): List of EmailServerProfiles.
+        syslog_profiles (str/list): List of SyslogServerProfiles.
+        http_profiles (str/list): List of HttpServerProfiles.
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+    CHILDTYPES = (
+        "objects.LogForwardingProfileMatchListAction",
+    )
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/match-list')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'description', path='action-desc'))
+        params.append(VersionedParamPath(
+            'log_type', path='log-type',
+            values=['traffic', 'threat', 'wildfire', 'url', 'data',
+                    'gtp', 'tunnel', 'auth']))
+        params[-1].add_profile(
+            '8.1.0',
+            path='log-type', values=['traffic', 'threat', 'wildfire', 'url',
+                                     'data', 'gtp', 'tunnel', 'auth', 'sctp'])
+        params.append(VersionedParamPath(
+            'filter', path='filter'))
+        params.append(VersionedParamPath(
+            'send_to_panorama', vartype='yesno', path='send-to-panorama'))
+        params.append(VersionedParamPath(
+            'snmp_profiles', vartype='member', path='send-snmptrap'))
+        params.append(VersionedParamPath(
+            'email_profiles', vartype='member', path='send-email'))
+        params.append(VersionedParamPath(
+            'syslog_profiles', vartype='member', path='send-syslog'))
+        params.append(VersionedParamPath(
+            'http_profiles', vartype='member', path='send-http'))
+
+        self._params = tuple(params)
+
+
+class LogForwardingProfileMatchListAction(VersionedPanObject):
+    """Action for a log forwarding profile match list entry.
+
+    Note: This is valid for PAN-OS 8.0+
+
+    Args:
+        name (str): The name
+        action_type (str): Action type.  Valid values are tagging (default)
+            or (PAN-OS 8.1+) integration.
+        action (str): The action.  Valid values are add-tag, remove-tag, or
+            (PAN-OS 8.1+) Azure-Security-Center-Integration.
+        target (str): The target.  Valid values are source-address or
+            destination-address.
+        registration (str): Registration.  Valid values are localhost,
+            panorama, or remote.
+        http_profile (str): The HTTP profile for registration of "remote".
+        tags (str/list): List of administrative tags.
+        timeout (int): (PAN-OS 9.0+) Timeout in minutes
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/actions')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'action_type', default='tagging', values=['tagging', ],
+            path='type/{action_type}'))
+        params[-1].add_profile(
+            '8.1.0',
+            values=['tagging', 'integration'], path='type/{action_type}')
+        params.append(VersionedParamPath(
+            'action', path='type/{action_type}/action',
+            values=['add-tag', 'remove-tag']))
+        params[-1].add_profile(
+            '8.1.0',
+            path='type/{action_type}/action',
+            values=['Azure-Security-Center-Integration',
+                    'add-tag', 'remove-tag'])
+        params.append(VersionedParamPath(
+            'target', path='type/{action_type}/target',
+            condition={'action_type': 'tagging'},
+            values=['source-address', 'destination-address']))
+        params.append(VersionedParamPath(
+            'registration', values=['localhost', 'panorama', 'remote'],
+            condition={'action_type': 'tagging'},
+            path='type/{action_type}/registration/{registration}'))
+        params.append(VersionedParamPath(
+            'http_profile',
+            condition={'action_type': 'tagging', 'registration': 'remote'},
+            path='type/{action_type}/registration/{registration}/http-profile'))
+        params.append(VersionedParamPath(
+            'tags', condition={'action_type': 'tagging'},
+            vartype='member', path='type/{action_type}/tags'))
+        params.append(VersionedParamPath(
+            'timeout', exclude=True))
+        params[-1].add_profile(
+            '9.0.0',
+            vartype='int', path='type/{action_type}/timeout',
+            condition={'action_type': 'tagging'})
+
+        self._params = tuple(params)
+
+
+class DynamicUserGroup(VersionedPanObject):
+    """Dynamic user group.
+
+    Note:  PAN-OS 9.1+
+
+    Args:
+        name: Name of the dynamic user group
+        description (str): Description of this object
+        filter: Tag-based filter.
+        tag (list): Administrative tags
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/dynamic-user-group')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'description', path='description'))
+        params.append(VersionedParamPath(
+            'filter', path='filter'))
+        params.append(VersionedParamPath(
+            'tag', path='tag', vartype='member'))
 
         self._params = tuple(params)

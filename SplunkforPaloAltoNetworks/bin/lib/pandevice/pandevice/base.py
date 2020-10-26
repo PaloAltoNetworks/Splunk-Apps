@@ -69,6 +69,7 @@ class PanObject(object):
     CHILDTYPES = ()
     CHILDMETHODS = ()
     HA_SYNC = True
+    TEMPLATE_NATIVE = False
 
     def __init__(self, *args, **kwargs):
         # Set the 'name' variable
@@ -314,13 +315,14 @@ class PanObject(object):
                 # Either panorama.DeviceGroup or device.Vsys.
                 label = p.VSYS_LABEL
                 vsys = p.vsys
-            elif p.__class__.__name__ == 'Template':
-                # Hit a template, make sure that the appropriate /config/...
-                # xpath has been saved.
-                if not path[0].startswith('/config/'):
-                    path.insert(0, self.xpath_root(root, vsys, label))
-                vsys = p.vsys
-                root = p.ROOT
+            elif p.__class__.__name__ in ('Template', 'TemplateStack'):
+                if not self.TEMPLATE_NATIVE:
+                    # Hit a template, make sure that the appropriate /config/...
+                    # xpath has been saved.
+                    if not path[0].startswith('/config/'):
+                        path.insert(0, self.xpath_root(root, vsys, label))
+                    vsys = p.vsys
+                    root = p.ROOT
 
         return ''.join(path)
 
@@ -506,7 +508,10 @@ class PanObject(object):
                 xpath_sections = xpath_sections[:-1]
             e = root
             for path in xpath_sections:
-                e = ET.SubElement(e, path)
+                if path == "entry[@name='localhost.localdomain']":
+                    e = ET.SubElement(e, 'entry', {'name': 'localhost.localdomain'})
+                else:
+                    e = ET.SubElement(e, path)
             e.append(child.element(comparable=comparable))
             yield root
 
@@ -626,6 +631,26 @@ class PanObject(object):
             var_path._set_inner_xml_tag_text(element, value)
             device.xapi.edit(xpath, ET.tostring(element, encoding='utf-8'),
                              retry_on_peer=self.HA_SYNC)
+
+    def rename(self, new_name):
+        """Change the name of this object.
+
+        **Modifies the live device**
+
+        NOTE:  This does not change any references that may exist in your
+        pandevice object hierarchy, but it does update the name of the
+        object itself.
+
+        Args:
+            new_name (str): The new UID for this object.
+
+        """
+        dev = self.nearest_pandevice()
+        logger.debug('{0}: rename called on {1} object "{2}"'.format(
+                dev.id, type(self), self.uid))
+        dev.set_config_changed()
+        dev.xapi.rename(self.xpath(), new_name)
+        setattr(self, self.NAME, new_name)
 
     def move(self, location, ref=None, update=True):
         """Moves the current object.
@@ -886,6 +911,20 @@ class PanObject(object):
         # Check for children in the remaining XML
         for child_type_string in self.CHILDTYPES:
             module_name, class_name = child_type_string.split('.')
+            if module_name == 'device':
+                import pandevice.device
+            elif module_name == 'firewall':
+                import pandevice.firewall
+            elif module_name == 'ha':
+                import pandevice.ha
+            elif module_name == 'network':
+                import pandevice.network
+            elif module_name == 'objects':
+                import pandevice.objects
+            elif module_name == 'panorama':
+                import pandevice.panorama
+            elif module_name == 'policies':
+                import pandevice.policies
             child = getattr(getattr(pandevice, module_name), class_name)()
 
             # Versioned objects need a PanDevice to get the version from, so
@@ -1112,7 +1151,7 @@ class PanObject(object):
             class_type = type(self)
 
         for num, child in enumerate(self.children):
-            if ((name is None or self.uid == name)
+            if ((name is None or child.uid == name)
                     and type(child) == class_type):
                 return num
 
@@ -1350,56 +1389,158 @@ class PanObject(object):
         elif vartype == "bool":
             return yesno(value)
 
-    def _set_reference(self, reference_name, reference_type, reference_var, exclusive, refresh, update, running_config, *args, **kwargs):
+    def _set_reference(self, reference_name, reference_type, reference_var,
+                       var_type, exclusive, refresh, update, running_config,
+                       return_type, name_only, **kwargs):
         """Used by helper methods to set references between objects
 
         For example, set_zone() would set the zone for an interface by creating a reference from
         the zone to the interface. If the desired reference already exists then nothing happens.
 
+        This function has two modes:  refresh=True and refresh=False.  You
+        should only ever use refresh=False if:
+
+            1) all reference objects are in the current pandevice object tree
+            2) all reference objects are children attached to nearest_pandevice()
+            3) this is for firewall only, not a template / template stack
+            4) you're using firewall.vsys, not the device.Vsys object
+
+        If any of the above do not apply, you should be using refresh=True.
+
         """
-        device = self.nearest_pandevice()
+        parent = None
+        update_needed = False
+
+        if return_type not in ('bool', 'object'):
+            raise ValueError('Unknown return_type specified: {0}'.format(
+                             return_type))
+
         if refresh:
-            allobjects = reference_type.refreshall(device, running_config=running_config)
+            """
+            pandevice is too flexible:  users can use simple vsys mode or a
+            device.Vsys object, which means vsys importables can be attached
+            to a Vsys object or a Firewall.  But a Vsys object can also be
+            attached to a Firewall or a Template or a TemplateStack.  So
+            create a separate pandevice object tree to operate on, leaving
+            the user's tree alone, but making it so we know where things are.
+
+            Basically, we need a pandevice object tree where all objects are
+            are sibling objects, just like refresh=False assumes.  Doing
+            this allows the rest of this function to operate as before.
+            """
+            from pandevice.firewall import Firewall
+            from pandevice.panorama import Panorama, Template, TemplateStack
+            from pandevice.device import Vsys
+
+            new_tree = None
+            if reference_type.ROOT == Root.VSYS:
+                # If the reference type belongs in a vsys (Zone), then
+                # initialize the new tree with a Vsys object.  Otherwise do not
+                # have a vsys specified as we don't care where an object is
+                # or is not imported into.
+                parent = Vsys(self.vsys or 'vsys1')
+                new_tree = parent
+
+            p = self
+            while p is not None:
+                new_obj = None
+                if isinstance(p, Firewall):
+                    new_obj = Firewall(
+                        hostname=p.hostname,
+                        api_username=p._api_username,
+                        api_password=p._api_password,
+                        api_key=p._api_key,
+                        serial=p.serial,
+                    )
+                elif isinstance(p, Template):
+                    new_obj = Template(p.name)
+                elif isinstance(p, TemplateStack):
+                    new_obj = TemplateStack(p.name)
+                elif isinstance(p, Panorama):
+                    new_obj = Panorama(
+                        hostname=p.hostname,
+                        api_username=p._api_username,
+                        api_password=p._api_password,
+                        api_key=p._api_key,
+                    )
+
+                if new_obj is not None:
+                    if parent is None:
+                        parent = new_obj
+                        new_tree = new_obj
+                    else:
+                        new_obj.add(new_tree)
+                        new_tree = new_obj
+
+                p = p.parent
+
+            if parent is None or isinstance(parent, Panorama):
+                raise err.PanDeviceError('Improper pandevice object tree')
+
+            allobjects = reference_type.refreshall(parent, name_only=name_only,
+                running_config=running_config)
+            if name_only:
+                for obj in allobjects:
+                    obj.refresh_variable(reference_var)
         else:
-            allobjects = device.findall(reference_type)
+            parent = self.nearest_pandevice()
+            allobjects = parent.findall(reference_type)
+
         # Find any current references to self and remove them, unless it is the desired reference
         if exclusive:
             for obj in allobjects:
                 references = getattr(obj, reference_var)
-                if references is None:
+                if not references:
                     continue
-                elif hasattr(references, "__iter__") and self in references:
-                    if reference_name is not None and str(getattr(obj, reference_type.NAME)) == reference_name:
-                        continue
+                elif reference_name is not None and obj.uid == reference_name:
+                    continue
+                elif isinstance(references, list) and self in references:
+                    update_needed = True
                     references.remove(self)
-                    if update: obj.update(reference_var)
-                elif hasattr(references, "__iter__") and str(self) in references:
-                    if reference_name is not None and str(getattr(obj, reference_type.NAME)) == reference_name:
-                        continue
+                    if update:
+                        obj.update(reference_var)
+                elif isinstance(references, list) and str(self) in references:
+                    update_needed = True
                     references.remove(str(self))
-                    if update: obj.update(reference_var)
+                    if update:
+                        obj.update(reference_var)
                 elif references == self or references == str(self):
-                    if reference_name is not None and str(getattr(obj, reference_type.NAME)) == reference_name:
-                        continue
-                    references = None
-                    if update: obj.update(reference_var)
+                    update_needed = True
+                    setattr(obj, reference_var, None)
+                    if update:
+                        obj.update(reference_var)
+
         # Add new reference to self in requested object
         if reference_name is not None:
-            obj = device.find_or_create(reference_name, reference_type, *args, **kwargs)
+            obj = parent.find_or_create(reference_name, reference_type, **kwargs)
             var = getattr(obj, reference_var)
-            if var is None:
-                setattr(obj, reference_var, [self])
-                if update: obj.update(reference_var)
-            elif hasattr(var, "__iter__") and self not in var and str(self) not in var:
-                var.append(self)
-                if update: obj.update(reference_var)
-            elif hasattr(var, "__iter__"):
-                # The reference already exists so do nothing
-                pass
+            if var_type == 'list':
+                if var is None:
+                    update_needed = True
+                    setattr(obj, reference_var, [self, ])
+                    if update:
+                        obj.update(reference_var)
+                elif not isinstance(var, list):
+                    if var != self and var != str(self):
+                        update_needed = True
+                        setattr(obj, reference_var, [var, self])
+                        if update:
+                            obj.update(reference_var)
+                elif self not in var and str(self) not in var:
+                    update_needed = True
+                    var.append(self)
+                    if update:
+                        obj.update(reference_var)
             elif var != self and var != str(self):
+                update_needed = True
                 setattr(obj, reference_var, self)
-                if update: obj.update(reference_var)
-            return obj
+                if update:
+                    obj.update(reference_var)
+            if return_type == 'object':
+                return obj
+
+        if return_type == 'bool':
+            return update_needed
 
     def xml_merge(self, root, elements):
         """Merges other elements into the root element.
@@ -1792,6 +1933,23 @@ class PanObject(object):
             return self.parent.fulltree()
         return self.tree()
 
+    def retrieve_panos_version(self):
+        """Gets the panos_version of the closest PanDevice.
+
+        If this object is not attached to a PanDevice, then a very large
+        number is returned to ensure that the newest version of the
+        object and xpath is presented to the user.
+
+        Returns:
+            tuple: The version as (x, y, z)
+        """
+        try:
+            device = self.nearest_pandevice()
+            panos_version = device.get_device_version()
+        except (err.PanDeviceNotSet, err.PanApiKeyNotSet):
+            panos_version = self._UNKNOWN_PANOS_VERSION
+
+        return panos_version
 
 
 class VersioningSupport(object):
@@ -2138,24 +2296,6 @@ class VersionedPanObject(PanObject):
 
         return list(ans)
 
-    def retrieve_panos_version(self):
-        """Gets the panos_version of the closest PanDevice.
-
-        If this object is not attached to a PanDevice, then a very large
-        number is returned to ensure that the newest version of the
-        object and xpath is presented to the user.
-
-        Returns:
-            tuple: The version as (x, y, z)
-        """
-        try:
-            device = self.nearest_pandevice()
-            panos_version = device.get_device_version()
-        except (err.PanDeviceNotSet, err.PanApiKeyNotSet):
-            panos_version = self._UNKNOWN_PANOS_VERSION
-
-        return panos_version
-
     def _build_element_info(self):
         panos_version = self.retrieve_panos_version()
         settings = {}
@@ -2202,6 +2342,33 @@ class VersionedPanObject(PanObject):
             iterchain += (self._subelements(comparable), )
 
         self.xml_merge(ans, itertools.chain(*iterchain))
+
+        # Now that the whole element is built, mixin an attrib vartypes.
+        for p in paths:
+            if p.vartype != 'attrib':
+                continue
+            attrib_path = p.path.split('/')
+            attrib_name = attrib_path.pop()
+            attrib_value = settings[p.param]
+            if attrib_value is None or p.exclude:
+                continue
+            e = ans
+            find_path = ['.', ]
+            for ap in attrib_path:
+                if not ap:
+                    continue
+                if ap.startswith('entry '):
+                    junk, var_to_use = ap.split()
+                    sol_value = pandevice.string_or_list(settings[var_to_use])[0]
+                    find_path.append("entry[@name='{0}']".format(sol_val))
+                elif ap == "entry[@name='localhost.localdomain']":
+                    find_path.append(ap)
+                else:
+                    find_path.append(ap.format(**settings))
+            if len(find_path) > 1:
+                e = e.find('/'.join(find_path))
+            if e is not None:
+                e.attrib[attrib_name] = attrib_value
 
         return ans
 
@@ -2434,6 +2601,27 @@ class VersionedParamPath(VersioningSupport):
             self.default, id(self))
 
 
+class ValueEntry(VersionedPanObject):
+    """Base class for objects that only have a value element.
+
+    """
+    ROOT = Root.VSYS
+    SUFFIX = ENTRY
+    LOCATION = None
+
+    def _setup(self):
+        if self.LOCATION is None:
+            raise Exception('{0}.LOCATION is unset'.format(self.__class__))
+
+        # xpath
+        self._xpaths.add_profile(value=self.LOCATION)
+
+        # params
+        self._params = (
+            VersionedParamPath('value', path='value'),
+        )
+
+
 class VarPath(object):
     """Configuration variable within the object
 
@@ -2594,6 +2782,8 @@ class ParamPath(object):
         # Check if this should return None instead of an element
         if self.exclude:
             return None
+        elif self.vartype == 'attrib':
+            return None
         elif value is None and self.vartype != 'stub':
             return None
         for condition_key, condition_value in self.condition.items():
@@ -2642,8 +2832,9 @@ class ParamPath(object):
             return string[5:33]
         else:
             # Sha1 hash the cleartext value
-            sha1 = hashlib.sha1(string)
-            return base64.b64encode(sha1.digest())
+            # Python3:  encode for sha1, decode for XML serialization.
+            sha1 = hashlib.sha1(string.encode('utf-8'))
+            return base64.b64encode(sha1.digest()).decode('utf-8')
 
     def parse_xml(self, xml, settings, possibilities):
         """Parse the XML to find this parameter's value.
@@ -2867,6 +3058,13 @@ class VsysOperations(VersionedPanObject):
         if vsys is None:
             vsys = self.vsys
 
+        # There are no vsys imports in template stacks.
+        p = self
+        while p is not None:
+            if p.__class__.__name__ == 'TemplateStack':
+                return
+            p = p.parent
+
         if vsys != "shared" and vsys is not None and self.XPATH_IMPORT is not None:
             xpath = self.xpath_import_base(vsys)
             element = '<member>{0}</member>'.format(self.uid)
@@ -2877,7 +3075,7 @@ class VsysOperations(VersionedPanObject):
         template = ''
         p = self
         while p is not None:
-            if p.__class__.__name__ == 'Template':
+            if p.__class__.__name__ in ('Template', 'TemplateStack'):
                 template = p.xpath()
                 break
             p = p.parent
@@ -2896,13 +3094,21 @@ class VsysOperations(VersionedPanObject):
         if vsys is None:
             vsys = self.vsys
 
+        # There are no vsys imports in template stacks.
+        p = self
+        while p is not None:
+            if p.__class__.__name__ == 'TemplateStack':
+                return
+            p = p.parent
+
         if vsys != "shared" and vsys is not None and self.XPATH_IMPORT is not None:
             xpath = "{0}/member[text()='{1}']".format(
                 self.xpath_import_base(vsys), self.uid)
             device = self.nearest_pandevice()
             device.active().xapi.delete(xpath, retry_on_peer=True)
 
-    def set_vsys(self, vsys_id, refresh=False, update=False, running_config=False):
+    def set_vsys(self, vsys_id, refresh=False, update=False,
+                 running_config=False, return_type='object'):
         """Set the vsys for this interface.
 
         Creates a reference to this interface in the specified vsys and
@@ -2916,41 +3122,69 @@ class VsysOperations(VersionedPanObject):
             update (bool): Apply the changes to the device (Default: False)
             running_config (bool): If refresh is True, refresh from the running
                 configuration (Default: False)
+            return_type (str): Specify what this function returns, can be
+                either 'object' (the default) or 'bool'.  If this is 'object',
+                then the return value is the device.Vsys in question.  If
+                this is 'bool', then the return value is a boolean that tells
+                you about if the live device needs updates (update=False) or
+                was updated (update=True).
 
         Returns:
             Vsys: The vsys for this interface after the operation completes
 
         """
-        param_name = self.XPATH_IMPORT.split('/')[-1]
+        if refresh and running_config:
+            msg = "Can't refresh vsys from running config in set_vsys"
+            raise ValueError(msg)
 
-        if refresh:
-            if running_config:
-                msg = "Can't refresh vsys from running config in set_vsys"
-                raise ValueError(msg)
+        # Don't import HA or aggregate-group interfaces.
+        if getattr(self, 'mode', '') in ('ha', 'aggregate-group'):
+            return False
 
-            import pandevice.device
-            device = self.nearest_pandevice()
+        # There are no vsys imports in template stacks.
+        p = self
+        while p is not None:
+            if p.__class__.__name__ == 'TemplateStack':
+                if return_type == 'bool':
+                    return False
+                return
+            p = p.parent
 
-            all_vsys = pandevice.device.Vsys.refreshall(device, name_only=True)
-            for a_vsys in all_vsys:
-                a_vsys.refresh_variable(param_name)
 
-        return self._set_reference(vsys_id, pandevice.device.Vsys, param_name,
-            True, refresh=False, update=update, running_config=running_config)
+        import_to_vsys_param = {
+            'vlan': 'vlans',
+            'virtual-wire': 'virtual_wires',
+            'virtual-router': 'virtual_routers',
+            'interface': 'interface',
+        }
+        for key, param_name in import_to_vsys_param.items():
+            if self.XPATH_IMPORT.endswith('/{0}'.format(key)):
+                break
+        else:
+            raise ValueError('Unknown import type: {0}'.format(
+                self.XPATH_IMPORT))
+
+        from pandevice.device import Vsys
+        return self._set_reference(vsys_id, Vsys, param_name, 'list',
+            True, refresh, update, running_config, return_type, True)
 
     @classmethod
     def refreshall(cls, parent, running_config=False, add=True,
-                   exceptions=False, name_only=False):
+                   exceptions=False, name_only=False,
+                   matching_vsys=True):
         instances = super(VsysOperations, cls).refreshall(
             parent, running_config, add=False,
             exceptions=exceptions, name_only=name_only)
+
+        if not matching_vsys:
+            return instances
 
         # Versioned objects need a PanDevice to get the version from, so
         # set the child's parent before accessing XPATH.
         class_instance = cls()
         class_instance.parent = parent
 
-        # Filter out instances that are not in this vlan's imports
+        # Filter out instances that are not in this vsys's imports
         device = parent.nearest_pandevice()
         api_action = device.xapi.show if running_config else device.xapi.get
         if parent.vsys != "shared" and parent.vsys is not None and class_instance.XPATH_IMPORT is not None:
@@ -3563,8 +3797,10 @@ class PanDevice(PanObject):
     def _set_version_and_version_info(self, version):
         """Sets the version and the specially formatted versioning version."""
         self.version = version
-        self._version_info = tuple(int(x) for x in
-                                   self.version.split('-')[0].split('.'))
+        # Example PAN-OS versions:  9.0.3-h1, 9.0.3.xfr
+        tokens = self.version.split('.')[:3]
+        tokens[2] = tokens[2].split('-')[0]
+        self._version_info = tuple(int(x) for x in tokens)
 
     def refresh_version(self):
         """Refresh version of PAN-OS
@@ -3992,29 +4228,34 @@ class PanDevice(PanObject):
 
     # Commit methods
 
-    def commit(self, sync=False, exception=False, cmd=None):
+    def commit(self, sync=False, exception=False, cmd=None, admins=None):
         """Trigger a commit
 
         Args:
             sync (bool): Block until the commit is finished (Default: False)
             exception (bool): Create an exception on commit errors (Default: False)
             cmd (str): Commit options in XML format
+            admins (str/list): name or list of admins whose changes need to be committed 
 
         Returns:
             dict: Commit results
 
         """
         self._logger.debug("Commit initiated on device: %s" % (self.id,))
-        return self._commit(sync=sync, exception=exception, cmd=cmd)
+        return self._commit(sync=sync, exception=exception, cmd=cmd, admins=admins)
 
     def _commit(self, cmd=None, exclude=None, commit_all=False,
-                sync=False, sync_all=False, exception=False):
+                sync=False, sync_all=False, exception=False, admins=None):
         """Internal use commit helper method.
 
         :param exclude:
             Can be:
                 device-and-network
                 policy-and-objects
+
+        :param admins:
+            string or list containing specific admin user(s) whose changes need to be committed
+
         :param sync:
             Synchronous commit, ie. wait for job to finish
         :return:
@@ -4035,10 +4276,18 @@ class PanDevice(PanObject):
             pass
         else:
             cmd = ET.Element("commit")
-            if exclude is not None:
-                excluded = ET.SubElement(cmd, "partial")
-                excluded = ET.SubElement(excluded, exclude)
+            if exclude is not None or admins is not None:
+                partial = ET.SubElement(cmd,"partial")
+                if admins is not None:
+                    partial_admin = ET.SubElement(partial, "admin")
+                    admins = pandevice.string_or_list(admins)
+                    for admin in admins:
+                        admin_xml = ET.SubElement(partial_admin, "member")
+                        admin_xml.text = admin
+                if exclude is not None:
+                    excluded = ET.SubElement(partial, exclude)
             cmd = ET.tostring(cmd, encoding='utf-8')
+          
         logger.debug(self.id + ": commit requested: commit_all:%s sync:%s sync_all:%s cmd:%s" % (str(commit_all),
                                                                                                        str(sync),
                                                                                                        str(sync_all),
@@ -4056,6 +4305,7 @@ class PanDevice(PanObject):
                                            timeout=self.timeout,
                                            retry_on_peer=True,
                                            )
+
         # Set locks off
         self.config_changed = []
         self.config_locked = False
@@ -4490,8 +4740,37 @@ class PanDevice(PanObject):
         Raises:
             PanActivateFeatureAuthCodeError
         """
-        result = self.op('request license fetch auth-code "{0}"'.format(
-                         code))
+        try:
+            result = self.op('request license fetch auth-code "{0}"'.format(code))
+        except pan.xapi.PanXapiError as e:
+            '''
+            pan-python can handle both XML responses & plaintext responses from
+            a PAN-OS, and it makes this determination based on headers that are
+            sent back from any given action.  Raw XML text returned is stored
+            in pan.xapi.PanXapi.xml_document, and the raw plain text is stored
+            in pan.xapi.PanXapi.text_document.
+
+            When it comes to licensing, it's been observed that PAN-OS can
+            send back a response with Content-Type: application/xml, but the
+            content isn't actually XML, it's plain text.  When this happens,
+            pan-python wraps the xml.etree.ElementTree error and returns
+            a PanXapiError instead that mentions the parsing problem.
+
+            So, check the not-actually-XML response sent back to see if the
+            licensing operation was actually successful.
+            '''
+            err_msg = '{0}'.format(e)
+            if err_msg.startswith('ElementTree.fromstring ParseError:'):
+                acceptable_errors = (
+                    'VM Device License installed. Restarting pan services.',
+                )
+                for msg in acceptable_errors:
+                    if msg in self.xapi.xml_document:
+                        return
+                raise pan.xapi.PanXapiError('{0} | xml_document={1}'.format(
+                                            err_msg, self.xapi.xml_document))
+            else:
+                raise
 
         if result.attrib.get('status') != 'success':
             raise err.PanActivateFeatureAuthCodeError(
@@ -4520,3 +4799,87 @@ class PanDevice(PanObject):
             raise ValueError('No password hash in response')
 
         return elm.text
+
+    def test_security_policy_match(self, source, destination, protocol,
+            application=None, category=None, port=None, user=None,
+            from_zone=None, to_zone=None, show_all=False):
+        """Test security policy match using the given criteria.
+
+        This function will always return a list for its results.  If `show_all`
+        is set to False, then the list will only have one entry in it.  The
+        keys in each dict are as follows:
+            * name (str): rule's name
+            * index (int): the index of the security rule
+            * action (str): the security rule's action
+
+        Args:
+            source (str): Source IP address.
+            destination (str): Destination IP address.
+            protocol (int): IP protocol value (1-255).
+            application (str): Application name.
+            category (str): Category name.
+            port (int): Destination port.
+            user (str): Source user.
+            from_zone (str): Source zone name.
+            to_zone (str): Destination zone name.
+            show_all (bool): Show all potential match rules until first allow.
+
+        Returns:
+            List of dicts
+        """
+        extras = (
+            ('application', application),
+            ('category', category),
+            ('destination-port', port),
+            ('source-user', user),
+            ('from', from_zone),
+            ('to', to_zone),
+            ('show-all', show_all),
+        )
+
+        # Build up the XML document.
+        root = ET.Element('test')
+        elm = ET.SubElement(root, 'security-policy-match')
+
+        # Add in required params.
+        ET.SubElement(elm, 'source').text = source
+        ET.SubElement(elm, 'destination').text = destination
+        ET.SubElement(elm, 'protocol').text = str(int(protocol))
+
+        # Add in the optional params.
+        for desc, val in extras:
+            if val is None:
+                continue
+
+            if desc == 'destination-port':
+                ET.SubElement(elm, desc).text = str(int(val))
+            elif desc == 'show-all':
+                ET.SubElement(elm, desc).text = 'yes' if val else 'no'
+            else:
+                ET.SubElement(elm, desc).text = val
+
+        # Run the test operation.
+        res = self.op(ET.tostring(root, encoding='utf-8'), cmd_xml=False)
+
+        # Build up the answer.
+        #
+        # Side note here:  the XML document returned here does not follow the
+        # rules of the API, so we can't use the SecurityRule module to parse
+        # the results.  For this reason, we won't parse everything, just
+        # name, index, and action.
+        ans = []
+        for elm in res.findall('./result/rules/entry'):
+            val = {
+                'name': elm.attrib['name'],
+            }
+
+            e = elm.find('./index')
+            val['index'] = 0 if e is None else int(e.text)
+
+            e = elm.find('./action')
+            val['action'] = '' if e is None else e.text
+
+            ans.append(val)
+
+        # Done.
+        return ans

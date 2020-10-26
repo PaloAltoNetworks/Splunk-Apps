@@ -133,7 +133,7 @@ class UserId(object):
                 else:
                     raise e
 
-    def login(self, user, ip):
+    def login(self, user, ip, timeout=None):
         """Login a single user
 
         Maps a user to an IP address
@@ -143,13 +143,16 @@ class UserId(object):
         Args:
             user (str): a username
             ip (str): an ip address
+            timeout (int): timeout in minutes to remove this mapping
 
         """
         root, payload = self._create_uidmessage()
         login = payload.find("login")
         if login is None:
             login = ET.SubElement(payload, "login")
-        ET.SubElement(login, "entry", {"name": user, "ip": ip})
+        entry = ET.SubElement(login, "entry", {"name": user, "ip": ip})
+        if timeout:
+            entry.set('timeout', str(timeout))
         self.send(root)
 
     def logins(self, users):
@@ -158,8 +161,8 @@ class UserId(object):
         This method can be batched with batch_start() and batch_end().
 
         Args:
-            users: a list of sets of user/ip mappings
-                   eg. [(user1, 10.0.1.1), (user2, 10.0.1.2)]
+            users: a list of sets of user/ip mappings with optional timeout in minutes
+                   eg. [('user1', '10.0.1.1'), ('user2', '10.0.1.2', 60)]
 
         """
         if not users:
@@ -169,7 +172,12 @@ class UserId(object):
         if login is None:
             login = ET.SubElement(payload, "login")
         for user in users:
-            ET.SubElement(login, "entry", {"name": user[0], "ip": user[1]})
+            entry = ET.SubElement(login, "entry", {"name": user[0], "ip": user[1]})
+            try:
+                entry.set('timeout', str(user[2]))
+            except IndexError:
+                # No timeout specified
+                pass
         self.send(root)
 
     def logout(self, user, ip):
@@ -290,17 +298,36 @@ class UserId(object):
         Returns:
             dict: ip addresses as keys with tags as values
 
+        Raises:
+            PanDeviceError if running PAN-OS < 8.0 and a logfile is returned
+                instead of IP/tag mapings.
+
         """
+        if self.device is None:
+            raise err.PanDeviceNotSet('No device set for this userid instance')
+        version = self.device.retrieve_panos_version()
+
         if prefix is None:
             prefix = self.prefix
+
+        # Build up the command.
+        limit = 0
+        start_elm = None
+        start_offset = 1
         root = ET.Element("show")
         cmd = ET.SubElement(root, "object")
-        # Simple check to determine which command to use
-        if self.device and self.device.version and PanOSVersion('6.1.0') > self.device.version:
-            cmd = ET.SubElement(cmd, "registered-address")
-        else:
+        if version >= (6, 1, 0):
             cmd = ET.SubElement(cmd, "registered-ip")
-        # Add arguments to command
+            if version >= (8, 0, 0):
+                # PAN-OS 8.0+ supports paging.
+                limit = 500
+                ET.SubElement(cmd, "limit").text = '{0}'.format(limit)
+                start_elm = ET.SubElement(cmd, 'start-point')
+                start_elm.text = '{0}'.format(start_offset)
+        else:
+            cmd = ET.SubElement(cmd, "registered-address")
+
+        # Add ip/tag filter arguments to command.
         ip = list(set(string_or_list_or_none(ip)))
         tags = list(set(string_or_list_or_none(tags)))
         tags = [prefix+t for t in tags]
@@ -310,22 +337,44 @@ class UserId(object):
         if len(ip) == 1:
             ip_element = ET.SubElement(cmd, "ip")
             ip_element.text = ip[0]
-        root = self.device.op(cmd=ET.tostring(root), vsys=self.device.vsys, cmd_xml=False)
-        entries = root.findall("./result/entry")
+
         addresses = {}
-        for entry in entries:
-            c_ip = entry.get("ip")
-            if ip and c_ip not in ip:
-                continue
-            members = entry.findall("./tag/member")
-            c_tags = []
-            for member in members:
-                tag = member.text
-                if not prefix or tag.startswith(prefix):
-                    if not tags or tag in tags:
-                        c_tags.append(tag)
-            if c_tags:
-                addresses[c_ip] = c_tags
+        while True:
+            resp = self.device.op(cmd=ET.tostring(root, encoding='utf-8'),
+                                  vsys=self.device.vsys, cmd_xml=False)
+
+            # PAN-OS 7.1 and lower can return "outfile" instead of actual results.
+            outfile = resp.find('./result/msg/line/outfile')
+            if outfile is not None:
+                msg = [
+                    'PAN-OS returned "{0}" instead of IP/tag mappings'.format(
+                        outfile.text),
+                    'please upgrade to PAN-OS 8.0+',
+                ]
+                raise err.PanDeviceError(', '.join(msg))
+
+            entries = resp.findall("./result/entry")
+            for entry in entries:
+                c_ip = entry.get("ip")
+                if ip and c_ip not in ip:
+                    continue
+                members = entry.findall("./tag/member")
+                c_tags = []
+                for member in members:
+                    tag = member.text
+                    if not prefix or tag.startswith(prefix):
+                        if not tags or tag in tags:
+                            c_tags.append(tag)
+                if c_tags:
+                    addresses[c_ip] = c_tags
+
+            if start_elm is None or limit == 0 or len(entries) < limit:
+                break
+
+            start_offset += len(entries)
+            start_elm.text = '{0}'.format(start_offset)
+
+        # Done.
         return addresses
 
     def clear_registered_ip(self, ip=None, tags=None, prefix=None):
@@ -401,3 +450,275 @@ class UserId(object):
         for ip, tags in requested_list.items():
             self.register(ip, tags)
         self.batch_end()
+
+    def set_group(self, group, users):
+        """
+        Set a group's membership to the specified users.
+
+        This method can be batched with batch_start() and batch_end().
+
+        Args:
+            group: The group name.
+            users (list): The users to be in this group.
+
+        """
+        root, payload = self._create_uidmessage()
+
+        # Find the groups section.
+        groups = payload.find('./groups')
+        if groups is None:
+            groups = ET.SubElement(payload, 'groups')
+
+        # Find the group.
+        entries = groups.findall('./entry')
+        for entry in entries:
+            if entry.attrib['name'] == group:
+                ge = entry.find('./members')
+                break
+        else:
+            entry = ET.SubElement(groups, 'entry', {'name': group})
+            ge = ET.SubElement(entry, 'members')
+
+        # Now add in the users to this group.
+        for user in users:
+            ET.SubElement(ge, 'entry', {'name': user})
+
+        # Done.
+        self.send(root)
+
+    def get_groups(self, style=None):
+        """
+        Get a list of groups.
+
+        Args:
+            style: The type of groups to retrieve.  If unspecified, returns a list of
+                all groups.  Can be "custom-group", "dynamic", or "xmlapi".
+
+        Returns:
+            list
+
+        """
+        msg = ['<show><user><group><list>', ]
+        if style is not None:
+            msg.append("<entry name='{0}'/>".format(style))
+        msg.append('</list></group></user></show>')
+        cmd = ''.join(msg)
+        vsys = self.device.vsys or 'vsys1'
+
+        resp = self.device.op(cmd, vsys=self.device.vsys, cmd_xml=False)
+        if resp is None:
+            return
+
+        '''
+        Example returned XML:
+
+        9.1:
+        <response status="success"><result><![CDATA[\nmalicious_users \ncn=contractors,cn=users,dc=nam,dc=local \ntemp_contractors_dynamic_group \nspecial_project \nrisky_users \ncn=employees,cn=users,dc=nam,dc=local \nhigh_risk_users \n\nTotal: 7\n* : Custom Group\n\n]]></result></response>
+        <response status="success"><result><![CDATA[\n\nTotal: 0\n* : Custom Group\n\n]]></result></response>
+        <response status="success"><result><![CDATA[\nmalicious_users \ntemp_contractors_dynamic_group \nspecial_project \nrisky_users \nhigh_risk_users \n\nTotal: 5\n* : Custom Group\n\n]]></result></response>
+        '''
+
+        data = resp.find('./result')
+        if data is None:
+            return
+
+        lines = data.text.split('\n')
+        ans = []
+        for line in lines:
+            if line.startswith('Total: '):
+                break
+            val = line.strip()
+            if val:
+                ans.append(val)
+
+        return ans
+
+    def get_group_members(self, group):
+        """
+        Returns a list of users in the given group.
+
+        Args:
+            group: The name of the group.
+
+        Returns:
+            list
+
+        """
+        cmd = (
+            '<show><user><group><name>' +
+            group +
+            '</name></group></user></show>'
+        )
+        vsys = self.device.vsys or 'vsys1'
+
+        resp = self.device.op(cmd, vsys=vsys, cmd_xml=False)
+        if resp is None:
+            return
+
+        '''
+        Example returned XML:
+
+        9.1:
+        <response status="success"><result><![CDATA[\nUser group \'blah\' does not exist or does not have members\n]]></result></response>
+        <response status="success"><result><![CDATA[\n\nsource type: xmlapi\nGroup type: Dynamic\n\n[1     ] nam\\jsmith\n[2     ] panw\\garfield\n\n]]></result></response>
+        '''
+
+        data = resp.find('./result')
+        if data is None:
+            return
+
+        lines = data.text.split('\n')
+        ans = [x.split(']')[1].strip() for x in lines if len(x.split(']')) == 2]
+
+        return ans
+
+    def get_user_tags(self, user=None, prefix=None):
+        """
+        Get the dynamic user tags.
+
+        Note: PAN-OS 9.1+
+
+        Args:
+            user: Get only this user's tags, not all users and all tags.
+            prefix: Override class tag prefix.
+
+        Returns:
+            dict: Dict where the user is the key and the value is a list of tags.
+
+        """
+        if prefix is None:
+            prefix = self.prefix
+
+        limit = 500
+        start = 1
+        start_elm = None
+        msg = ['<show><object><registered-user>', ]
+        if user is None:
+            msg.append('<all>' +
+                       '<limit>{0}</limit>'.format(limit) +
+                       '<start-point>{0}</start-point>'.format(start) +
+                       '</all>')
+        else:
+            msg.append('<user>{0}</user>'.format(user))
+        msg.append('</registered-user></object></show>')
+
+        cmd = ET.fromstring(''.join(msg))
+        if user is None:
+            start_elm = cmd.find('./object/registered-user/all/start-point')
+
+        ans = {}
+        while True:
+            resp = self.device.op(cmd=ET.tostring(cmd, encoding='utf-8'),
+                                  vsys=self.device.vsys, cmd_xml=False)
+            entries = resp.findall('./result/entry')
+            for entry in entries:
+                key = entry.attrib['user']
+                val = []
+                members = entry.findall('./tag/member')
+                for member in members:
+                    tag = member.text
+                    if not prefix or tag.startswith(prefix):
+                        val.append(tag)
+                ans[key] = val
+
+            if start_elm is None or limit <= 0 or len(entries) < limit:
+                break
+
+            start += len(entries)
+            start_elm.text = '{0}'.format(start)
+
+        # Done.
+        return ans
+
+    def tag_user(self, user, tags, timeout=None, prefix=None):
+        """
+        Tags the user with the specified tags.
+
+        This method can be batched with batch_start() and batch_end().
+
+        Note: PAN-OS 9.1+
+
+        Args:
+            user: The user.
+            tags (list): The list of tags to apply.
+            timeout (int): (Optional) The timeout for the given tags.
+            prefix: Override class tag prefix.
+
+        """
+        if timeout is not None:
+            timeout = int(timeout)
+
+        if prefix is None:
+            prefix = self.prefix or ''
+
+        root, payload = self._create_uidmessage()
+
+        # Find the register user tags section.
+        ru = payload.find('./register-user')
+        if ru is None:
+            ru = ET.SubElement(payload, 'register-user')
+
+        # Find the tags section for this specific user.
+        entries = ru.findall('./entry')
+        for entry in entries:
+            if entry.attrib['name'] == user:
+                te = entry.find('./tag')
+                break
+        else:
+            entry = ET.SubElement(ru, 'entry', {'user': user, })
+            te = ET.SubElement(entry, 'tag')
+
+        # Now add in the tags with the specified timeout.
+        props = {}
+        if timeout is not None:
+            props['timeout'] = '{0}'.format(timeout)
+        for tag in tags:
+            ET.SubElement(te, 'member', props).text = prefix + tag
+
+        # Done.
+        self.send(root)
+
+    def untag_user(self, user, tags=None, prefix=None):
+        """
+        Removes tags associated with a user.
+
+        This method can be batched with batch_start() and batch_end().
+
+        Note: PAN-OS 9.1+
+
+        Args:
+            user: The user.
+            tags (list): (Optional) Remove only these tags instead of all tags.
+            prefix: Override class tag prefix.
+
+        """
+        root, payload = self._create_uidmessage()
+
+        if prefix is None:
+            prefix = self.prefix or ''
+
+        # Find the unregister user tags section.
+        uu = payload.find('./unregister-user')
+        if uu is None:
+            uu = ET.SubElement(payload, 'unregister-user')
+
+        # Find the tags section for this specific user.
+        entries = uu.findall('./entry')
+        for entry in entries:
+            if entry.attrib['name'] == user:
+                break
+        else:
+            entry = ET.SubElement(uu, 'entry', {'user': user, })
+
+        # Do tag removal.
+        te = entry.find('./tag')
+        if tags is not None:
+            if te is None:
+                te = ET.SubElement(entry, 'tag')
+            for tag in tags:
+                ET.SubElement(te, 'member').text = prefix + tag
+        elif te is not None:
+            entry.remove(te)
+
+        # Done.
+        self.send(root)

@@ -4,6 +4,7 @@ language: python
 
 python:
   - "2.7"
+  - "3.5"
   - "3.6"
   - "pypy"
 
@@ -12,3 +13,14 @@ install: pip install -r requirements.txt
 
 # command to run tests, e.g. python setup.py test
 script: python setup.py test
+
+# deploy to pypi on tagged commits
+deploy:
+  provider: pypi
+  user: btorresgil
+  password:
+    secure: HDdWhCTXRqlWslYJ2yNEq4ObVlqjBgBMQb1ZiwkMFWc28uDR4L8jrtyEgiu1EqVEHFACSHM52ktd92Baufiv350qwpu2enljM2XA3hYTqYkM2dp/ItsKYZ/4QUkfnWUekebav1FkoPpoFMWkAeoDkQwVTKexJTqTwTnr1atTA7Q=
+  on:
+    tags: true
+    python: 3.5
+

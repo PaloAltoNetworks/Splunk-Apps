@@ -27,6 +27,34 @@ import pandevice.network
 import pandevice.objects
 import pandevice.panorama
 
+import xml.etree.ElementTree as ET
+
+
+class TestTemplates(unittest.TestCase):
+    def setUp(self):
+        self.pano = pandevice.panorama.Panorama(
+            'foo', 'bar', 'baz', 'apikey')
+        self.pano._version_info = (8, 0, 0)
+
+    def test_template_element_str_stays_consistent(self):
+        expected = ''.join([
+            '<entry name="blah"><description>my description</description>',
+            '<settings><default-vsys>vsys1</default-vsys></settings>',
+            '<config><devices><entry name="localhost.localdomain"><vsys>',
+            '<entry name="vsys1"><import><network><interface /></network>',
+            '</import></entry></vsys><network><virtual-router>',
+            '<entry name="some vr"><admin-dists><static>42</static>',
+            '<ebgp>21</ebgp></admin-dists></entry></virtual-router>',
+            '</network></entry></devices></config></entry>',
+        ])
+
+        xml_tree = ET.fromstring('<result>{0}</result>'.format(expected))
+        t = pandevice.panorama.Template()
+        self.pano.add(t)
+        other = t.refreshall_from_xml(xml_tree)[0]
+
+        self.assertEqual(expected, other.element_str().decode('utf-8'))
+
 
 class TestNearestPandevice(unittest.TestCase):
     """
@@ -157,14 +185,16 @@ class TestElementStr_7_0(unittest.TestCase):
         ha_config = pandevice.ha.HighAvailability(
             'my high availability config', True, '1', 'my ha conf description',
             True, '10.5.1.5', 'active-passive', 'passive state', False, True,
-            'ha2 do stuff', 2, 'ethernet1/5')
+            'ha2 do stuff', 2)
 
         ha_config.add(h1o)
         ha_config.add(h2o)
+        ha_config.retrieve_panos_version = mock.Mock(return_value=(7, 0, 0))
 
         ret_val = ha_config.element_str()
 
-        self.assertEqual(expected, ret_val)
+        self.assertEqual(expected, ret_val,
+            '\n{0}\n{1}'.format(expected, ret_val))
 
     # 2) VirtualRouter with StaticRoute child
     def test_element_str_from_virtualrouter_with_sr_parent(self):
@@ -495,9 +525,10 @@ class TestXpaths_7_0(unittest.TestCase):
 
     # Firewall tests
     def test_edit_xpath_from_firewall(self):
+        # This is not a valid xpath, but its what should happen
+        # if there is no parent
         expected = ''.join([
-            "/config/devices/entry[@name='localhost.localdomain']",
-            "/vsys/entry[@name='vsys2']/devices/entry[@name='serial']",
+            "/devices/entry[@name='serial']",
         ])
 
         fw = pandevice.firewall.Firewall(
@@ -508,9 +539,10 @@ class TestXpaths_7_0(unittest.TestCase):
         self.assertEqual(expected, ret_val)
 
     def test_set_xpath_from_firewall(self):
+        # This is not a valid xpath, but its what should happen
+        # if there is no parent
         expected = ''.join([
-            "/config/devices/entry[@name='localhost.localdomain']",
-            "/vsys/entry[@name='vsys2']/devices",
+            "/devices",
         ])
 
         fw = pandevice.firewall.Firewall(
@@ -655,6 +687,78 @@ class TestXpaths_7_0(unittest.TestCase):
         ret_val = ao.xpath_short()
 
         self.assertEqual(expected, ret_val)
+
+    def test_xpath_from_addressobject_with_pano_parent(self):
+        expected = "/config/shared/address/entry[@name='shared ao']"
+
+        ao = pandevice.objects.AddressObject('shared ao')
+        pano = pandevice.panorama.Panorama('pano')
+        pano.get_device_version = mock.Mock(return_value=(7, 0, 0))
+
+        pano.add(ao)
+
+        ret_val = ao.xpath()
+
+        self.assertEqual(expected, ret_val)
+
+
+class TestVariousSubinterfaceXpaths(unittest.TestCase):
+    def test_l2_subinterface_with_firewall_parent(self):
+        fw = pandevice.firewall.Firewall('192.168.1.1', 'admin', 'admin', vsys='vsys2')
+        iface = pandevice.network.EthernetInterface('ethernet1/3', 'layer2')
+        eth = pandevice.network.Layer2Subinterface('ethernet1/3.3', 3)
+        iface.add(eth)
+        fw.add(iface)
+
+        expected = eth.xpath()
+
+        fw.add(eth)
+
+        self.assertEqual(expected, eth.xpath())
+
+    def test_l2_subinterface_with_vsys_parent(self):
+        fw = pandevice.firewall.Firewall('192.168.1.1', 'admin', 'admin')
+        vsys = pandevice.device.Vsys('vsys2')
+        iface = pandevice.network.EthernetInterface('ethernet1/3', 'layer2')
+        eth = pandevice.network.Layer2Subinterface('ethernet1/3.3', 3)
+        iface.add(eth)
+        vsys.add(iface)
+        fw.add(vsys)
+
+        expected = eth.xpath()
+
+        vsys.add(eth)
+
+        self.assertEqual(expected, eth.xpath())
+
+    def test_l3_subinterface_with_firewall_parent(self):
+        fw = pandevice.firewall.Firewall('192.168.1.1', 'admin', 'admin', vsys='vsys3')
+        iface = pandevice.network.EthernetInterface('ethernet1/4', 'layer3')
+        eth = pandevice.network.Layer3Subinterface('ethernet1/4.4', 4)
+        iface.add(eth)
+        fw.add(iface)
+
+        expected = eth.xpath()
+
+        fw.add(eth)
+
+        self.assertEqual(expected, eth.xpath())
+
+    def test_l3_subinterface_with_vsys_parent(self):
+        fw = pandevice.firewall.Firewall('192.168.1.1', 'admin', 'admin')
+        vsys = pandevice.device.Vsys('vsys3')
+        iface = pandevice.network.EthernetInterface('ethernet1/4', 'layer3')
+        eth = pandevice.network.Layer2Subinterface('ethernet1/4.4', 4)
+        iface.add(eth)
+        vsys.add(iface)
+        fw.add(vsys)
+
+        expected = eth.xpath()
+
+        vsys.add(eth)
+
+        self.assertEqual(expected, eth.xpath())
+
 
 if __name__=='__main__':
     unittest.main()

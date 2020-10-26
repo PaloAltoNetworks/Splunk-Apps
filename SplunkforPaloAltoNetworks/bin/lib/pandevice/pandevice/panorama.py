@@ -58,14 +58,16 @@ class DeviceGroup(VersionedPanObject):
         "firewall.Firewall",
         "objects.AddressObject",
         "objects.AddressGroup",
-        "policies.PreRulebase",
-        "policies.PostRulebase",
         "objects.ServiceObject",
         "objects.ServiceGroup",
         "objects.ApplicationObject",
         "objects.ApplicationGroup",
         "objects.ApplicationFilter",
         "objects.SecurityProfileGroup",
+        "objects.CustomUrlCategory",
+        "objects.LogForwardingProfile",
+        "policies.PreRulebase",
+        "policies.PostRulebase",
     )
 
     def _setup(self):
@@ -125,6 +127,8 @@ class Template(VersionedPanObject):
         "network.IpsecTunnel",
         "network.IpsecCryptoProfile",
         "network.IkeCryptoProfile",
+        "network.GreTunnel",
+        "panorama.TemplateVariable",
     )
 
     def _setup(self):
@@ -187,6 +191,28 @@ class TemplateStack(VersionedPanObject):
     """
     ROOT = Root.DEVICE
     SUFFIX = ENTRY
+    CHILDTYPES = (
+        "device.Vsys",
+        "device.SystemSettings",
+        "device.PasswordProfile",
+        "device.Administrator",
+        "ha.HighAvailability",
+        "network.EthernetInterface",
+        "network.AggregateInterface",
+        "network.LoopbackInterface",
+        "network.TunnelInterface",
+        "network.VlanInterface",
+        "network.Vlan",
+        "network.VirtualRouter",
+        "network.ManagementProfile",
+        "network.VirtualWire",
+        "network.IkeGateway",
+        "network.IpsecTunnel",
+        "network.IpsecCryptoProfile",
+        "network.IkeCryptoProfile",
+        "network.GreTunnel",
+        "panorama.TemplateVariable",
+    )
 
     def _setup(self):
         # xpaths
@@ -201,6 +227,58 @@ class TemplateStack(VersionedPanObject):
             'templates', path='templates', vartype='member'))
         params.append(VersionedParamPath(
             'devices', vartype='entry', path='devices'))
+
+        self._params = tuple(params)
+
+    def create_similar(self):
+        raise NotImplementedError('This is not supported for template stacks')
+
+    def apply_similar(self):
+        raise NotImplementedError('This is not supported for template stacks')
+
+    def delete_similar(self):
+        raise NotImplementedError('This is not supported for template stacks')
+
+
+class TemplateVariable(VersionedPanObject):
+    """Template or template stack variable.
+
+    Args:
+        name: The name.
+        value: The variable value.
+        variable_type: The variable type:
+                * ip-netmask (default)
+                * ip-range
+                * fqdn
+                * group-id
+                * interface
+                * device-priority (PAN-OS 9.0+)
+                * device-id (PAN-OS 9.0+)
+
+    """
+    TEMPLATE_NATIVE = True
+    ROOT = Root.DEVICE
+    SUFFIX = ENTRY
+
+    def _setup(self):
+        # xpaths
+        self._xpaths.add_profile(value='/variable')
+
+        # params
+        params = []
+
+        params.append(VersionedParamPath(
+            'value', path='type/{variable_type}'))
+        params.append(VersionedParamPath(
+            'variable_type', default='ip-netmask', path='type/{variable_type}',
+            values=['ip-netmask', 'ip-range', 'fqdn', 'group-id', 'interface']))
+        params[-1].add_profile(
+            '9.0.0',
+            path='type/{variable_type}',
+            values=[
+                'ip-netmask', 'ip-range', 'fqdn', 'group-id',
+                'interface', 'device-priority', 'device-id',
+            ])
 
         self._params = tuple(params)
 
@@ -227,6 +305,10 @@ class Panorama(base.PanDevice):
     CHILDTYPES = (
         "device.Administrator",
         "device.PasswordProfile",
+        "device.SnmpServerProfile",
+        "device.EmailServerProfile",
+        "device.SyslogServerProfile",
+        "device.HttpServerProfile",
         "firewall.Firewall",
         "panorama.DeviceGroup",
         "panorama.Template",
@@ -522,3 +604,61 @@ class Panorama(base.PanDevice):
             self.extend(firewall_instances)
 
         return firewall_instances + devicegroup_instances
+
+    def generate_vm_auth_key(self, lifetime):
+        """Generates a VM auth key to be placed in a VM's init-cfg.txt.
+
+        Args:
+            lifetime(int): The lifetime (in hours).
+
+        Raises:
+            PanDeviceError
+
+        Returns:
+            dict: has "authkey" and "expires" keys.
+
+        """
+        cmd = 'request bootstrap vm-auth-key generate lifetime "{0}"'
+
+        # Raises PanDeviceError.
+        resp = self.op(cmd.format(lifetime))
+
+        data = resp.find('./result')
+        if data is None:
+            raise err.PanDeviceError('No result in returned XML')
+
+        tokens = data.text.split()
+        ans = {
+            'authkey': tokens[3],
+            'expires': ' '.join(tokens[-2:]).rstrip(),
+        }
+
+        return ans
+
+    def get_vm_auth_keys(self):
+        """Returns the current VM auth keys.
+
+        Raises:
+            PanDeviceError
+
+        Returns:
+            list: list of dicts.  Each dict has "authkey" and "expires" keys.
+
+        """
+        cmd = 'request bootstrap vm-auth-key show'
+
+        # Raises PanDeviceError.
+        resp = self.op(cmd)
+
+        data = resp.find('./result')
+        if data is None:
+            raise err.PanDeviceError('No result in returned XML')
+
+        ans = []
+        for x in data.findall('./bootstrap-vm-auth-keys/entry'):
+            ans.append({
+                'authkey': x.find('./vm-auth-key').text,
+                'expires': x.find('./expiry-time').text,
+            })
+
+        return ans
