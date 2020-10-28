@@ -211,7 +211,7 @@ def main_splunk():
         ## Find the field
 
         try:
-            if action == "adduser" or action == "removeuser":
+            if action in ("adduser", "removeuser"):
                 this_field = result[user_field]
             else: 
                 this_field = result[ip_field]
@@ -221,10 +221,10 @@ def main_splunk():
         ## Create a request in the batch user-id update for the firewall
         ## No API call to the firewall happens until all batch requests are created.
 
-        if action == "add" or action == "addip":
+        if action in ("add", "addip"):
             log(debug, "Registering tags on firewall %s: %s - %s" % (this_firewall, this_field, this_tag))
             this_firewall.userid.register(this_field, this_tag)
-        elif action=="remove" or action == "removeip":
+        elif action in ("remove", "removeip"):
             log(debug, "Unregistering tags on firewall %s: %s - %s" % (this_firewall, this_field, this_tag))
             this_firewall.userid.unregister(this_field, this_tag)
         elif action == "adduser":

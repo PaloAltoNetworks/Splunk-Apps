@@ -83,7 +83,7 @@ class PantagModularAction(ModularAction):
             return
         self.firewall.userid.batch_end()
         # Track the final state
-        action = "Register" if self.action == "add" or self.action == "adduser" or self.action == "addip" else "Unregister"
+        action = "Register" if self.action in ("add", "adduser", "addip") else "Unregister"
         modaction.message("%s PANTag on %s - Results: %s - Tags: %s"
                           % (action, self.device, str(self.resultcount), self.tags),
                           status='success',
@@ -93,7 +93,7 @@ class PantagModularAction(ModularAction):
     def apply(self, result):
 
         # Extract the User/IP that needs to be tagged
-        if self.action == "adduser" or self.action == "removeuser":
+        if self.action in ("adduser", "removeuser"):
             FIELDS = USER_FIELDS
         else:
             FIELDS = IP_FIELDS
@@ -109,10 +109,10 @@ class PantagModularAction(ModularAction):
             modaction.message('Unable to find field to tag', status='failure', rids=self.rids, level=logging.ERROR)
             return
 
-        if self.action == "add" or self.action == "addip":
+        if self.action in ("add", "addip"):
             self.logger.debug("Registering tags on firewall %s: %s - %s" % (self.device, extracted_field, self.tags))
             self.firewall.userid.register(extracted_field, self.tags)
-        elif self.action == "remove" or self.action == "removeip":
+        elif self.action in ("remove", "removeip"):
             self.logger.debug("Unregistering tags on firewall %s: %s - %s" % (self.device, extracted_field, self.tags))
             self.firewall.userid.unregister(extracted_field, self.tags)
         elif self.action == "adduser":
