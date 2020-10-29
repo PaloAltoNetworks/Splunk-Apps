@@ -40,6 +40,7 @@ csv.field_size_limit(10485760)
 
 # Default fields that contain IP addresses and should be tagged if they exist
 IP_FIELDS = ['src_ip', 'dest_ip', 'ip']
+USER_FIELDS= ['src_user', 'dest_user', 'user']
 
 ##
 ## Debugging : index=_internal (source=*_modalert.log* OR source=*_modworkflow.log*)
@@ -54,7 +55,7 @@ class PantagModularAction(ModularAction):
 
         self.verbose = self.configuration.get('verbose', 'false') in ["True", "true", "yes", "on"]
         self.device = self.configuration.get('device', '')
-        self.action = self.configuration.get('action', 'add')
+        self.action = self.configuration.get('action', 'addip')
         self.tag = self.configuration.get('tag', '')
         self.resultcount = 0
 
@@ -82,8 +83,8 @@ class PantagModularAction(ModularAction):
             return
         self.firewall.userid.batch_end()
         # Track the final state
-        action = "Register" if self.action == "add" else "Unregister"
-        modaction.message("%s IP Tag on %s - Results: %s - Tags: %s"
+        action = "Register" if self.action in ("add", "adduser", "addip") else "Unregister"
+        modaction.message("%s PANTag on %s - Results: %s - Tags: %s"
                           % (action, self.device, str(self.resultcount), self.tags),
                           status='success',
                           rids=self.rids
@@ -91,23 +92,37 @@ class PantagModularAction(ModularAction):
 
     def apply(self, result):
 
-        # Extract the IP that needs to be tagged
-        ip = None
-        for field in IP_FIELDS:
+        # Extract the User/IP that needs to be tagged
+        if self.action in ("adduser", "removeuser"):
+            FIELDS = USER_FIELDS
+        else:
+            FIELDS = IP_FIELDS
+        extracted_field = None
+
+        for field in FIELDS:
             if field in result:
-                ip = result[field]
+                extracted_field = result[field]
                 break
-        # Couldn't find a field with an IP
-        if ip is None:
-            modaction.message('Unable to find IP to tag', status='failure', rids=self.rids, level=logging.ERROR)
+
+        # Couldn't find a extracted field with username/ip
+        if extracted_field is None:
+            modaction.message('Unable to find field to tag', status='failure', rids=self.rids, level=logging.ERROR)
             return
 
-        if self.action == "add":
-            self.logger.debug("Registering tags on firewall %s: %s - %s" % (self.device, ip, self.tags))
-            self.firewall.userid.register(ip, self.tags)
+        if self.action in ("add", "addip"):
+            self.logger.debug("Registering tags on firewall %s: %s - %s" % (self.device, extracted_field, self.tags))
+            self.firewall.userid.register(extracted_field, self.tags)
+        elif self.action in ("remove", "removeip"):
+            self.logger.debug("Unregistering tags on firewall %s: %s - %s" % (self.device, extracted_field, self.tags))
+            self.firewall.userid.unregister(extracted_field, self.tags)
+        elif self.action == "adduser":
+            self.logger.debug("Registering tags on firewall %s: %s - %s" % (self.device, extracted_field, self.tags))
+            self.firewall.userid.tag_user(extracted_field, self.tags)
+        elif self.action == "removeuser":
+            self.logger.debug("Unregistering tags on firewall %s: %s - %s" % (self.device, extracted_field, self.tags))
+            self.firewall.userid.untag_user(extracted_field, self.tags)
         else:
-            self.logger.debug("Unregistering tags on firewall %s: %s - %s" % (self.device, ip, self.tags))
-            self.firewall.userid.unregister(ip, self.tags)
+            self.logger.error("Unknown action. Please use addip|removeip|adduser|removeuser")
 
         self.resultcount += 1
 
@@ -127,7 +142,7 @@ if __name__ == "__main__":
                 indent=4, separators=(',', ': ')))
 
         ## process results
-        with gzip.open(modaction.results_file, 'rb') as fh:
+        with gzip.open(modaction.results_file, 'rt') as fh:
             for num, result in enumerate(csv.DictReader(fh)):
                 modaction.start()
                 ## set rid to row # (0->n) if unset

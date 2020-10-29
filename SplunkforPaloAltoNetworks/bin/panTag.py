@@ -77,6 +77,7 @@ except Exception as e:
 
 # Default fields that contain IP addresses and should be tagged if they exist
 IP_FIELDS = ['src_ip', 'dest_ip', 'ip']
+USER_FIELDS = ['src_user', 'dest_user', 'user']
 
 
 def main_splunk():
@@ -108,9 +109,10 @@ def main_splunk():
         common.exit_with_error("Missing required command argument: tag or tag_field", 3)
 
     # Assign defaults to fields that aren't specified
-    action = kwargs['action'] if 'action' in kwargs else "add"
+    action = kwargs['action'] if 'action' in kwargs else "addip"
     vsys = kwargs['vsys'] if 'vsys' in kwargs else None
     ip_field = kwargs['ip_field'] if 'ip_field' in kwargs else "src_ip"
+    user_field = kwargs['user_field'] if 'user_field' in kwargs else "src_user"
     # Support 'field' argument (legacy syntax)
     if 'field' in kwargs and not 'ip_field' in kwargs:
         ip_field = kwargs['field']
@@ -206,22 +208,31 @@ def main_splunk():
         if tag is not None:
             this_tag.append(tag)
 
-        ## Find the IP
+        ## Find the field
 
         try:
-            this_ip = result[ip_field]
+            if action in ("adduser", "removeuser"):
+                this_field = result[user_field]
+            else: 
+                this_field = result[ip_field]
         except KeyError as e:
-            result['status'] = "ERROR: Unable to determine ip from field: %s" % ip_field
+            result['status'] = "ERROR: Unable to determine value from field: %s" % this_field
 
         ## Create a request in the batch user-id update for the firewall
         ## No API call to the firewall happens until all batch requests are created.
 
-        if action == "add":
-            log(debug, "Registering tags on firewall %s: %s - %s" % (this_firewall, this_ip, this_tag))
-            this_firewall.userid.register(this_ip, this_tag)
-        else:
-            log(debug, "Unregistering tags on firewall %s: %s - %s" % (this_firewall, this_ip, this_tag))
-            this_firewall.userid.unregister(this_ip, this_tag)
+        if action in ("add", "addip"):
+            log(debug, "Registering tags on firewall %s: %s - %s" % (this_firewall, this_field, this_tag))
+            this_firewall.userid.register(this_field, this_tag)
+        elif action in ("remove", "removeip"):
+            log(debug, "Unregistering tags on firewall %s: %s - %s" % (this_firewall, this_field, this_tag))
+            this_firewall.userid.unregister(this_field, this_tag)
+        elif action == "adduser":
+            log(debug, "Registering tags on firewall %s: %s - %s" % (this_firewall, this_field, this_tag))
+            this_firewall.userid.tag_user(this_field, this_tag)
+        elif action == "removeuser":
+            log(debug, "Unregistering tags on firewall %s: %s - %s" % (this_firewall, this_field, this_tag))
+            this_firewall.userid.untag_user(this_field, this_tag)
 
         result['status'] = "Submitted successfully"
 
