@@ -661,7 +661,7 @@ class UserId(object):
         # Find the tags section for this specific user.
         entries = ru.findall('./entry')
         for entry in entries:
-            if entry.attrib['name'] == user:
+            if entry.attrib['user'] == user:
                 te = entry.find('./tag')
                 break
         else:
@@ -705,7 +705,7 @@ class UserId(object):
         # Find the tags section for this specific user.
         entries = uu.findall('./entry')
         for entry in entries:
-            if entry.attrib['name'] == user:
+            if entry.attrib['user'] == user:
                 break
         else:
             entry = ET.SubElement(uu, 'entry', {'user': user, })
