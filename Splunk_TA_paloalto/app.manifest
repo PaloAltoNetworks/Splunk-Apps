@@ -39,7 +39,11 @@
     }
   },
   "dependencies": {},
-  "tasks": [],
+  "tasks": [
+    "autofocus_export",
+    "aperture",
+    "minemeld_feed"
+  ]
   "inputGroups": {},
   "incompatibleApps": {},
   "platformRequirements": {
