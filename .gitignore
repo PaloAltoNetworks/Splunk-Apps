@@ -143,3 +143,4 @@ dmypy.json
 !**/app.manifest
 !**/README/*.spec
 !demo/conf/eventgen_conf/eventgen.conf.spec
+.notes/
