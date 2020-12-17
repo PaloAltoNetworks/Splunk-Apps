@@ -75,7 +75,7 @@ splunk:
         incident_feed-tour:enterprise:
           viewed: 1
     datamodels:
-      directory: /opt/splunk/etc/system/local
+      directory: /opt/splunk/etc/apps/SplunkforPaloAltoNetworks/local
       content:
         pan_firewall:
           acceleration: 1
