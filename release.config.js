@@ -29,12 +29,12 @@ var commitTemplate = `*{{#if scope}} **{{scope}}:**
 `
 
 module.exports = {
+  preset: 'conventionalcommits',
   plugins: [
     '@semantic-release/commit-analyzer',
     [
       '@semantic-release/release-notes-generator',
       {
-        preset: 'conventionalcommits',
         writerOpts: {
           commitPartial: commitTemplate,
         },
@@ -43,8 +43,8 @@ module.exports = {
     [
       '@semantic-release/exec',
       {
-        prepareCmd: 'DEBUG=true scripts/set-version.sh ${nextRelease.version} && scripts/build.sh -a app && scripts/build.sh -a addon',
-        publishCmd: 'DEBUG=true scripts/publish.sh -a app && DEBUG=true scripts/publish.sh -a addon',
+        prepareCmd: 'LOG_LEVEL=DEBUG scripts/set-version.sh ${nextRelease.version} && scripts/build.sh -a app && scripts/build.sh -a addon',
+        publishCmd: 'LOG_LEVEL=DEBUG scripts/publish.sh -a app && LOG_LEVEL=DEBUG scripts/publish.sh -a addon',
       },
     ],
     [
