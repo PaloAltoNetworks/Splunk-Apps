@@ -52,6 +52,7 @@ module.exports = {
       {
         assets: [
           'SplunkforPaloAltoNetworks/default/app.conf',
+          'SplunkforPaloAltoNetworks/app.manifest',
           'SplunkforPaloAltoNetworks/README.md',
           'Splunk_TA_paloalto/default/app.conf',
           'Splunk_TA_paloalto/app.manifest',
