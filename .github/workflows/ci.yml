@@ -1,12 +1,21 @@
 name: CI/CD
 
 # Trigger the workflow on push or pull request
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - beta
+      - alpha
+      - '[0-9]+.x'
+      - '[0-9]+.[0-9]+.x'
+  pull_request:
 
 jobs:
   build:
     name: Build
-    if: "! ( github.event_name == 'push' && github.ref == 'refs/heads/master')"
+    if: "! (github.event_name == 'push' && github.ref == 'refs/heads/master')"
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -28,9 +37,6 @@ jobs:
 
   appinspect-addon:
     name: AppInspect (Add-on)
-    if:
-      github.event_name == 'pull_request' || (github.event_name == 'push' &&
-      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'))
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -52,9 +58,6 @@ jobs:
 
   appinspect-app:
     name: AppInspect (App)
-    if:
-      github.event_name == 'pull_request' || (github.event_name == 'push' &&
-      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'))
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -76,41 +79,22 @@ jobs:
 
   release:
     name: Release
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref != 'refs/heads/develop'
     needs: [appinspect-addon, appinspect-app]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Cache npm modules
-        uses: actions/cache@v1
+      - name: Create release and publish
+        id: release
+        uses: cycjimmy/semantic-release-action@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-global-install
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-      - name: Install semantic-release
-        run: |
-          npm install -g \
-          semantic-release@^17.0.4 \
-          @semantic-release/exec@^5.0.0 \
-          @semantic-release/git@^9.0.0 \
-          conventional-changelog-conventionalcommits@^4.2.3
-      - name: Create GH release, build, and publish to SplunkBase
-        run: npx semantic-release
+          semantic_version: 17.1.1
+          extra_plugins: |
+            conventional-changelog-conventionalcommits@^4.4.0
+            @semantic-release/git@^9.0.0
+            @semantic-release/exec@^5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
           SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
-      - uses: actions/upload-artifact@v1
-        with:
-          name: SplunkforPaloAltoNetworks-${{ github.run_id }}
-          path: ${{ steps.build-app.outputs.path }}
-      - uses: actions/upload-artifact@v1
-        with:
-          name: Splunk_TA_paloalto-${{ github.run_id }}
-          path: ${{ steps.build-addon.outputs.path }}
