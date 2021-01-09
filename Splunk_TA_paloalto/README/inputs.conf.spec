@@ -11,6 +11,11 @@ feed_url =
 indicator_timeout =
 credentials =
 
+[iot_security://<name>]
+customer_id = 
+access_key_id = 
+secret_access_key =
+
 # [threatlist://<name>]
 # description =
 # interval =
