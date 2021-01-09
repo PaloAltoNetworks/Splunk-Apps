@@ -13,3 +13,6 @@ pan:threat_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:system_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:config_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:aperture,Palo Alto Networks,Aperture,,Palo Alto Networks Aperture
+pan:iot_vulnerability,Palo Alto Networks,IoT Security,,Palo Alto Networks IoT Security
+pan:iot_alert,Palo Alto Networks,IoT Security,,Palo Alto Networks IoT Security
+pan:iot_device,Palo Alto Networks,IoT Security,,Palo Alto Networks IoT Security
