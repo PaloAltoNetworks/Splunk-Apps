@@ -24,8 +24,10 @@ print_usage() {
     echo "Set the app/add-on version"
     echo ""
     echo "Usage:"
-    echo "  set-version.sh <new-version>"
+    echo "  set-version.sh <new-version> [release-channel]"
     echo ""
+    echo "Release channel can be 'default', 'beta', or 'alpha'."
+    echo "If not specified, the default channel is used."
 }
 
 # if less than one arguments supplied, display usage
@@ -42,6 +44,8 @@ if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
 fi
 
 NEW_VERSION=$1
+CHANNEL=${2:-default}
+
 # Get the current version from the app
 CURRENT_VERSION=$(grep -o '^version = [0-9a-z.-]*' "$ROOT/$APP/default/app.conf" | awk '{print $3}')
 # Generate a build number
@@ -59,8 +63,23 @@ else
     # BRANCH=$(git rev-parse --abbrev-ref HEAD)
 fi
 
+case $CHANNEL in
+  default)
+    DEVSTATUS='Production\/Stable'
+    ;;
+  beta)
+    DEVSTATUS='Beta'
+    ;;
+  alpha)
+    DEVSTATUS='Alpha'
+    ;;
+  *)
+    DEVSTATUS='Production\/Stable'
+    ;;
+esac
+
 [ "$DEBUG" ] && log_debug "Build number: $BUILD"
-log_info "Changing version from ${CURRENT_VERSION} to ${NEW_VERSION} build ${BUILD}"
+log_info "Changing version from $CURRENT_VERSION to $NEW_VERSION build $BUILD on channel $CHANNEL"
 
 # In each of the following replacements, grep us run first to confirm the line
 # exists in the file. If grep fails to find the line, the whole script stops
@@ -97,6 +116,10 @@ FILE="${ROOT}/${APP}/${APPMANIFEST}"
 grep -E '\"version\": .+' "$FILE" >/dev/null
 sed -i.bak -E "s/version\": .+/version\": \"${NEW_VERSION}\"/" "$FILE" && rm "${FILE}.bak"
 
+[ "$DEBUG" ] && log_debug "Set Addon ${APPMANIFEST} development status to ${DEVSTATUS}"
+grep -E '\"developmentStatus\": .+' "$FILE" >/dev/null
+sed -i.bak -E "s/developmentStatus\": .+/developmentStatus\": \"${DEVSTATUS}\"/" "$FILE" && rm "${FILE}.bak"
+
 # Set Add-on versions
 
 FILE="${ROOT}/${ADDON}/${APPCONF}"
@@ -114,6 +137,10 @@ FILE="${ROOT}/${ADDON}/${APPMANIFEST}"
 [ "$DEBUG" ] && log_debug "Set Addon ${APPMANIFEST} version to ${NEW_VERSION}"
 grep -E '\"version\": .+' "$FILE" >/dev/null
 sed -i.bak -E "s/version\": .+/version\": \"${NEW_VERSION}\"/" "$FILE" && rm "${FILE}.bak"
+
+[ "$DEBUG" ] && log_debug "Set Addon ${APPMANIFEST} development status to ${DEVSTATUS}"
+grep -E '\"developmentStatus\": .+' "$FILE" >/dev/null
+sed -i.bak -E "s/developmentStatus\": .+/developmentStatus\": \"${DEVSTATUS}\"/" "$FILE" && rm "${FILE}.bak"
 
 FILE="${ROOT}/${ADDON}/${README}"
 
