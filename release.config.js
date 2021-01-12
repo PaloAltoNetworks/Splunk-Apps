@@ -1,3 +1,8 @@
+var currentBranch = process.env.GITHUB_REF
+if (currentBranch) {
+  currentBranch = currentBranch.replace('refs/heads/', '')
+}
+
 var issueReleaseComment =
   ":tada: This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version} :tada:" +
   '\n\nThis release is available on SplunkBase: [App](https://splunkbase.splunk.com/app/491/) - [Add-on](https://splunkbase.splunk.com/app/2757/)' +
@@ -28,7 +33,8 @@ var commitTemplate = `*{{#if scope}} **{{scope}}:**
 
 `
 
-module.exports = {
+// Pre-release configuration (eg. beta or alpha release)
+var prereleaseConfig = {
   preset: 'conventionalcommits',
   plugins: [
     '@semantic-release/commit-analyzer',
@@ -43,8 +49,44 @@ module.exports = {
     [
       '@semantic-release/exec',
       {
-        prepareCmd: 'LOG_LEVEL=DEBUG scripts/set-version.sh "${nextRelease.version}" "${nextRelease.channel}"',
-        publishCmd: 'scripts/build.sh -a app && scripts/build.sh -a addon && LOG_LEVEL=DEBUG scripts/publish.sh -a app && LOG_LEVEL=DEBUG scripts/publish.sh -a addon',
+        prepareCmd:
+          'LOG_LEVEL=DEBUG scripts/set-version.sh "${nextRelease.version}" "${nextRelease.channel}" && git add -A && git commit -m "Pre-release ${nextRelease.version}"',
+        publishCmd: 'scripts/build.sh -a app && scripts/build.sh -a addon',
+      },
+    ],
+    [
+      '@semantic-release/github',
+      {
+        successComment: false,
+        assets: [
+          {path: '_build/SplunkforPaloAltoNetworks-*', label: 'SplunkforPaloAltoNetworks (App)'},
+          {path: '_build/Splunk_TA_paloalto-*', label: 'Splunk_TA_paloalto (Add-on)'},
+        ],
+      },
+    ],
+  ],
+}
+
+// Config for any full release (eg. master or maintenance releases)
+var releaseConfig = {
+  preset: 'conventionalcommits',
+  plugins: [
+    '@semantic-release/commit-analyzer',
+    [
+      '@semantic-release/release-notes-generator',
+      {
+        writerOpts: {
+          commitPartial: commitTemplate,
+        },
+      },
+    ],
+    [
+      '@semantic-release/exec',
+      {
+        prepareCmd:
+          'LOG_LEVEL=DEBUG scripts/set-version.sh "${nextRelease.version}" "${nextRelease.channel}"',
+        publishCmd:
+          'scripts/build.sh -a app && scripts/build.sh -a addon && LOG_LEVEL=DEBUG scripts/publish.sh -a app && LOG_LEVEL=DEBUG scripts/publish.sh -a addon',
       },
     ],
     [
@@ -69,3 +111,12 @@ module.exports = {
     ],
   ],
 }
+
+var configuration
+if (currentBranch === 'beta' || currentBranch === 'alpha') {
+  configuration = prereleaseConfig
+} else {
+  configuration = releaseConfig
+}
+
+module.exports = configuration
