@@ -123,70 +123,52 @@ def collect_events(helper, ew):
 
     if not last_device_pull or datetime.datetime.strptime(last_device_pull, "%Y-%m-%d %H:%M:%S") < datetime.datetime.now() - datetime.timedelta(minutes=5):
         # Lets get Device Inventory
-        try:
-            device_url = '{0}/device/list'.format(global_url)
-            params = {
-                'filter_monitored': 'yes',
-                'detail': 'true',
-            }
-            params.update(global_url_params)
-            devices = query_api(helper, device_url, params, 'devices', proxy_enabled)
-            for data in devices:
-                try:
-                    event = helper.new_event(
-                        host=global_url,
-                        source=helper.get_input_stanza_names(),
-                        index=helper.get_output_index(),
-                        sourcetype='pan:iot_device',
-                        data=json.dumps(data))
-                    ew.write_event(event)
-                except Exception as e:
-                    helper.log_error('Error on parse event. ' + str(e))
-        except Exception as e:
-            print(str(e))
+        device_url = '{0}/device/list'.format(global_url)
+        params = {
+            'filter_monitored': 'yes',
+            'detail': 'true',
+        }
+        params.update(global_url_params)
+        devices = query_api(helper, device_url, params, 'devices', proxy_enabled)
+        for data in devices:
+            event = helper.new_event(
+                host=global_url,
+                source=helper.get_input_stanza_names(),
+                index=helper.get_output_index(),
+                sourcetype='pan:iot_device',
+                data=json.dumps(data))
+            ew.write_event(event)
     else:
         helper.log_debug("Skipping device inventory pull. Last pulled: {0}".format(last_device_pull))
 
     # Lets get Alerts
-    try: 
-        alerts_url = '{0}/alert/list'.format(global_url)
-        params = {
-            'type': 'policy_alert',
-        }
-        params.update(global_url_params)
-        alerts = query_api(helper, alerts_url, params, 'alerts', proxy_enabled)
-        for data in alerts:
-            try:
-                event = helper.new_event(
-                    host=global_url,
-                    source=helper.get_input_stanza_names(),
-                    index=helper.get_output_index(),
-                    sourcetype='pan:iot_alert',
-                    data=json.dumps(data))
-                ew.write_event(event)
-            except Exception as e:
-                helper.log_error('Error on parse event. ' + str(e))
-    except Exception as e:
-        helper.log_error(str(e))
+    alerts_url = '{0}/alert/list'.format(global_url)
+    params = {
+        'type': 'policy_alert',
+    }
+    params.update(global_url_params)
+    alerts = query_api(helper, alerts_url, params, 'alerts', proxy_enabled)
+    for data in alerts:
+        event = helper.new_event(
+            host=global_url,
+            source=helper.get_input_stanza_names(),
+            index=helper.get_output_index(),
+            sourcetype='pan:iot_alert',
+            data=json.dumps(data))
+        ew.write_event(event)
 
     # # Vulnerabilities
-    try:
-        vuln_url = '{0}/vulnerability/list'.format(global_url)
-        params = {
-            'groupby': 'device',
-        }
-        params.update(global_url_params)
-        vulnerabilities = query_api(helper, vuln_url, params, 'vulnerabilities', proxy_enabled)
-        for data in vulnerabilities:
-            try:
-                event = helper.new_event(
-                    host=global_url,
-                    source=helper.get_input_stanza_names(),
-                    index=helper.get_output_index(),
-                    sourcetype='pan:iot_vulnerability',
-                    data=json.dumps(data))
-                ew.write_event(event)
-            except Exception as e:
-                helper.log_error('Error on parse event. ' + str(e))
-    except Exception as e:
-        helper.log_error(str(e))
+    vuln_url = '{0}/vulnerability/list'.format(global_url)
+    params = {
+        'groupby': 'device',
+    }
+    params.update(global_url_params)
+    vulnerabilities = query_api(helper, vuln_url, params, 'vulnerabilities', proxy_enabled)
+    for data in vulnerabilities:
+        event = helper.new_event(
+            host=global_url,
+            source=helper.get_input_stanza_names(),
+            index=helper.get_output_index(),
+            sourcetype='pan:iot_vulnerability',
+            data=json.dumps(data))
+        ew.write_event(event)
