@@ -15,6 +15,7 @@ credentials =
 customer_id = 
 access_key_id = 
 secret_access_key =
+python.version = python3
 
 # [threatlist://<name>]
 # description =
