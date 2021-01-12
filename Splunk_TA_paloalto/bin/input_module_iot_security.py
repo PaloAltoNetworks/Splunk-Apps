@@ -121,6 +121,11 @@ def collect_events(helper, ew):
 
     last_device_pull = helper.get_check_point("last_run_timestamp")
 
+    # Device inventory takes a long time to fetch because there can be tens of
+    # thousands of devices. It can take longer than the poll interval to get all
+    # the devices. So at each poll interval, we fetch maximum 20,000 devices
+    # (20 pages of 1000 devices each). We also wait 5 minutes between each fetch
+    # just in case a crazy pull interval like 5 seconds was used.
     if not last_device_pull or datetime.datetime.strptime(last_device_pull, "%Y-%m-%d %H:%M:%S") < datetime.datetime.now() - datetime.timedelta(minutes=5):
         # Lets get Device Inventory
         device_url = '{0}/device/list'.format(global_url)
