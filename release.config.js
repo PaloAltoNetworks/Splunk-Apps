@@ -43,8 +43,8 @@ module.exports = {
     [
       '@semantic-release/exec',
       {
-        prepareCmd: 'LOG_LEVEL=DEBUG scripts/set-version.sh ${nextRelease.version} && scripts/build.sh -a app && scripts/build.sh -a addon',
-        publishCmd: 'LOG_LEVEL=DEBUG scripts/publish.sh -a app && LOG_LEVEL=DEBUG scripts/publish.sh -a addon',
+        prepareCmd: 'LOG_LEVEL=DEBUG scripts/set-version.sh "${nextRelease.version}" "${nextRelease.channel}"',
+        publishCmd: 'scripts/build.sh -a app && scripts/build.sh -a addon && LOG_LEVEL=DEBUG scripts/publish.sh -a app && LOG_LEVEL=DEBUG scripts/publish.sh -a addon',
       },
     ],
     [
