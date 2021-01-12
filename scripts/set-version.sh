@@ -43,7 +43,8 @@ if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     exit 0
 fi
 
-NEW_VERSION=$1
+TEMP_VERSION=${1/-alpha\./alpha}
+NEW_VERSION=${TEMP_VERSION/-beta\./beta}
 CHANNEL=${2:-default}
 
 # Get the current version from the app
@@ -59,7 +60,7 @@ elif [ "$GITHUB_ACTIONS" == "true" ]; then
     # BRANCH=${GITHUB_REF#refs/heads/}
 else
     [ "$DEBUG" ] && log_debug "Running outside of CI"
-    BUILD=${NEW_VERSION//./}0
+    BUILD=${NEW_VERSION//[.-]/}0
     # BRANCH=$(git rev-parse --abbrev-ref HEAD)
 fi
 
