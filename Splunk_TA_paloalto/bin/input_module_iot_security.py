@@ -165,6 +165,7 @@ def collect_events(helper, ew):
     params.update(global_url_params)
     vulnerabilities = query_api(helper, vuln_url, params, 'vulnerabilities', proxy_enabled)
     for data in vulnerabilities:
+        data['customerId'] = opt_customer_id
         event = helper.new_event(
             host=global_url,
             source=helper.get_input_stanza_names(),

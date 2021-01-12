@@ -68,89 +68,33 @@
   </row>
   <row>
     <panel>
+      <title>Alerts</title>
       <chart>
-        <title>Alerts</title>
         <search>
-          <query>`pan_iot_alert` | dedup id | stats count by category</query>
+          <query>`pan_iot_alert` | stats count by _time id category | timechart count by category</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
         </search>
-        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
-        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
-        <option name="charting.axisX.abbreviation">none</option>
-        <option name="charting.axisX.scale">linear</option>
-        <option name="charting.axisY.abbreviation">none</option>
-        <option name="charting.axisY.scale">linear</option>
-        <option name="charting.axisY2.abbreviation">none</option>
-        <option name="charting.axisY2.enabled">0</option>
-        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
         <option name="charting.chart">column</option>
-        <option name="charting.chart.bubbleMaximumSize">50</option>
-        <option name="charting.chart.bubbleMinimumSize">10</option>
-        <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
-        <option name="charting.chart.style">shiny</option>
+        <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.drilldown">none</option>
-        <option name="charting.layout.splitSeries">0</option>
-        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
-        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
-        <option name="charting.legend.mode">standard</option>
-        <option name="charting.legend.placement">right</option>
-        <option name="charting.lineWidth">2</option>
-        <option name="trellis.enabled">0</option>
-        <option name="trellis.scales.shared">1</option>
-        <option name="trellis.size">medium</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
     <panel>
       <table>
         <search>
-          <query>`pan_iot_alert` | dedup id | stats count by category</query>
+          <query>`pan_iot_alert` | stats count by id category | stats count by category | sort -count</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">100</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>Alerts</title>
-      <table>
-        <search>
-          <query>`pan_iot_alert` | dedup id | stats  by zb_ticketid _time name severity | table _time zb_ticketid name severity</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
-        </search>
-        <option name="count">15</option>
-        <option name="dataOverlayMode">none</option>
         <option name="drilldown">row</option>
-        <option name="percentagesRow">false</option>
         <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
+        <option name="totalsRow">true</option>
         <option name="wrap">true</option>
-        <drilldown>
-          <link target="_self">search?q=%60pan_iot_alert%60%20zb_ticketid%3D$row.zb_ticketid|s$%20%7C%20dedup%20id&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
-        </drilldown>
-        <format type="color" field="severity">
-          <colorPalette type="map">{"critical":#D93F3C,"high":#ED8440,"medium":#F7BC38,"low":#65A637,"info":#6DB7C6}</colorPalette>
-        </format>
       </table>
     </panel>
   </row>
@@ -159,20 +103,19 @@
       <title>Vulnerabilities</title>
       <table>
         <search>
-          <query>`pan_iot_vulnerability` | dedup zb_ticketid | stats count by _time zb_ticketid profile risk_level ticketState | table _time zb_ticketid profile ticketState risk_level</query>
+          <query>`pan_iot_vulnerability` | table _time name display_profile_category risk_level vulnerability_name ip customerId | eval "more_info"="Details ↪" | sort -date</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">15</option>
-        <option name="dataOverlayMode">none</option>
         <option name="drilldown">row</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="wrap">false</option>
+        <fields>["_time","name","display_profile_category","vulnerability_name","risk_level","ip","more_info"]</fields>
         <drilldown>
-          <link target="_self">search?q=%60pan_iot_vulnerability%60%20zb_ticketid%3D$row.zb_ticketid|s$%20%7C%20dedup%20zb_ticketid&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <condition field="more_info">
+            <link target="_blank">https://$row.customerId$.iot.paloaltonetworks.com/guardian/risks/vulnerabilities/$row.vulnerability_name$</link>
+          </condition>
         </drilldown>
         <format type="color" field="risk_level">
           <colorPalette type="map">{"Critical":#D93F3C,"High":#ED8440,"Medium":#F7BC38,"Low":#65A637,"Info":#6DB7C6}</colorPalette>
