@@ -2,7 +2,7 @@
     "meta": {
         "name": "Splunk_TA_paloalto",
         "displayName": "Palo Alto Networks Add-on",
-        "version": "6.5.0",
+        "version": "6.6.0beta1",
         "apiVersion": "3.0.0",
         "restRoot": "Splunk_TA_paloalto"
     },
