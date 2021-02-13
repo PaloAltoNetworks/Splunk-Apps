@@ -17,6 +17,11 @@ access_key_id =
 secret_access_key =
 python.version = python3
 
+[cortex_xdr://<name>]
+XDR_TARGET_HOST = 
+XDR_KEY_ID = 
+XDR_KEY =
+
 # [threatlist://<name>]
 # description =
 # interval =
