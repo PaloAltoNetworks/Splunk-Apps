@@ -41,7 +41,7 @@ def collect_events(helper, ew):
     helper.set_log_level(log_level)
 
     try:
-        get_details = False
+        get_details = False 
         if helper.get_arg("XDR_GET_DETAILS") == "True":
             get_details = True
 
@@ -68,6 +68,7 @@ def collect_events(helper, ew):
         )
 
         latest_modification_time = helper.get_check_point("latest_incident_modified")
+        # latest_modification_time = None
 
         if latest_modification_time:
             mod_time = latest_modification_time + 1
@@ -77,6 +78,7 @@ def collect_events(helper, ew):
 
             if first_fetch:
                 parsed_dt = first_fetch
+                # parsed_dt =  now - timedelta(days=DEFAULT_FIRST_FETCH)
             else:
                 now = datetime.now()
                 parsed_dt =  now - timedelta(days=DEFAULT_FIRST_FETCH)
@@ -122,14 +124,24 @@ def collect_events(helper, ew):
             for incident in incidents:
                 if get_details:
                     try:
+                        helper.log_debug('GET DETAILS PLEASE')
                         incident_details = client.get_incident_extra_data(
                             incident_id=int(incident["incident_id"])
                         )
+                        helper.log_debug('FINISH DETAILS')
                     except KeyError as ex:
                         helper.log_debug(
                             f"Skipping incident as incident_id is not found: {str(ex)}"
                         )
                     helper.log_debug(incident_details)
+                    event = helper.new_event(
+                        host=base_url,
+                        source=helper.get_input_stanza_names(),
+                        index=helper.get_output_index(),
+                        sourcetype='pan:xdr_incident',
+                        data=json.dumps(incident_details))
+                    ew.write_event(event)
+
                 else:
                     event = helper.new_event(
                         host=base_url,

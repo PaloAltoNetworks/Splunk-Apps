@@ -264,16 +264,18 @@ class PyXDRClient:
         Gets extra incident data (i.e. alerts) given an incident ID
         """
         if not incident_id or not isinstance(incident_id, int):
+            self._helper.log_debug("Invalid incident ID (must be a positive integer) ID: {0}".format(incident_id))
             raise PyXDRInputError("Invalid incident ID (must be a positive integer)")
 
         if not alerts_limit or not isinstance(alerts_limit, int):
             raise PyXDRInputError("Invalid alert limit (must be a positive integer)")
 
         response = self._helper.send_http_request(
-            method="POST",
-            headers=self.generate_auth_headers(),
             url=f"{self._base_url}/public_api/v1/incidents/get_incident_extra_data/",
-            parameters={
+            method="POST",
+            parameters=None,
+            headers=self.generate_auth_headers(),
+            payload={
                 "request_data": {
                     "incident_id": str(incident_id),
                     "alerts_limit": alerts_limit,
@@ -283,13 +285,13 @@ class PyXDRClient:
             timeout=30,
             verify=True,
             cert=None,
-            payload=None,
         )
-
+        self._helper.log_debug(response)
         response.raise_for_status()
 
         reply = response.json().get("reply")
         if not reply:
+            self._helper.log_debug("reply not present in API response")
             raise PyXDRResponseError("reply not present in API response")
 
         return reply
