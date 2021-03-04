@@ -18,8 +18,7 @@
   </collection>
   
   <collection label="Threats">
-    <view name="adversary_scoreboard" />
-    <view name="incident_feed" default="true" />
+    <view name="cortex_xdr_incidents" default="true" />
     <view name="malware" />
     <view name="network_security" />
     <view name="endpoint_security" />
