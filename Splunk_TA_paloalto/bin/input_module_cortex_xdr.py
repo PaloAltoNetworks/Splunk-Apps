@@ -30,7 +30,8 @@ def ts_to_string(timestamp: int) -> str:
 def validate_input(helper, definition):
     """Implement your own validation logic to validate the input stanza configurations"""
     # This example accesses the modular input variable
-    base_url = definition.parameters.get('XDR_TARGET_HOST', None)
+    tenant = definition.parameters.get('XDR_TENANT', None)
+    region = definition.parameters.get('XDR_REGION', None)
     api_key_id = definition.parameters.get('XDR_KEY_ID', None)
     api_key = definition.parameters.get('XDR_KEY', None)
     pass
@@ -56,10 +57,18 @@ def collect_events(helper, ew):
         if not api_key:
             helper.log_debug("XDR_API environment not set")
             raise ValueError("XDR_API environment variable not set")
-        base_url = helper.get_arg("XDR_TARGET_HOST")
-        if not base_url:
-            raise ValueError("XDR_TARGET_HOST environment variable not set")
+        tenant = helper.get_arg("XDR_TENANT")
+        region = helper.get_arg("XDR_REGION")
+        if not tenant:
+            helper.log_error("XDR_REGION environment variable not set")
+            raise ValueError("XDR_TENANT environment variable not set")
 
+        if not region:
+            helper.log_error("XDR_REGION environment variable not set")
+            raise ValueError("XDR_REGION environment variable not set")
+
+        base_url = "https://api-{0}.xdr.{1}.paloaltonetworks.com".format(tenant, region)
+        helper.log_debug(base_url)
         client = PyXDRClient(
             api_key_id=api_key_id,
             api_key=api_key,

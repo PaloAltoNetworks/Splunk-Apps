@@ -18,9 +18,10 @@ secret_access_key =
 python.version = python3
 
 [cortex_xdr://<name>]
-XDR_TARGET_HOST = 
-XDR_KEY_ID = 
-XDR_KEY =
+XDR_TENANT = Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/
+XDR_REGION = Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/
+XDR_KEY_ID = API key should have "Advanced" security level with a role of "Viewer"
+XDR_KEY = API key should have "Advanced" security level with a role of "Viewer"
 
 # [threatlist://<name>]
 # description =
