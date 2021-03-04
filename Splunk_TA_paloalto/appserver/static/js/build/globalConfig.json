@@ -339,8 +339,12 @@
                         "label": "Secret Access Key"
                     },
                     {
-                        "field": "XDR_TARGET_HOST",
-                        "label": "Base URL"
+                        "field": "XDR_TENANT",
+                        "label": "Tenant Name"
+                    },
+                    {
+                        "field": "XDR_REGION",
+                        "label": "Tenant Region"
                     },
                     {
                         "field": "XDR_KEY_ID",
@@ -795,9 +799,9 @@
                             ]
                         },
                         {
-                            "field": "XDR_TARGET_HOST",
-                            "label": "Base URL",
-                            "help": "",
+                            "field": "XDR_TENANT",
+                            "label": "Tenant Name",
+                            "help": "Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/",
                             "required": true,
                             "type": "text",
                             "validators": [
@@ -810,9 +814,25 @@
                             ]
                         },
                         {
+                            "field": "XDR_REGION",
+                            "label": "Tenant Region",
+                            "help": "Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/",
+                            "required": true,
+                            "type": "text",
+                            "defaultValue": "us",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of text input is 8192"
+                                }
+                            ]
+                        },
+                        {
                             "field": "XDR_KEY_ID",
                             "label": "API Key ID",
-                            "help": "",
+                            "help": "API key should have \"Advanced\" security level with a role of \"Viewer\"",
                             "required": true,
                             "type": "text",
                             "encrypted": true,
@@ -828,7 +848,7 @@
                         {
                             "field": "XDR_KEY",
                             "label": "API Key",
-                            "help": "",
+                            "help": "API key should have \"Advanced\" security level with a role of \"Viewer\"",
                             "required": true,
                             "type": "text",
                             "encrypted": true,

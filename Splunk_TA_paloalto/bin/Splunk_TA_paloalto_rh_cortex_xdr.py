@@ -34,10 +34,20 @@ fields = [
         )
     ), 
     field.RestField(
-        'XDR_TARGET_HOST',
+        'XDR_TENANT',
         required=True,
         encrypted=False,
         default=None,
+        validator=validator.String(
+            min_len=0, 
+            max_len=8192, 
+        )
+    ), 
+    field.RestField(
+        'XDR_REGION',
+        required=True,
+        encrypted=False,
+        default='us',
         validator=validator.String(
             min_len=0, 
             max_len=8192, 
