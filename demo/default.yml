@@ -82,6 +82,12 @@ splunk:
           pan_aperture:
             acceleration: 1
             acceleration.earliest_time: -1w
+    - key: inputs
+      value:
+        directory: /opt/splunk/etc/apps/SA-Eventgen/local
+        content:
+          modinput_eventgen://default:
+            disabled: 0
   deployer_url: null
   dfs:
     dfc_num_slots: 4
