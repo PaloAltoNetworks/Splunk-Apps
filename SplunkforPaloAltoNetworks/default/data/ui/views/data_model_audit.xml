@@ -1,12 +1,5 @@
 <dashboard>
   <label>Data Model Audit</label>
-  <search id="tokensetter">
-    <query>| makeresults count=0</query>
-    <done>
-      <set token="results-1">0</set>
-      <set token="results-2">0</set>
-    </done>
-  </search>
   <row>
     <panel>
       <title>Logs Indexed - 24 Hours</title>
@@ -80,17 +73,9 @@
     <panel>
       <single>
         <search>
-          <query>| `pan_tstats` dc(log.serial_number) AS count FROM `fw_node(log)` GROUPBY _time | append [| makeresults count=$results-1$ | eval count=0]</query>
+          <query>| `pan_tstats` dc(log.serial_number) AS count FROM `fw_node(log)` GROUPBY _time | appendpipe [stats count | where count==0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-          <done>
-            <condition match="'job.resultCount' == 0">
-              <set token="results-1">1</set>
-            </condition>
-            <condition match="'job.resultCount' != 0 AND 'results-1' == 1">
-              <set token="results-1">0</set>
-            </condition>
-          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>
@@ -109,17 +94,9 @@
     <panel>
       <single>
         <search>
-          <query>| `pan_tstats` dc(log.src) AS count FROM `ep_node(log)` GROUPBY _time | append [| makeresults count=$results-2$ | eval count=0]</query>
+          <query>| `pan_tstats` dc(log.src) AS count FROM `ep_node(log)` GROUPBY _time | appendpipe [stats count | where count==0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-          <done>
-            <condition match="'job.resultCount' == 0">
-              <set token="results-2">1</set>
-            </condition>
-            <condition match="'job.resultCount' != 0 AND 'results-2' == 1">
-              <set token="results-2">0</set>
-            </condition>
-          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="colorMode">none</option>

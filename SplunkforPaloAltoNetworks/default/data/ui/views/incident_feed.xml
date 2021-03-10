@@ -1,15 +1,5 @@
 <form stylesheet="tooltip.css" script="tooltip.js">
   <label>All Incidents</label>
-  <search id="tokensetter">
-    <query>| makeresults count=0</query>
-    <done>
-      <set token="results-1">0</set>
-      <set token="results-2">0</set>
-      <set token="results-3">0</set>
-      <set token="results-4">0</set>
-      <set token="results-5">0</set>
-    </done>
-  </search>
   <search id="basesearch">
     <query>| tstats summariesonly=t prestats=t latest(_time), values(log.log_subtype), values(log.severity), values(log.app), values(log.user), values(log.threat_name), values(log.file_name), values(log.file_hash), values(log.url), values(log.dest_name), count FROM datamodel="pan_firewall" WHERE (nodename="log.threat" OR nodename="log.wildfire.malicious") $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype `session` log.direction log.action
 | tstats summariesonly=t prestats=t append=t latest(_time), values(log.log_subtype), values(log.severity), values(log.threat_name), values(log.user), count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" $sourcetype$ $client_ip$ $server_ip$ $log_subtype$ $severity$ $action$ GROUPBY sourcetype log.serial_number log.log_subtype log.client_ip log.action
@@ -159,17 +149,9 @@
     <panel>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY _time span=1h | append [| makeresults count=$results-1$ | eval count=0]</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.correlation" GROUPBY _time span=1h | appendpipe [stats count | where count==0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-          <done>
-            <condition match="'job.resultCount' == 0">
-              <set token="results-1">1</set>
-            </condition>
-            <condition match="'job.resultCount' != 0 AND 'results-1' == 1">
-              <set token="results-1">0</set>
-            </condition>
-          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
@@ -181,17 +163,9 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.threat" GROUPBY _time span=1h `session` | timechart span=1h count | append [| makeresults count=$results-2$ | eval count=0]</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.threat" GROUPBY _time span=1h `session` | timechart span=1h count | appendpipe [stats count | where count==0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-          <done>
-            <condition match="'job.resultCount' == 0">
-              <set token="results-2">1</set>
-            </condition>
-            <condition match="'job.resultCount' != 0 AND 'results-2' == 1">
-              <set token="results-2">0</set>
-            </condition>
-          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
@@ -203,17 +177,9 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_traps" WHERE nodename="log.attacks" GROUPBY _time span=1h | append [| makeresults count=$results-3$ | eval count=0]</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_traps" WHERE nodename="log.attacks" GROUPBY _time span=1h | appendpipe [stats count | where count==0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-          <done>
-            <condition match="'job.resultCount' == 0">
-              <set token="results-3">1</set>
-            </condition>
-            <condition match="'job.resultCount' != 0 AND 'results-3' == 1">
-              <set token="results-3">0</set>
-            </condition>
-          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
@@ -228,17 +194,9 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_aperture" WHERE nodename="log.incident" GROUPBY _time span=1h | append [| makeresults count=$results-4$ | eval count=0]</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_aperture" WHERE nodename="log.incident" GROUPBY _time span=1h | appendpipe [stats count | where count==0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-          <done>
-            <condition match="'job.resultCount' == 0">
-              <set token="results-4">1</set>
-            </condition>
-            <condition match="'job.resultCount' != 0 AND 'results-4' == 1">
-              <set token="results-4">0</set>
-            </condition>
-          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
@@ -253,17 +211,9 @@
       </single>
       <single>
         <search>
-          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.wildfire.malicious" GROUPBY _time span=1h | append [| makeresults count=$results-5$ | eval count=0]</query>
+          <query>| tstats summariesonly=t count FROM datamodel="pan_firewall" WHERE nodename="log.wildfire.malicious" GROUPBY _time span=1h | appendpipe [stats count | where count==0]</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
-          <done>
-            <condition match="'job.resultCount' == 0">
-              <set token="results-5">1</set>
-            </condition>
-            <condition match="'job.resultCount' != 0 AND 'results-5' == 1">
-              <set token="results-5">0</set>
-            </condition>
-          </done>
         </search>
         <option name="colorBy">trend</option>
         <option name="drilldown">all</option>
@@ -349,7 +299,6 @@
   <row>
     <panel depends="$debug$">
       <html>
-        <p>results-1: $results-1$</p>
         <p>time.earliest: $time.earliest$</p>
         <p>time.latest: $time.latest$</p>
         <p>timediff: $timediff$</p>
