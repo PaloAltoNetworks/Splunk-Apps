@@ -6,7 +6,7 @@ volumes:
 
 services:
   so1:
-    image: splunk/splunk:8.0
+    image: splunk/splunk:8.1.2
     hostname: so1
     volumes:
       - so1-etc:/opt/splunk/etc

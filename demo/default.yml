@@ -1,8 +1,9 @@
 ---
 ansible_connection: local
 ansible_environment: {}
-ansible_post_tasks: file:///tmp/setup_demo.yml
-ansible_pre_tasks: null
+ansible_post_tasks:
+  - file:///tmp/setup_demo.yml
+ansible_pre_tasks: []
 cert_prefix: https
 config:
   baked: default.yml
@@ -21,6 +22,7 @@ config:
 dmc_asset_interval: 3,18,33,48 * * * *
 dmc_forwarder_monitoring: false
 docker: true
+es_ssl_enablement: --ssl_enablement auto
 hide_password: false
 java_download_url: null
 java_update_version: null
@@ -37,58 +39,49 @@ splunk:
     httpinput: /opt/splunk/etc/apps/splunk_httpinput
     idxc: /opt/splunk/etc/master-apps
     shc: /opt/splunk/etc/shcluster/apps
+  appserver:
+    port: 8065
   asan: false
+  auxiliary_cluster_masters: []
+  build_url_bearer_token: null
   cluster_master_url: null
+  connection_timeout: 0
+  declarative_admin_password: false
   conf:
-    web:
-      directory: /opt/splunk/etc/system/local
-      content:
-        default:
-        settings:
-          updateCheckerBaseUrl: 0
-    telemetry:
-      directory: /opt/splunk/etc/apps/splunk_instrumentation/local
-      content:
-        general:
-          sendAnonymizedUsage: 0
-          sendLicenseUsage: 0
-          showOptInModal: 0
-    user-prefs:
-      directory: /opt/splunk/etc/users/admin/user-prefs/local
-      content:
-        general:
-          render_version_messages: 0
-          dismissedInstrumentationOptInVersion: 4
-          hideInstrumentationOptInModal: 1
-          notification_python_3_impact: false
-          default_namespace: SplunkforPaloAltoNetworks
-          tz: America/Los_Angeles
-          # display.page.home.dashboardId: /servicesNS/nobody/SplunkforPaloAltoNetworks/data/ui/views/incident_feed
-    ui-prefs:
-      directory: /opt/splunk/etc/users/admin/launcher/local
-      content:
-        home:
-          display.page.home.showGettingStarted: 0
-    ui-tour:
-      directory: /opt/splunk/etc/users/admin/SplunkforPaloAltoNetworks/local
-      content:
-        incident_feed-tour:enterprise:
-          viewed: 1
-    datamodels:
-      directory: /opt/splunk/etc/apps/SplunkforPaloAltoNetworks/local
-      content:
-        pan_firewall:
-          acceleration: 1
-          acceleration.earliest_time: -1w
-        pan_traps:
-          acceleration: 1
-          acceleration.earliest_time: -1w
-        pan_wildfire_report:
-          acceleration: 1
-          acceleration.earliest_time: -1mon
-        pan_aperture:
-          acceleration: 1
-          acceleration.earliest_time: -1w
+    - key: user-prefs
+      value:
+        directory: /opt/splunk/etc/users/admin/user-prefs/local
+        content:
+          general:
+            render_version_messages: 0
+            dismissedInstrumentationOptInVersion: 4
+            hideInstrumentationOptInModal: 1
+            notification_python_3_impact: false
+            default_namespace: SplunkforPaloAltoNetworks
+            tz: America/Los_Angeles
+            # display.page.home.dashboardId: /servicesNS/nobody/SplunkforPaloAltoNetworks/data/ui/views/incident_feed
+    - key: ui-tour
+      value:
+        directory: /opt/splunk/etc/users/admin/SplunkforPaloAltoNetworks/local
+        content:
+          incident_feed-tour:enterprise:
+            viewed: 1
+    - key: datamodels
+      value:
+        directory: /opt/splunk/etc/apps/SplunkforPaloAltoNetworks/local
+        content:
+          pan_firewall:
+            acceleration: 1
+            acceleration.earliest_time: -1w
+          pan_traps:
+            acceleration: 1
+            acceleration.earliest_time: -1w
+          pan_wildfire_report:
+            acceleration: 1
+            acceleration.earliest_time: -1mon
+          pan_aperture:
+            acceleration: 1
+            acceleration.earliest_time: -1w
   deployer_url: null
   dfs:
     dfc_num_slots: 4
@@ -98,14 +91,27 @@ splunk:
     port: 9000
     spark_master_host: 127.0.0.1
     spark_master_webui_port: 8080
+  disable_popups: true
+  dsp:
+    cert: null
+    enable: false
+    pipeline_desc: null
+    pipeline_name: null
+    pipeline_spec: null
+    server: forwarders.scp.splunk.com:9997
+    verify: false
   enable_service: false
+  es:
+    ssl_enablement: auto
   exec: /opt/splunk/bin/splunk
   group: splunk
   hec:
+    cert: null
     enable: true
+    password: null
     port: 8088
     ssl: true
-    token: 859590c3-6329-476b-a852-0d44f57777eb
+    token: 65f4fede-c9bd-4cd2-8047-f0aa15eed78f
   home: /opt/splunk
   http_enableSSL: false
   http_enableSSL_cert: null
@@ -113,16 +119,19 @@ splunk:
   http_enableSSL_privKey_password: null
   http_port: 8000
   idxc:
+    discoveryPass4SymmKey: w59DwrjDkcOZwpF1TMOcXF7CmC3DnsOew4NPw7RjFsOeBsKMBw==
     label: idxc_label
-    pass4SymmKey: LIjrWol4OBYOvZvhsR0JhkD8bTLNAIcl
+    pass4SymmKey: w59DwrjDkcOZwpF1TMOcXF7CmC3DnsOew4NPw7RjFsOeBsKMBw==
     replication_factor: 3
     replication_port: 9887
     search_factor: 3
-    secret: LIjrWol4OBYOvZvhsR0JhkD8bTLNAIcl
+    secret: w59DwrjDkcOZwpF1TMOcXF7CmC3DnsOew4NPw7RjFsOeBsKMBw==
   ignore_license: false
+  kvstore:
+    port: 8191
   launch: {}
   license_download_dest: /tmp/splunk.lic
-  license_master_url: null
+  license_master_url: ''
   multisite_master_port: 8089
   multisite_replication_factor_origin: 2
   multisite_replication_factor_total: 3
@@ -142,18 +151,27 @@ splunk:
     ssl: false
   search_head_captain_url: null
   secret: null
-  service_name: splunk
+  service_name: null
   set_search_peers: true
   shc:
+    deployer_push_mode: null
     label: shc_label
-    pass4SymmKey: EDkrTGZVZaZcZ8tWRqA0rgFwoTy6hT+b
+    pass4SymmKey: fkgcwonCpsOPwpzDtXDDjcKfNsO3w67CtTVyayogw64VwojDtA==
     replication_factor: 3
     replication_port: 9887
-    secret: EDkrTGZVZaZcZ8tWRqA0rgFwoTy6hT+b
+    secret: fkgcwonCpsOPwpzDtXDDjcKfNsO3w67CtTVyayogw64VwojDtA==
   smartstore: null
+  ssl:
+    ca: null
+    cert: null
+    enable: true
+    password: null
   svc_port: 8089
   tar_dir: splunk
   user: splunk
   wildcard_license: false
 splunk_home_ownership_enforcement: true
+splunkbase_password: null
+splunkbase_token: null
+splunkbase_username: null
 wait_for_splunk_retry_num: 60
