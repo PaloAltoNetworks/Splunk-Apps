@@ -3,6 +3,7 @@ test/*.lic
 test/*.license
 test/*.License
 _build/
+*.pickle
 
 ### IDE ###
 .vscode/
