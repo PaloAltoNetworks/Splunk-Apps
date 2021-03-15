@@ -30,10 +30,10 @@ def ts_to_string(timestamp: int) -> str:
 def validate_input(helper, definition):
     """Implement your own validation logic to validate the input stanza configurations"""
     # This example accesses the modular input variable
-    tenant = definition.parameters.get('XDR_TENANT', None)
-    region = definition.parameters.get('XDR_REGION', None)
-    api_key_id = definition.parameters.get('XDR_KEY_ID', None)
-    api_key = definition.parameters.get('XDR_KEY', None)
+    tenant = definition.parameters.get('xdr_tenant', None)
+    region = definition.parameters.get('xdr_region', None)
+    api_key_id = definition.parameters.get('xdr_key_id', None)
+    api_key = definition.parameters.get('xdr_key', None)
     pass
 
 def collect_events(helper, ew):
@@ -47,25 +47,25 @@ def collect_events(helper, ew):
             get_details = True
 
         try:
-            api_key_id = int(helper.get_arg("XDR_KEY_ID"))
+            api_key_id = int(helper.get_arg("xdr_key_id"))
         except TypeError as ex:
             raise ValueError(
                 "XDR_API_KEY environment variable must be set and be an integer"
             ) from ex
-        api_key = helper.get_arg("XDR_KEY")
+        api_key = helper.get_arg("xdr_key")
 
         if not api_key:
             helper.log_debug("XDR_API environment not set")
             raise ValueError("XDR_API environment variable not set")
-        tenant = helper.get_arg("XDR_TENANT")
-        region = helper.get_arg("XDR_REGION")
+        tenant = helper.get_arg("xdr_tenant")
+        region = helper.get_arg("xdr_region")
         if not tenant:
-            helper.log_error("XDR_REGION environment variable not set")
-            raise ValueError("XDR_TENANT environment variable not set")
+            helper.log_error("xdr_region environment variable not set")
+            raise ValueError("xdr_tenant environment variable not set")
 
         if not region:
-            helper.log_error("XDR_REGION environment variable not set")
-            raise ValueError("XDR_REGION environment variable not set")
+            helper.log_error("xdr_region environment variable not set")
+            raise ValueError("xdr_region environment variable not set")
 
         base_url = "https://api-{0}.xdr.{1}.paloaltonetworks.com".format(tenant, region)
         helper.log_debug(base_url)

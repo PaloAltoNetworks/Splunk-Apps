@@ -339,19 +339,19 @@
                         "label": "Secret Access Key"
                     },
                     {
-                        "field": "XDR_TENANT",
+                        "field": "xdr_tenant",
                         "label": "Tenant Name"
                     },
                     {
-                        "field": "XDR_REGION",
+                        "field": "xdr_region",
                         "label": "Tenant Region"
                     },
                     {
-                        "field": "XDR_KEY_ID",
+                        "field": "xdr_key_id",
                         "label": "API Key ID"
                     },
                     {
-                        "field": "XDR_KEY",
+                        "field": "xdr_key",
                         "label": "API Key"
                     }
                 ],
@@ -799,7 +799,7 @@
                             ]
                         },
                         {
-                            "field": "XDR_TENANT",
+                            "field": "xdr_tenant",
                             "label": "Tenant Name",
                             "help": "Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/",
                             "required": true,
@@ -814,7 +814,7 @@
                             ]
                         },
                         {
-                            "field": "XDR_REGION",
+                            "field": "xdr_region",
                             "label": "Tenant Region",
                             "help": "Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/",
                             "required": true,
@@ -830,7 +830,7 @@
                             ]
                         },
                         {
-                            "field": "XDR_KEY_ID",
+                            "field": "xdr_key_id",
                             "label": "API Key ID",
                             "help": "API key should have \"Advanced\" security level with a role of \"Viewer\"",
                             "required": true,
@@ -846,7 +846,7 @@
                             ]
                         },
                         {
-                            "field": "XDR_KEY",
+                            "field": "xdr_key",
                             "label": "API Key",
                             "help": "API key should have \"Advanced\" security level with a role of \"Viewer\"",
                             "required": true,
