@@ -34,7 +34,7 @@ fields = [
         )
     ), 
     field.RestField(
-        'XDR_TENANT',
+        'xdr_tenant',
         required=True,
         encrypted=False,
         default=None,
@@ -44,7 +44,7 @@ fields = [
         )
     ), 
     field.RestField(
-        'XDR_REGION',
+        'xdr_region',
         required=True,
         encrypted=False,
         default='us',
@@ -54,7 +54,7 @@ fields = [
         )
     ), 
     field.RestField(
-        'XDR_KEY_ID',
+        'xdr_key_id',
         required=True,
         encrypted=True,
         default=None,
@@ -64,7 +64,7 @@ fields = [
         )
     ), 
     field.RestField(
-        'XDR_KEY',
+        'xdr_key',
         required=True,
         encrypted=True,
         default=None,

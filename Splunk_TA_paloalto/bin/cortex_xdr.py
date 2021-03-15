@@ -46,19 +46,19 @@ class ModInputcortex_xdr(modinput_wrapper.base_modinput.BaseModInput):
         For customized inputs, hard code the arguments here to hide argument detail from users.
         For other input types, arguments should be get from input_module. Defining new input types could be easier.
         """
-        scheme.add_argument(smi.Argument("XDR_TENANT", title="Tenant Name",
+        scheme.add_argument(smi.Argument("xdr_tenant", title="Tenant Name",
                                          description="Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/",
                                          required_on_create=True,
                                          required_on_edit=False))
-        scheme.add_argument(smi.Argument("XDR_REGION", title="Tenant Region",
+        scheme.add_argument(smi.Argument("xdr_region", title="Tenant Region",
                                          description="Value can be found in Cortex XDR URL: https://<tenantname>.xdr.<tenantregion>.paloaltonetworks.com/",
                                          required_on_create=True,
                                          required_on_edit=False))
-        scheme.add_argument(smi.Argument("XDR_KEY_ID", title="API Key ID",
+        scheme.add_argument(smi.Argument("xdr_key_id", title="API Key ID",
                                          description="API key should have \"Advanced\" security level with a role of \"Viewer\"",
                                          required_on_create=True,
                                          required_on_edit=False))
-        scheme.add_argument(smi.Argument("XDR_KEY", title="API Key",
+        scheme.add_argument(smi.Argument("xdr_key", title="API Key",
                                          description="API key should have \"Advanced\" security level with a role of \"Viewer\"",
                                          required_on_create=True,
                                          required_on_edit=False))
