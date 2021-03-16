@@ -1,7 +1,7 @@
 <form>
   <label>Cortex XDR Incidents</label>
   <search id="basesearch">
-    <query>sourcetype="pan:xdr_incident" $incident_id$ $severity$ $status$ | dedup incident_id | eval assigned_user_pretty_name=replace(assigned_user_pretty_name,"null", "UNASSIGNED") | eval score=coalesce(if(manual_score="null", null(), manual_score), if(rule_based_score="null", null(), rule_based_score))  | eval "Last Updated" = strftime(_time, "%Y-%d-%m %H:%M:%S") | spath  path="incident_sources{}" output="Incident Sources" | spath  path="hosts{}" output="dest_hosts" | table "Last Updated", starred, incident_id, description, assigned_user_pretty_name, severity, dest_hosts, score, status, "Incident Sources", xdr_url, "Open in XDR" </query>
+    <query>sourcetype="pan:xdr_incident" $incident_id$ $severity$ $status$ | eventstats latest(incident_id) by _time | fields _time starred incident_id severity score description hosts{} status assigned_user_pretty_name incident_sources{} xdr_url</query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -36,10 +36,8 @@
       <suffix>"</suffix>
       <fieldForLabel>status</fieldForLabel>
       <fieldForValue>status</fieldForValue>
-      <search>
-        <query>sourcetype="pan:xdr_incident" | dedup status | table status | sort +"status"</query>
-        <earliest>-24h@h</earliest>
-        <latest>now</latest>
+      <search base="basesearch">
+        <query>| dedup status | table status | sort +"status"</query>
       </search>
       <choice value="*">All</choice>
     </input>
@@ -92,11 +90,9 @@
         <option name="useThousandSeparators">1</option>
       </single>
       <single>
-        <title></title>
         <search base="basesearch">
           <query>| search starred=true | stats dc(incident_id)</query>
         </search>
-        <option name="underLabel">Starred Incidents</option>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
         <option name="drilldown">none</option>
@@ -110,6 +106,7 @@
         <option name="trellis.size">medium</option>
         <option name="trendColorInterpretation">standard</option>
         <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">Starred Incidents</option>
         <option name="unitPosition">after</option>
         <option name="useColors">0</option>
         <option name="useThousandSeparators">1</option>
@@ -120,11 +117,8 @@
     <panel>
       <title>Incident Severity Over Time</title>
       <chart>
-        <search>
-          <query>sourcetype="pan:xdr_incident"  severity!=NULL | timechart  dc(incident_id) by severity</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
-          <sampleRatio>1</sampleRatio>
+        <search base="basesearch">
+          <query>| search severity!=NULL | timechart dc(incident_id) by severity</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -247,12 +241,13 @@
       <title>Starred Incident Feed</title>
       <table>
         <search base="basesearch">
-          <query>| search starred=true | eval "XDR Link"="Open in XDR" | rename incident_id AS "Incident ID", description AS "Incident Description", severity AS Severity, score AS Score, status AS Status, dest_hosts AS Hosts, assigned_user_pretty_name AS "Assigned To" | sort -"Last Udpated"</query>
+          <query>| search starred=true | eval "XDR Link"="Open in XDR" | rename _time AS "Last Updated" incident_id AS "Incident ID", description AS "Incident Description", severity AS Severity, score AS Score, status AS Status, hosts{} AS Hosts, assigned_user_pretty_name AS "Assigned To", incident_sources{} AS "Incident Sources" | table "Last Updated" "Incident ID" Severity Score "Incident Description"  Hosts Status "Assigned To" "Incident Sources" xdr_url "XDR Link"  | sort -"Last Udpated"</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -284,12 +279,13 @@
       <title>Incident Feed</title>
       <table>
         <search base="basesearch">
-          <query>| eval "XDR Link"="Open in XDR" | rename incident_id AS "Incident ID", description AS "Incident Description", severity AS Severity, score AS Score, status AS Status, dest_hosts AS Hosts, assigned_user_pretty_name AS "Assigned To" | sort -"Last Udpated"</query>
+          <query>| eval "XDR Link"="Open in XDR" | rename _time AS "Last Updated" incident_id AS "Incident ID", description AS "Incident Description", severity AS Severity, score AS Score, status AS Status, hosts{} AS Hosts, assigned_user_pretty_name AS "Assigned To", incident_sources{} AS "Incident Sources" | table "Last Updated" "Incident ID" Severity Score "Incident Description"  Hosts Status "Assigned To" "Incident Sources" xdr_url "XDR Link"  | sort -"Last Udpated"</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
