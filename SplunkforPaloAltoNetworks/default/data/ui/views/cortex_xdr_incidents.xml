@@ -241,7 +241,7 @@
       <title>Starred Incident Feed</title>
       <table>
         <search base="basesearch">
-          <query>| search starred=true | eval "Last Updated" = strftime(_time, "%Y-%d-%m %H:%M:%S") | eval "XDR Link"="Open in XDR" | rename incident_id AS "Incident ID", description AS "Incident Description", severity AS Severity, score AS Score, status AS Status, hosts{} AS Hosts, assigned_user_pretty_name AS "Assigned To", incident_sources{} AS "Incident Sources" | table "Last Updated" "Incident ID" Severity Score "Incident Description"  Hosts Status "Assigned To" "Incident Sources" xdr_url "XDR Link"  | sort -"Last Udpated"</query>
+          <query>| search starred=true | eval "Last Updated" = strftime(_time, "%Y-%m-%d %H:%M:%S") | eval "XDR Link"="Open in XDR" | rename incident_id AS "Incident ID", description AS "Incident Description", severity AS Severity, score AS Score, status AS Status, hosts{} AS Hosts, assigned_user_pretty_name AS "Assigned To", incident_sources{} AS "Incident Sources" | table "Last Updated" "Incident ID" Severity Score "Incident Description"  Hosts Status "Assigned To" "Incident Sources" xdr_url "XDR Link"  | sort -"Last Udpated"</query>
         </search>
         <option name="count">15</option>
         <option name="dataOverlayMode">none</option>
