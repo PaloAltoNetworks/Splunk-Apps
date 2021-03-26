@@ -1,4 +1,5 @@
 sourcetype,vendor,product,ids_type,vendor_product
+pan:firewall_cloud,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:config,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:system,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:threat,Palo Alto Networks,Firewall,network,Palo Alto Networks Firewall
