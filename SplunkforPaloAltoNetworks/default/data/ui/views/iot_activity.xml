@@ -1,8 +1,5 @@
 <dashboard>
   <label>IoT Activity</label>
-  <search id="basesearch">
-    <query></query>
-      </search>
   <row>
     <panel>
       <single>

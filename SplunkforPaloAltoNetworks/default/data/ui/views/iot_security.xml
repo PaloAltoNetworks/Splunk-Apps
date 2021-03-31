@@ -1,8 +1,7 @@
 <form>
   <label>IoT Security</label>
   <fieldset autoRun="true" submitButton="true">
-    <input type="time" searchWhenChanged="true" token="time">
-      <label></label>
+    <input type="time" searchWhenChanged="true">
       <default>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
