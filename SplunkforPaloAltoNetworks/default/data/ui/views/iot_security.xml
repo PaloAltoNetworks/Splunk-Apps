@@ -8,6 +8,29 @@
         <latest>now</latest>
       </default>
     </input>
+    <input type="multiselect" token="risk_level">
+      <label>Risk Level</label>
+      <choice value="Critical">Critical</choice>
+      <choice value="High">High</choice>
+      <choice value="Medium">Medium</choice>
+      <choice value="Low">Low</choice>
+      <choice value="Info">Info</choice>
+      <valuePrefix>risk_level="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR  </delimiter>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+    </input>
+    <input type="text" token="name">
+      <label>Vulnerability Name</label>
+      <prefix>name="</prefix>
+      <suffix>"</suffix>
+    </input>
+    <input type="text" token="vulnerability_name">
+      <label>Vulnerability CVE</label>
+      <prefix>vulnerability_name="</prefix>
+      <suffix>"</suffix>
+    </input>
   </fieldset>
   <row>
     <panel>
@@ -103,7 +126,7 @@
       <title>Vulnerabilities</title>
       <table>
         <search>
-          <query>`pan_iot_vulnerability` | table _time name display_profile_category risk_level vulnerability_name ip customerId | eval "more_info"="Details ↪" | sort -date</query>
+          <query>`pan_iot_vulnerability` $risk_level$ $name$ $vulnerability_name$ | table _time name display_profile_category risk_level vulnerability_name ip customerId | eval "more_info"="Details ↪" | sort -date</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -111,15 +134,15 @@
         <option name="refresh.display">progressbar</option>
         <option name="totalsRow">false</option>
         <option name="wrap">false</option>
+        <format type="color" field="risk_level">
+          <colorPalette type="map">{"Critical":#D93F3C,"High":#ED8440,"Medium":#F7BC38,"Low":#65A637,"Info":#6DB7C6}</colorPalette>
+        </format>
         <fields>["_time","name","display_profile_category","vulnerability_name","risk_level","ip","more_info"]</fields>
         <drilldown>
           <condition field="more_info">
             <link target="_blank">https://$row.customerId$.iot.paloaltonetworks.com/guardian/risks/vulnerabilities/$row.vulnerability_name$</link>
           </condition>
         </drilldown>
-        <format type="color" field="risk_level">
-          <colorPalette type="map">{"Critical":#D93F3C,"High":#ED8440,"Medium":#F7BC38,"Low":#65A637,"Info":#6DB7C6}</colorPalette>
-        </format>
       </table>
     </panel>
   </row>
