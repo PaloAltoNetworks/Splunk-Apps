@@ -16,7 +16,7 @@ clean-pyc:
 	find . -name '__pycache__' -exec rm -fr {} +
 
 bandit:
-	bandit reset_demo.py
+	bandit main.py
 
 format:
 	isort --recursive --atomic reset_demo.py
