@@ -27,7 +27,7 @@ check-format:
 	black --check .
 
 sync-deps:
-	poetry export -f requirements.txt -o requirements.txt
+	poetry export --without-hashes -f requirements.txt -o requirements.txt
 
 deploy:
 	gcloud functions deploy reset-demo \
