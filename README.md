@@ -1,5 +1,4 @@
 <p align="center" style="color: #343a40">
-  <img src=".github/splunk-logo.png" alt="Splunk" height="120">
   <h1 align="center">Splunk App and Add-on</h1>
 </p>
 <h3 align="center" style="font-size: 1.2rem;">The official Palo Alto Networks Splunk App and Add-on</h3>

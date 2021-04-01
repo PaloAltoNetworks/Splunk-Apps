@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "reset_demo_function"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cloud Function to reset the PANW Splunk demo"
 authors = ["Brian Torres-Gil <btorres-gil@paloaltonetworks.com>"]
 license = "ISC"

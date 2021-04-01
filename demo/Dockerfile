@@ -1,4 +1,4 @@
-FROM splunk/splunk:8.0.2.1-debian
+FROM splunk/splunk:8.1.2-debian
 LABEL authors "Brian Torres-Gil <brian@ixi.us>,Paul Nguyen <panguyen@paloaltonetworks.com>"
 
 USER root
@@ -11,11 +11,14 @@ RUN /tmp/splunk/scripts/build.sh -a app -o SplunkforPaloAltoNetworks.tgz -l
 RUN /tmp/splunk/scripts/build.sh -a addon -o Splunk_TA_paloalto.tgz -l
 
 # Download a stable Eventgen
-RUN wget -qO /tmp/eventgen.tar.gz https://github.com/btorresgil/eventgen/archive/develop.tar.gz
+RUN wget -qO /tmp/eventgen.tar.gz https://github.com/splunk/eventgen/archive/7.2.1.tar.gz
 RUN tar -xzf /tmp/eventgen.tar.gz -C /tmp/
+RUN mv /tmp/eventgen-7.2.1 /tmp/eventgen
 RUN rm -f /tmp/eventgen.tar.gz
-RUN mv /tmp/eventgen-develop /tmp/SA-Eventgen
-RUN cd /tmp; tar czf /tmp/eventgen.tgz SA-Eventgen
+# Build eventgen per instructions here:
+# https://github.com/splunk/eventgen/blob/develop/docs/SETUP.md#splunk-app-installation--first-run
+RUN cd /tmp/eventgen; /opt/splunk/bin/python3 -m splunk_eventgen build --destination /tmp/eventgen-build
+RUN mv /tmp/eventgen-build/sa_eventgen_Unknown.spl /tmp/eventgen.tgz
 
 # Load eventgen configuration
 COPY demo/samples /tmp/datagen/samples

@@ -39,7 +39,12 @@
     }
   },
   "dependencies": {},
-  "tasks": [],
+  "tasks": [
+    "autofocus_export",
+    "aperture",
+    "minemeld_feed",
+    "iot_security"
+  ],
   "inputGroups": {},
   "incompatibleApps": {},
   "platformRequirements": {

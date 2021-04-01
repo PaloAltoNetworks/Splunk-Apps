@@ -1,4 +1,5 @@
 sourcetype,vendor,product,ids_type,vendor_product
+pan:firewall_cloud,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:config,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:system,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:threat,Palo Alto Networks,Firewall,network,Palo Alto Networks Firewall
@@ -13,3 +14,6 @@ pan:threat_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:system_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:config_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:aperture,Palo Alto Networks,Aperture,,Palo Alto Networks Aperture
+pan:iot_vulnerability,Palo Alto Networks,IoT Security,,Palo Alto Networks IoT Security
+pan:iot_alert,Palo Alto Networks,IoT Security,,Palo Alto Networks IoT Security
+pan:iot_device,Palo Alto Networks,IoT Security,,Palo Alto Networks IoT Security

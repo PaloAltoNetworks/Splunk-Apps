@@ -3,6 +3,7 @@ test/*.lic
 test/*.license
 test/*.License
 _build/
+*.pickle
 
 ### IDE ###
 .vscode/
@@ -143,3 +144,4 @@ dmypy.json
 !**/app.manifest
 !**/README/*.spec
 !demo/conf/eventgen_conf/eventgen.conf.spec
+.notes/

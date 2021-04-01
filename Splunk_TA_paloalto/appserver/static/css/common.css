@@ -213,3 +213,6 @@ tr.more-info > td.details {
 .delete-prompt {
     margin: 20px;
 }
+.splunk-header.splunk-view>div[data-view="views/shared/appbar/Master"] {
+    background-color: #3c444d !important;
+}

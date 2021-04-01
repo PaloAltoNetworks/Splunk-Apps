@@ -12,6 +12,7 @@
     <view name="saas_activity" />
     <view name="file_activity" />
     <view name="web_activity" />
+    <view name="iot_activity" />
     <view name="globalprotect" />
     <view name="globalprotect_legacy" />
   </collection>
@@ -23,6 +24,7 @@
     <view name="network_security" />
     <view name="endpoint_security" />
     <view name="saas_security" />
+    <view name="iot_security" />
     <view name="email_security" />
     <view name="wildfire_submissions" />
   </collection>
