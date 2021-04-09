@@ -1,7 +1,7 @@
 <form>
   <label>IoT Security</label>
   <fieldset autoRun="true" submitButton="true">
-    <input type="time" searchWhenChanged="true">
+    <input type="time" searchWhenChanged="true" token="time">
       <default>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
@@ -9,6 +9,7 @@
     </input>
     <input type="multiselect" token="risk_level">
       <label>Risk Level</label>
+      <choice value="*">All</choice>
       <choice value="Critical">Critical</choice>
       <choice value="High">High</choice>
       <choice value="Medium">Medium</choice>
