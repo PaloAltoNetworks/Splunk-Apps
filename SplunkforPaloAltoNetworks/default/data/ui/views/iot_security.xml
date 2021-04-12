@@ -9,12 +9,12 @@
     </input>
     <input type="multiselect" token="risk_level">
       <label>Risk Level</label>
-      <choice value="*">All</choice>
       <choice value="Critical">Critical</choice>
       <choice value="High">High</choice>
       <choice value="Medium">Medium</choice>
       <choice value="Low">Low</choice>
       <choice value="Info">Info</choice>
+      <default>*</default>
       <valuePrefix>risk_level="</valuePrefix>
       <valueSuffix>"</valueSuffix>
       <delimiter> OR  </delimiter>
@@ -23,11 +23,13 @@
     </input>
     <input type="text" token="name">
       <label>Vulnerability Name</label>
+      <default>*</default>
       <prefix>name="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="vulnerability_name">
       <label>Vulnerability CVE</label>
+      <default>*</default>
       <prefix>vulnerability_name="</prefix>
       <suffix>"</suffix>
     </input>
