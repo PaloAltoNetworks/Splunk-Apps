@@ -23,13 +23,13 @@
     </input>
     <input type="text" token="name">
       <label>Vulnerability Name</label>
-      <default>*</default>
+      <default></default>
       <prefix>name="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="vulnerability_name">
       <label>Vulnerability CVE</label>
-      <default>*</default>
+      <default></default>
       <prefix>vulnerability_name="</prefix>
       <suffix>"</suffix>
     </input>
