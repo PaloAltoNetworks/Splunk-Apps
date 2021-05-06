@@ -1,7 +1,11 @@
-log_subtype,action
-Prevention Event,blocked
-Notification Event,allowed
-Provisional Event,allowed
-Access Violation,blocked
-Service Warning,allowed
-Post Detection Event,allowed
+log_subtype,action,command,object,object_category,object_attrs,change_type,status
+Agent Policy Changed,modified,,Agent Policy,file,,policy,success
+Sending License To Client,read,,license,file,,filesystem,success
+Traps Service Status Change,modified,,Traps Service Status,service,,service,success
+Agent Content Update,modified,update,content,file,version,file,success
+Local Analysis Module Succeeded,created,add,Local Analysis Module,file,,filesystem,success
+Server Content Revert Success,modified,revert,content,file,,filesystem,success
+Server Content Update Success,modified,update,content,file,,filesystem,success
+Agent Upgrade,modified,upgrade,Agent,file,,filesystem,success
+Agent Uninstall,deleted,uninstall,Agent,file,,filesystem,success
+Agent Install,created,install,Agent,software,,filesystem,success

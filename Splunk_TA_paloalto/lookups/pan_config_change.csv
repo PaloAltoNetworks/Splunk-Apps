@@ -1,0 +1,9 @@
+log_subtype,configuration_path,action,change_type,object,object_attrs,object_cateogry
+config,vsys  vsys1 profiles url-filtering  monzyspolicy-1,modified,AAA,profiles,profile,policy
+config,vsys  vsys1 profiles url-filtering,created,AAA,profiles,profile,policy
+config,vsys  vsys1 profiles url-filtering  alert_all,modified,AAA,profiles,profile,policy
+config,vsys  vsys1 profile-group  FullSpectrum,modified,AAA,FullSpectrum,profile,group
+config,vsys  vsys1 profiles data-filtering  PII,modified,filesystem,profiles,profile,file
+config,vsys  vsys1 profiles file-blocking  DbDP,modified,AAA,profiles,access,file
+config,config mgt-config users  badguy,modified,AAA,users,mgt-config,group
+config,config shared local-user-database user  badguy,read,filesystem,local-user-database,access,user

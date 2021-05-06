@@ -1,0 +1,2 @@
+log_subtype,action,change_type,result,status,command,object,object_category
+general,cleared,filesystem,Config cleared,success,clear,log,file
