@@ -1,7 +1,7 @@
 <form>
   <label>IoT Security</label>
   <fieldset autoRun="true" submitButton="true">
-    <input type="time" searchWhenChanged="true">
+    <input type="time" searchWhenChanged="true" token="time">
       <default>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
@@ -14,6 +14,7 @@
       <choice value="Medium">Medium</choice>
       <choice value="Low">Low</choice>
       <choice value="Info">Info</choice>
+      <default>*</default>
       <valuePrefix>risk_level="</valuePrefix>
       <valueSuffix>"</valueSuffix>
       <delimiter> OR  </delimiter>
@@ -22,11 +23,13 @@
     </input>
     <input type="text" token="name">
       <label>Vulnerability Name</label>
+      <default></default>
       <prefix>name="</prefix>
       <suffix>"</suffix>
     </input>
     <input type="text" token="vulnerability_name">
       <label>Vulnerability CVE</label>
+      <default></default>
       <prefix>vulnerability_name="</prefix>
       <suffix>"</suffix>
     </input>
