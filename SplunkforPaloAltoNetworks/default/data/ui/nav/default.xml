@@ -14,14 +14,12 @@
     <view name="web_activity" />
     <view name="iot_activity" />
     <view name="globalprotect" />
-    <view name="globalprotect_legacy" />
   </collection>
   
   <collection label="Threats">
     <view name="cortex_xdr_incidents" default="true" />
     <view name="malware" />
     <view name="network_security" />
-    <view name="endpoint_security" />
     <view name="saas_security" />
     <view name="iot_security" />
     <view name="email_security" />
@@ -31,7 +29,6 @@
   <collection label="Operations">
     <view name="firewall_system" />
     <view name="firewall_configuration" />
-    <view name="endpoint_operations" />
     <view name="threat_intelligence" />
     <view name="data_model_audit" />
     <view name="realtime_event_feed"/>
