@@ -4,7 +4,7 @@ Palo Alto Networks Add-on for Splunk
 
 * **Add-on Homepage:** https://splunkbase.splunk.com/app/2757
 * **Authors:** Brian Torres-Gil, Paul Nguyen, Garfield Freeman - Palo Alto Networks
-* **Add-on Version:** 6.6.0
+* **Add-on Version:** 6.6.1
 
 ### Description ###
  
