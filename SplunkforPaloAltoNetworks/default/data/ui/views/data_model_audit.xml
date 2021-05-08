@@ -21,22 +21,6 @@
       </single>
       <single>
         <search>
-          <query>`pan_traps`
-| stats count</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="colorMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
-        <option name="rangeValues">[0]</option>
-        <option name="trellis.enabled">0</option>
-        <option name="trellis.size">large</option>
-        <option name="underLabel">Endpoint Logs</option>
-        <option name="useColors">1</option>
-      </single>
-      <single>
-        <search>
           <query>`pan_aperture`
 | stats count</query>
           <earliest>-24h@h</earliest>
@@ -103,7 +87,7 @@
       <table>
         <search>
           <query>| stats count
-| eval datamodel=mvappend("pan_aperture", "pan_traps", "pan_firewall")
+| eval datamodel=mvappend("pan_aperture", "pan_firewall")
 | mvexpand datamodel 
 | fields datamodel
 | join type=left datamodel 

@@ -6,8 +6,6 @@ pan:threat,Palo Alto Networks,Firewall,network,Palo Alto Networks Firewall
 pan:traffic,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:hipmatch,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
 pan:globalprotect,Palo Alto Networks,Firewall,,Palo Alto Networks Firewall
-pan:traps4,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
-pan:endpoint,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:analytics_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:threat_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps
 pan:system_traps,Palo Alto Networks,Traps,host,Palo Alto Networks Traps

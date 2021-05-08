@@ -73,9 +73,6 @@ splunk:
           pan_firewall:
             acceleration: 1
             acceleration.earliest_time: -1w
-          pan_traps:
-            acceleration: 1
-            acceleration.earliest_time: -1w
           pan_aperture:
             acceleration: 1
             acceleration.earliest_time: -1w

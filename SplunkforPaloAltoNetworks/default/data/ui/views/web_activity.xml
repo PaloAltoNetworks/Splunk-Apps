@@ -63,8 +63,7 @@
       <label>Action</label>
       <default>*</default>
       <search>
-        <query>| inputlookup endpoint_actions_lookup 
-| fields action
+        <query>| fields action
 | dedup action
 | sort action</query>
       </search>

@@ -72,7 +72,9 @@
         <div id="tooltip_title">WildFire Submissions</div>
         <div id="tooltip_txt">
           <h4>Overview</h4>
-          <p>WildFire is an advanced analysis and prevention engine for highly evasive zero-day exploits and malware. Files can be analyzed from the firewall or Traps endpoint protection agent and will show in this dashboard when analyzed.</p>
+          <p>WildFire is an advanced analysis and prevention engine for highly
+          evasive zero-day exploits and malware. Files can be sent for analysis from the
+          firewall and will show in this dashboard when analyzed.</p>
           <h4>Products Shown</h4>
           <ul>
             <li>Firewall or Panorama</li>
