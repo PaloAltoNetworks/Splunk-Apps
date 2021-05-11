@@ -46,3 +46,12 @@ def test_fetch_xdr_incidents(mocker):
     )
     response = input_cortex_xdr.fetch_xdr_incidents(helper, client, mod_time)
     assert response == MOCK_DATA
+
+def test_handle_incidents(mocker):
+    """
+    Test handle incidents function in Cortex XDR input mod.
+    """
+    print("\nRunning test_handle_incidents...")
+    helper = MockHelper()
+    MOCK_DATA = util_load_json(f"{DATA_DIR}/get_incidents.json")
+    
