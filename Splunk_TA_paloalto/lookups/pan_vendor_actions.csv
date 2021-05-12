@@ -7,7 +7,7 @@ block-url,blocked
 block-continue,blocked
 continue,allowed
 deny,blocked
-drop,dropped
+drop,blocked
 drop-all-packets,dropped
 drop-packet,dropped
 Failed,failure
