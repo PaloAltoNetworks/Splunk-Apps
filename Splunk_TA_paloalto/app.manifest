@@ -17,11 +17,24 @@
     "releaseDate": null,
     "description": "The Palo Alto Networks Add-on allows a Splunk Enterprise administrator to collect data from Palo Alto Networks Next-Generation Firewall devices, Panorama, Advanced Endpoint Protection, Aperture SaaS Security, AutoFocus Threat Intelligence, and MineMeld.",
     "classification": {
-      "intendedAudience": null,
-      "categories": [],
+      "intendedAudience": "IT Professionals",
+      "categories": [
+        "IT Operations",
+        "Security, Fraud & Compliance"
+      ],
       "developmentStatus": "Production/Stable"
     },
-    "commonInformationModels": null,
+    "commonInformationModels": {
+      "Authentication":"4.19.0",
+      "Alert":"4.19.0",
+      "Change":"4.19.0",
+      "Endpoint":"4.19.0",
+      "Network Traffic":"4.19.0",
+      "Malware":"4.19.0",
+      "Intrusion Detection":"4.19.0",
+      "Network Sessions":"4.19.0",
+      "Web":"4.19.0"
+    },
     "license": {
       "name": null,
       "text": null,
