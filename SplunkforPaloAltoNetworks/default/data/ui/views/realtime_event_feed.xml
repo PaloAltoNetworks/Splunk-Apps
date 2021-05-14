@@ -13,7 +13,6 @@
         <div id="tooltip_txt">
           <h4>Overview</h4>
           <p>Use this dashboard to see logs ingested by Splunk at the current moment. This is a good troubleshooting tool to see if logs are coming in from the right sources. Some customers prefer not to allow real-time searches in Splunk. Click 'More...' below to learn how to disable real-time searches.</p>
-          <p style="float: right; text-weight: bold;"><a target="_blank" href="http://splunk.paloaltonetworks.com/dashboards.html#realtime">More...</a></p>
         </div>
       </html>
     </panel>
