@@ -1,5 +1,16 @@
-<form>
-  <label>GlobalProtect (PANOS &gt;= 9.1)</label>
+<form script="tooltip.js" stylesheet="tooltip.css">
+  <label>GlobalProtect</label>
+  <row id="tooltip_row">
+    <html>
+      <div id="tooltip_title">GlobalProtect</div>
+      <div id="tooltip_txt">
+        <h4>Support</h4>
+        <p>This dashboard supports new format GlobalProtect logs from PAN-OS 9.1 and higher.
+        Pre-9.1 system GlobalProtect log support is deprecated so pre-9.1
+        GlobalProtect logs will not show up.</p>
+      </div>
+    </html>
+  </row>
   <search id="basesearch">
     <query>| tstats summariesonly=t latest(log.event_id) AS latest_event, values(log.log_subtype) AS log.log_subtype, values(log.src_ip) AS log.src_ip, values(log.result) AS log.result, values(log.client_ip) AS log.client_ip count FROM datamodel="pan_firewall" WHERE nodename="log.GlobalProtect" $src_ip$ $serial$ $vsys$ "$user|s$" $object$ groupby _time log.event_id log.user
       | rename log.* as *</query>
@@ -18,7 +29,7 @@
       <label>Serial Number</label>
       <default></default>
       <prefix>log.serial_number="</prefix>
-      <suffix>"</suffix> 
+      <suffix>"</suffix>
     </input>
     <input type="text" token="vsys">
       <label>Virtual System</label>
