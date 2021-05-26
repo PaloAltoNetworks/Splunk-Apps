@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "Splunk_TA_paloalto",
-      "version": "6.6.1"
+      "version": "6.6.2"
     },
     "author": [
       {
