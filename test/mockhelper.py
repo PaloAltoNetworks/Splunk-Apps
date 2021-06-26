@@ -26,6 +26,7 @@ class MockHelper:
         except FileNotFoundError:
             return {}
 
+
     @staticmethod
     def _save_json(path: str, data: Dict[Any, Any]):
         """
@@ -53,19 +54,29 @@ class MockHelper:
             if self._db is None:
                 raise RuntimeError(f"Unable to load db file: {self._db_file}")
 
+    def get_input_stanza_names(self) -> Any:
+        # Mock Input Stanza Name
+        source = "testsource"
+        return source
+
+    def get_output_index(self) -> Any:
+        index = "main"
+        return index
+
     def get_check_point(self, key: str) -> Any:
         """
         Reads data from the DB key/value store.
         """
-        return self._db.get(key)
+        return 1
 
     def save_check_point(self, key: str, value: Any):
         """
         Saves a key into the DB key/value store.
         """
-        self._db[key] = value
-        if self._db_file:
-            MockHelper._save_json(self._db_file, self._db)
+        return 1
+
+    def new_event(self, host: str, source: str, index: str, sourcetype: str, data: Dict[Any, Any]):
+        print("New Event")
 
     def delete_check_point(self, key: str):
         """
