@@ -1,4 +1,4 @@
-<form>
+<form version="1.1">
   <label>Cortex XDR Incidents</label>
   <search id="basesearch">
     <query>sourcetype="pan:xdr_incident" $incident_id$ $severity$ $status$ | eventstats latest(incident_id) by _time | fields _time starred incident_id severity score description hosts{} status assigned_user_pretty_name incident_sources{} xdr_url</query>
