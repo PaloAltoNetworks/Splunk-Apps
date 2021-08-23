@@ -1,4 +1,4 @@
-<form script="tooltip.js" stylesheet="tooltip.css">
+<form version="1.1" script="tooltip.js" stylesheet="tooltip.css">
   <label>Network Security</label>
   <search id="basesearch">
     <query>| tstats summariesonly=t values(log.log_subtype) AS log.log_subtype, values(log.severity) AS log.severity, values(log.app) AS log.app, values(log.user) AS log.user, values(log.threat_name) AS log.threat_name, values(log.file_name) AS log.file_name, count FROM datamodel="pan_firewall" WHERE nodename="log.threat" OR (nodename="log.wildfire.malicious") OR nodename="log.data" $log_subtype$ $severity$ $app$ $dest_ip$ $serial$ $threat_name$ $vsys$ GROUPBY _time sourcetype log.serial_number log.session_id log.client_ip log.server_ip log.direction log.action log.src_zone log.dest_zone | rename log.* AS *

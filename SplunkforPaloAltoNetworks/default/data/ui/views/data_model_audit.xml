@@ -1,4 +1,4 @@
-<dashboard>
+<dashboard version="1.1">
   <label>Data Model Audit</label>
   <row>
     <panel>
