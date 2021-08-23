@@ -1,4 +1,4 @@
-<form>
+<form version="1.1">
   <label>IoT Security</label>
   <fieldset autoRun="true" submitButton="true">
     <input type="time" searchWhenChanged="true" token="time">

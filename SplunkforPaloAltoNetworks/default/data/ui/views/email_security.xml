@@ -1,4 +1,4 @@
-<form>
+<form version="1.1">
   <label>Email Security</label>
   <search id="basesearch">
     <query>| tstats summariesonly=t values(sourcetype) AS sourcetype, values(log.log_subtype) AS log.log_subtype,

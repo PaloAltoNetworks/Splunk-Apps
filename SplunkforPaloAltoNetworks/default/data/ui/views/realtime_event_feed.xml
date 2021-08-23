@@ -1,4 +1,4 @@
-<dashboard script="tooltip.js" stylesheet="tooltip.css">
+<dashboard version="1.1" script="tooltip.js" stylesheet="tooltip.css">
   <label>Realtime Event Feed</label>
   <description>Real-time 5 minute window</description>
   <search id="baseSearch">
