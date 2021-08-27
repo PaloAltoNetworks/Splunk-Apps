@@ -34,8 +34,8 @@ fields_proxy = [
         encrypted=False,
         default=None,
         validator=validator.String(
-            max_len=4096, 
             min_len=0, 
+            max_len=4096, 
         )
     ), 
     field.RestField(
@@ -44,8 +44,8 @@ fields_proxy = [
         encrypted=False,
         default=None,
         validator=validator.Number(
-            max_val=65535, 
             min_val=1, 
+            max_val=65535, 
         )
     ), 
     field.RestField(
@@ -54,8 +54,8 @@ fields_proxy = [
         encrypted=False,
         default=None,
         validator=validator.String(
-            max_len=50, 
             min_len=0, 
+            max_len=50, 
         )
     ), 
     field.RestField(
@@ -64,8 +64,8 @@ fields_proxy = [
         encrypted=True,
         default=None,
         validator=validator.String(
-            max_len=8192, 
             min_len=0, 
+            max_len=8192, 
         )
     ), 
     field.RestField(
@@ -98,8 +98,8 @@ fields_additional_parameters = [
         encrypted=True,
         default='',
         validator=validator.String(
-            max_len=8192, 
             min_len=0, 
+            max_len=8192, 
         )
     ), 
     field.RestField(
@@ -108,8 +108,8 @@ fields_additional_parameters = [
         encrypted=True,
         default='',
         validator=validator.String(
-            max_len=8192, 
             min_len=0, 
+            max_len=8192, 
         )
     )
 ]
