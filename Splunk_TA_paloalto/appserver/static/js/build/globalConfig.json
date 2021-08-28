@@ -2,9 +2,10 @@
     "meta": {
         "name": "Splunk_TA_paloalto",
         "displayName": "Palo Alto Networks Add-on",
-        "version": "6.5.0",
+        "version": "7.0.1",
         "apiVersion": "3.0.0",
-        "restRoot": "Splunk_TA_paloalto"
+        "restRoot": "Splunk_TA_paloalto",
+        "schemaVersion": "0.0.2"
     },
     "pages": {
         "configuration": {
@@ -408,8 +409,8 @@
                             "defaultValue": "default",
                             "options": {
                                 "endpointUrl": "data/indexes",
-                                "blackList": "^_.*$",
-                                "createSearchChoice": true
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
                             },
                             "required": true,
                             "validators": [
@@ -508,8 +509,8 @@
                             "defaultValue": "default",
                             "options": {
                                 "endpointUrl": "data/indexes",
-                                "blackList": "^_.*$",
-                                "createSearchChoice": true
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
                             },
                             "required": true,
                             "validators": [
@@ -603,8 +604,8 @@
                             "defaultValue": "default",
                             "options": {
                                 "endpointUrl": "data/indexes",
-                                "blackList": "^_.*$",
-                                "createSearchChoice": true
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
                             },
                             "required": true,
                             "validators": [
@@ -678,8 +679,8 @@
                             "defaultValue": "default",
                             "options": {
                                 "endpointUrl": "data/indexes",
-                                "blackList": "^_.*$",
-                                "createSearchChoice": true
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
                             },
                             "required": true,
                             "validators": [
@@ -785,8 +786,8 @@
                             "defaultValue": "default",
                             "options": {
                                 "endpointUrl": "data/indexes",
-                                "blackList": "^_.*$",
-                                "createSearchChoice": true
+                                "createSearchChoice": true,
+                                "denyList": "^_.*$"
                             },
                             "required": true,
                             "validators": [
