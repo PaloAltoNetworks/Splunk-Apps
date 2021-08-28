@@ -18,7 +18,7 @@ services:
       - '../test.env'
       - '.env'
     environment:
-      - SPLUNK_APPS_URL=https://splunkbase.splunk.com/app/2962/release/3.0.1/download
+      - SPLUNK_APPS_URL=https://splunkbase.splunk.com/app/2962/release/4.0.0/download
     ports:
       - 127.0.0.1:8001:8000
       - 127.0.0.1:8002:8089
