@@ -47,7 +47,7 @@ class ModInputminemeld_feed(modinput_wrapper.base_modinput.BaseModInput):
         For other input types, arguments should be get from input_module. Defining new input types could be easier.
         """
         scheme.add_argument(smi.Argument("indicator_timeout", title="The Timeout For Indicators",
-                                         description="",
+                                         description="How long to retain indicators (in hours)",
                                          required_on_create=False,
                                          required_on_edit=False))
         scheme.add_argument(smi.Argument("feed_url", title="Output Node Feed URL",

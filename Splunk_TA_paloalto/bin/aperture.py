@@ -34,7 +34,7 @@ class ModInputaperture(modinput_wrapper.base_modinput.BaseModInput):
         """overloaded splunklib modularinput method"""
         scheme = super(ModInputaperture, self).get_scheme()
         scheme.title = ("Aperture")
-        scheme.description = ("")
+        scheme.description = ("Go to the add-on\'s configuration UI and configure modular inputs under the Inputs menu.")
         scheme.use_external_validation = True
         scheme.streaming_mode_xml = True
 
