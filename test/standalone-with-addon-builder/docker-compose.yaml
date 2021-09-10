@@ -1,0 +1,38 @@
+version: "3.7"
+
+volumes:
+  so1-etc:
+  so1-var:
+
+services:
+  so1:
+    image: splunk/splunk:latest
+    hostname: so1
+    volumes:
+      - so1-etc:/opt/splunk/etc
+      - so1-var:/opt/splunk/var
+      - ../Splunk.License:/splunk.lic
+      - ../../SplunkforPaloAltoNetworks:/opt/splunk/etc/apps/SplunkforPaloAltoNetworks
+      - ../../pan_datagen:/opt/splunk/etc/apps/pan_datage
+    env_file:
+      - '../test.env'
+      - '.env'
+    environment:
+      - SPLUNK_APPS_URL=https://splunkbase.splunk.com/app/2962/release/4.0.0/download
+    ports:
+      - 127.0.0.1:8001:8000
+      - 127.0.0.1:8002:8089
+
+  reloader:
+    image: paloaltonetworks/splunkdev-watchman:latest
+    depends_on:
+      - so1
+    volumes:
+      - so1-etc:/so1/etc
+      - ../../SplunkforPaloAltoNetworks:/so1/SplunkforPaloAltoNetworks
+      - ../../pan_datagen:/so1/pan_datagen
+    env_file:
+      - '../test.env'
+    environment:
+      - WATCH_DIRS=/so1
+      - SPLUNK_SERVERS=so1
