@@ -2,6 +2,28 @@
   <label>Data Model Audit</label>
   <row>
     <panel>
+      <title>Next-generation Firewalls</title>
+      <single>
+        <search>
+          <query>| `pan_tstats` dc(log.serial_number) AS count FROM `fw_node(log)` GROUPBY _time | appendpipe [stats count | where count==0]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">large</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">Reporting In Last 24 Hours</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
       <title>Logs Indexed - 24 Hours</title>
       <single>
         <search>
@@ -38,49 +60,7 @@
     </panel>
   </row>
   <row>
-    <panel>
-      <single>
-        <search>
-          <query>| `pan_tstats` dc(log.serial_number) AS count FROM `fw_node(log)` GROUPBY _time | appendpipe [stats count | where count==0]</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="colorBy">trend</option>
-        <option name="colorMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
-        <option name="rangeValues">[0]</option>
-        <option name="showSparkline">0</option>
-        <option name="showTrendIndicator">1</option>
-        <option name="trellis.enabled">0</option>
-        <option name="trellis.size">large</option>
-        <option name="trendDisplayMode">absolute</option>
-        <option name="underLabel">Next-generation Firewalls Reporting In Last 24 Hours</option>
-        <option name="useColors">1</option>
-      </single>
-    </panel>
-    <panel>
-      <single>
-        <search>
-          <query>| `pan_tstats` dc(log.src) AS count FROM `ep_node(log)` GROUPBY _time | appendpipe [stats count | where count==0]</query>
-          <earliest>-24h@h</earliest>
-          <latest>now</latest>
-        </search>
-        <option name="colorBy">trend</option>
-        <option name="colorMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="rangeColors">["0xd93f3c","0x000000"]</option>
-        <option name="rangeValues">[0]</option>
-        <option name="showSparkline">0</option>
-        <option name="showTrendIndicator">1</option>
-        <option name="trellis.enabled">0</option>
-        <option name="trellis.size">large</option>
-        <option name="trendDisplayMode">absolute</option>
-        <option name="underLabel">Endpoint Security Managers Reporting In Last 24 Hours</option>
-        <option name="useColors">1</option>
-      </single>
-    </panel>
-  </row>
+      </row>
   <row>
     <panel>
       <title>Datamodel Acceleration Status</title>
