@@ -81,6 +81,7 @@ def usage():
     common.exit_with_error("Usage: | pancontentpack <firewall/Panorama IP> <apps|threats>")
 
 def parse_apps(apps_xml):
+    logger.debug("Begin Parsing Apps")
     obj = xmltodict.parse(apps_xml)
     try:
         apps = obj['response']['result']['application']['entry']
@@ -129,7 +130,8 @@ def parse_apps(apps_xml):
             common.exit_with_error(string_types(e))
         # convert all out of unicode
         for key in a:
-            a[key] = string_types(a[key])
+            logger.debug(key + ': ' + a[key])
+            a[key] = str(a[key])
         csv_apps.append(a)
     logger.info("Found %s apps" % len(csv_apps))
     return csv_apps
@@ -196,19 +198,27 @@ def main():
     # Get the sessionKey
     sessionKey = settings['sessionKey']
 
-    log(debug, "Begin get API key")
+    logger.debug("Begin get API key")
+
     # Get the API key from the Splunk store or from the device at hostname if no apikey is stored
     apikey = common.apikey(sessionKey, args[0], debug)
-
     device = pandevice.base.PanDevice(args[0], api_key=apikey)
-    device.refresh_system_info()
+    try:
+        systeminfo = device.refresh_system_info()
+        logger.debug(systeminfo)
+    except Exception as e:
+        logger.error("Error refreshing device: %s" % e)
 
     try:
         if args[1] == "apps":
+            logger.debug("Getting Apps")
             device.xapi.get("/config/predefined/application")
             app_xml = device.xapi.xml_document
+            logger.debug(app_xml)
             csv = parse_apps(app_xml)
+            logger.debug(csv)
         else:
+            logger.info("Getting Threats")
             if device._version_info >= (8, 0, 0):
                 threat_xml = device.op(
                     'show predefined xpath "/predefined/threats"',
@@ -220,10 +230,12 @@ def main():
             csv = parse_threats(threat_xml)
 
     except pan.xapi.PanXapiError as e:
+        logger.error(e)
         common.exit_with_error(string_types(e))
 
 
     # output results
+    logger.debug("Send CSV to Splunk")
     splunk.Intersplunk.outputResults(csv)
 
 
