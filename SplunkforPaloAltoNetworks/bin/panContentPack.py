@@ -51,7 +51,7 @@ import common
 import environment
 import xmltodict
 from collections import OrderedDict
-from six import string_types 
+from six import string_types
 
 logger = common.logging.getLogger().getChild('updateAppsThreats')
 
@@ -208,6 +208,7 @@ def main():
         logger.debug(systeminfo)
     except Exception as e:
         logger.error("Error refreshing device: %s" % e)
+        common.exit_with_error(string_types(e))
 
     try:
         if args[1] == "apps":
