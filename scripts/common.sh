@@ -29,7 +29,7 @@ get_branch () {
   else
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
   fi
-  BRANCH=${BRANCH//\//-}
+  BRANCH=${BRANCH//\//_}
   echo "$BRANCH"
 }
 
