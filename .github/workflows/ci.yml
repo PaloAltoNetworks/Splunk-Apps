@@ -97,11 +97,12 @@ jobs:
   docker-build:
     name: Docker Build
     needs: [release]
-    if: needs.release.result == 'success' || needs.release.result == 'skipped'
+    # When to run, per https://github.com/actions/runner/issues/491#issuecomment-850884422
+    if: always() && (needs.release.result == 'success' || needs.release.result == 'skipped')
     runs-on: ubuntu-20.04
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
+      IMAGE_NAME: ${{ github.repository_owner }}/splunk-demo
     steps:
       - name: Checkout
         uses: actions/checkout@v3

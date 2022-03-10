@@ -12,7 +12,6 @@ ADDON=Splunk_TA_paloalto
 
 # Files where version needs to be bumped
 APPCONF=default/app.conf
-README=README.md
 APPMANIFEST=app.manifest
 GLOBALCONFIG=appserver/static/js/build/globalConfig.json
 
@@ -138,16 +137,6 @@ if [ "$WHICHAPP" = "app" ] || [ "$WHICHAPP" = "both" ]; then
   grep -E '^ta_dependency_version = .+$' "$FILE" >/dev/null
   sed -i.bak -E "s/ta_dependency_version = .+/ta_dependency_version = ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
-  FILE="${WORK}/${APP}/${README}"
-
-  log_debug "Set App ${README} version to ${NEW_VERSION}"
-  grep -E 'App Version:\*\* .+$' "$FILE" >/dev/null
-  sed -i.bak -E "s/App Version:\*\* .+/App Version:** ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
-
-  log_debug "Set App ${APP}/${README} add-on required version to ${NEW_VERSION}"
-  grep -E 'Splunk_TA_paloalto .+$' "$FILE" >/dev/null
-  sed -i.bak -E "s/Splunk_TA_paloalto .+/Splunk_TA_paloalto ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
-
   FILE="${WORK}/${APP}/${APPMANIFEST}"
 
   log_debug "Set App ${APPMANIFEST} version to ${NEW_VERSION}"
@@ -181,12 +170,6 @@ if [ "$WHICHAPP" = "addon" ] || [ "$WHICHAPP" = "both" ]; then
   log_debug "Set Addon ${APPMANIFEST} development status to ${DEVSTATUS}"
   grep -E '\"developmentStatus\": .+' "$FILE" >/dev/null
   sed -i.bak -E "s/developmentStatus\": .+/developmentStatus\": \"${DEVSTATUS}\"/" "$FILE" && rm "${FILE}.bak"
-
-  FILE="${WORK}/${ADDON}/${README}"
-
-  log_debug "Set Addon ${README} Version to ${NEW_VERSION}"
-  grep -E 'Add-on Version:\*\* .+$' "$FILE" >/dev/null
-  sed -i.bak -E "s/Add-on Version:\*\* .+/Add-on Version:** ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
   FILE="${WORK}/${ADDON}/${GLOBALCONFIG}"
 
