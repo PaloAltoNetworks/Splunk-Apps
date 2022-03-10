@@ -4,7 +4,7 @@ SCRIPT_BASE="$(cd "$( dirname "$0")" && pwd )"
 ROOT=${SCRIPT_BASE}/..
 # shellcheck source=/dev/null
 source "$SCRIPT_BASE/log4bash.sh"
-[ "$DEBUG" ] && log_debug "DEBUG ENABLED"
+log_debug "DEBUG ENABLED"
 
 # App and Add-on Directories
 APP=SplunkforPaloAltoNetworks
@@ -51,15 +51,15 @@ CHANNEL=${2:-default}
 CURRENT_VERSION=$(grep -o '^version = [0-9a-z.-]*' "$ROOT/$APP/default/app.conf" | awk '{print $3}')
 # Generate a build number
 if [ "$TRAVIS" == "true" ]; then
-    [ "$DEBUG" ] && log_debug "Running in TravisCI"
+    log_debug "Running in TravisCI"
     BUILD=${TRAVIS_BUILD_NUMBER}
     # BRANCH=${TRAVIS_BRANCH}
 elif [ "$GITHUB_ACTIONS" == "true" ]; then
-    [ "$DEBUG" ] && log_debug "Running in GitHub Actions"
+    log_debug "Running in GitHub Actions"
     BUILD=${GITHUB_RUN_ID}
     # BRANCH=${GITHUB_REF#refs/heads/}
 else
-    [ "$DEBUG" ] && log_debug "Running outside of CI"
+    log_debug "Running outside of CI"
     BUILD=${NEW_VERSION//[.-]/}0
     # BRANCH=$(git rev-parse --abbrev-ref HEAD)
 fi
@@ -79,7 +79,7 @@ case $CHANNEL in
     ;;
 esac
 
-[ "$DEBUG" ] && log_debug "Build number: $BUILD"
+log_debug "Build number: $BUILD"
 log_info "Changing version from $CURRENT_VERSION to $NEW_VERSION build $BUILD on channel $CHANNEL"
 
 # In each of the following replacements, grep us run first to confirm the line
@@ -89,35 +89,35 @@ log_info "Changing version from $CURRENT_VERSION to $NEW_VERSION build $BUILD on
 # Set App versions
 FILE="${ROOT}/${APP}/${APPCONF}"
 
-[ "$DEBUG" ] && log_debug "Set App ${APPCONF} version to ${NEW_VERSION}"
+log_debug "Set App ${APPCONF} version to ${NEW_VERSION}"
 grep -E '^version = .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/version = .+/version = ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
-[ "$DEBUG" ] && log_debug "Set App ${APPCONF} build to ${BUILD}"
+log_debug "Set App ${APPCONF} build to ${BUILD}"
 grep -E '^build = .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/build = .+/build = ${BUILD}/" "$FILE" && rm "${FILE}.bak"
 
-[ "$DEBUG" ] && log_debug "Set App ${APPCONF} add-on required version to ${NEW_VERSION}"
+log_debug "Set App ${APPCONF} add-on required version to ${NEW_VERSION}"
 grep -E '^ta_dependency_version = .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/ta_dependency_version = .+/ta_dependency_version = ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
 FILE="${ROOT}/${APP}/${README}"
 
-[ "$DEBUG" ] && log_debug "Set App ${README} version to ${NEW_VERSION}"
+log_debug "Set App ${README} version to ${NEW_VERSION}"
 grep -E 'App Version:\*\* .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/App Version:\*\* .+/App Version:** ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
-[ "$DEBUG" ] && log_debug "Set App ${APP}/${README} add-on required version to ${NEW_VERSION}"
+log_debug "Set App ${APP}/${README} add-on required version to ${NEW_VERSION}"
 grep -E 'Splunk_TA_paloalto .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/Splunk_TA_paloalto .+/Splunk_TA_paloalto ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
 FILE="${ROOT}/${APP}/${APPMANIFEST}"
 
-[ "$DEBUG" ] && log_debug "Set App ${APPMANIFEST} version to ${NEW_VERSION}"
+log_debug "Set App ${APPMANIFEST} version to ${NEW_VERSION}"
 grep -E '\"version\": .+' "$FILE" >/dev/null
 sed -i.bak -E "s/version\": .+/version\": \"${NEW_VERSION}\"/" "$FILE" && rm "${FILE}.bak"
 
-[ "$DEBUG" ] && log_debug "Set Addon ${APPMANIFEST} development status to ${DEVSTATUS}"
+log_debug "Set Addon ${APPMANIFEST} development status to ${DEVSTATUS}"
 grep -E '\"developmentStatus\": .+' "$FILE" >/dev/null
 sed -i.bak -E "s/developmentStatus\": .+/developmentStatus\": \"${DEVSTATUS}\"/" "$FILE" && rm "${FILE}.bak"
 
@@ -125,32 +125,32 @@ sed -i.bak -E "s/developmentStatus\": .+/developmentStatus\": \"${DEVSTATUS}\"/"
 
 FILE="${ROOT}/${ADDON}/${APPCONF}"
 
-[ "$DEBUG" ] && log_debug "Set Addon ${APPCONF} version to ${NEW_VERSION}"
+log_debug "Set Addon ${APPCONF} version to ${NEW_VERSION}"
 grep -E '^version = .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/version = .+/version = ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
-[ "$DEBUG" ] && log_debug "Set Addon ${APPCONF} build to ${BUILD}"
+log_debug "Set Addon ${APPCONF} build to ${BUILD}"
 grep -E '^build = .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/build = .+/build = ${BUILD}/" "$FILE" && rm "${FILE}.bak"
 
 FILE="${ROOT}/${ADDON}/${APPMANIFEST}"
 
-[ "$DEBUG" ] && log_debug "Set Addon ${APPMANIFEST} version to ${NEW_VERSION}"
+log_debug "Set Addon ${APPMANIFEST} version to ${NEW_VERSION}"
 grep -E '\"version\": .+' "$FILE" >/dev/null
 sed -i.bak -E "s/version\": .+/version\": \"${NEW_VERSION}\"/" "$FILE" && rm "${FILE}.bak"
 
-[ "$DEBUG" ] && log_debug "Set Addon ${APPMANIFEST} development status to ${DEVSTATUS}"
+log_debug "Set Addon ${APPMANIFEST} development status to ${DEVSTATUS}"
 grep -E '\"developmentStatus\": .+' "$FILE" >/dev/null
 sed -i.bak -E "s/developmentStatus\": .+/developmentStatus\": \"${DEVSTATUS}\"/" "$FILE" && rm "${FILE}.bak"
 
 FILE="${ROOT}/${ADDON}/${README}"
 
-[ "$DEBUG" ] && log_debug "Set Addon ${README} Version to ${NEW_VERSION}"
+log_debug "Set Addon ${README} Version to ${NEW_VERSION}"
 grep -E 'Add-on Version:\*\* .+$' "$FILE" >/dev/null
 sed -i.bak -E "s/Add-on Version:\*\* .+/Add-on Version:** ${NEW_VERSION}/" "$FILE" && rm "${FILE}.bak"
 
 FILE="${ROOT}/${ADDON}/${GLOBALCONFIG}"
 
-[ "$DEBUG" ] && log_debug "Set Addon GlobalConfig Version to ${NEW_VERSION}"
+log_debug "Set Addon GlobalConfig Version to ${NEW_VERSION}"
 grep -E '\"version\": .+' "$FILE" >/dev/null
 sed -i.bak -E "s/version\": .+/version\": \"${NEW_VERSION}\",/" "$FILE" && rm "${FILE}.bak"
