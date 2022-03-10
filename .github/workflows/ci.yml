@@ -1,6 +1,5 @@
 name: CI/CD
 
-# Trigger the workflow on push or pull request
 on:
   push:
     branches:
@@ -10,40 +9,25 @@ on:
       - alpha
       - '[0-9]+.x'
       - '[0-9]+.[0-9]+.x'
-  pull_request:
 
 jobs:
-  build:
-    name: Build
-    if: "! (github.event_name == 'push' && github.ref == 'refs/heads/master')"
-    runs-on: ubuntu-18.04
+  appinspect-addon:
+    name: AppInspect (Add-on)
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build Add-on
         id: build-addon
         run: scripts/build.sh -a addon
-      - name: Build App
-        id: build-app
-        run: scripts/build.sh -a app
-      - uses: actions/upload-artifact@v1
-        with:
-          name: SplunkforPaloAltoNetworks-${{ github.run_id }}
-          path: ${{ steps.build-app.outputs.path }}
-      - uses: actions/upload-artifact@v1
+      - name: Save Add-on Build Artifact
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
         with:
           name: Splunk_TA_paloalto-${{ github.run_id }}
           path: ${{ steps.build-addon.outputs.path }}
-
-  appinspect-addon:
-    name: AppInspect (Add-on)
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build Add-on
-        id: build-addon
-        run: scripts/build.sh -a addon
       - name: AppInspect
         run: scripts/appinspect.sh -a addon -r
         env:
@@ -58,13 +42,21 @@ jobs:
 
   appinspect-app:
     name: AppInspect (App)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build App
         id: build-app
         run: scripts/build.sh -a app
+      - name: Save App Build Artifact
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
+        with:
+          name: SplunkforPaloAltoNetworks-${{ github.run_id }}
+          path: ${{ steps.build-app.outputs.path }}
       - name: AppInspect
         run: scripts/appinspect.sh -a app -r
         env:
@@ -79,22 +71,73 @@ jobs:
 
   release:
     name: Release
-    if: github.event_name == 'push' && github.ref != 'refs/heads/develop'
+    if: github.ref != 'refs/heads/develop'
     needs: [appinspect-addon, appinspect-app]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+      new_release_channel: ${{ steps.semantic.outputs.new_release_channel }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Create release and publish
-        id: release
-        uses: cycjimmy/semantic-release-action@v2
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v3
         with:
           semantic_version: 17.1.1
           extra_plugins: |
             conventional-changelog-conventionalcommits@^4.4.0
-            @semantic-release/git@^9.0.0
             @semantic-release/exec@^5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
           SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
+
+  docker-build:
+    name: Docker Build
+    needs: [release]
+    if: needs.release.result == 'success' || needs.release.result == 'skipped'
+    runs-on: ubuntu-20.04
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Determine docker tags and labels
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=ref,event=branch
+
+      - name: Set the version in app.conf
+        if: needs.release.result == 'success' && needs.release.outputs.new_release_published == 'true'
+        run: scripts/set-version.sh ${{ needs.release.outputs.new_release_version }} ${{ needs.release.outputs.new_release_channel }}
+
+      - name: Create docker version tag
+        id: versiontag
+        if: needs.release.result == 'success' && needs.release.outputs.new_release_published == 'true'
+        run: echo "::set-output name=versiontag::${{ env.REGISTRY }}/${{ IMAGE_NAME }}:${{ needs.release.outputs.new_release_version }}"
+
+      - name: Login to Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: demo/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ steps.versiontag.outputs.versiontag }}
+          labels: ${{ steps.meta.outputs.labels }}
