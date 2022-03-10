@@ -39,7 +39,7 @@ jobs:
         if: '! cancelled()'
         with:
           name: Splunk_TA_paloalto-${{ github.run_id }}
-          path: ${{ steps.build-addon.outputs.path }}
+          path: pr/${{ steps.build-addon.outputs.path }}
       - name: AppInspect
         working-directory: pr
         run: scripts/appinspect.sh -a addon -r
@@ -82,7 +82,7 @@ jobs:
         if: '! cancelled()'
         with:
           name: SplunkforPaloAltoNetworks-${{ github.run_id }}
-          path: ${{ steps.build-app.outputs.path }}
+          path: pr/${{ steps.build-app.outputs.path }}
       - name: AppInspect
         working-directory: pr
         run: scripts/appinspect.sh -a app -r
