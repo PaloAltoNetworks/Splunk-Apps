@@ -1,5 +1,6 @@
 ### Config ###
 config.yml
+.envrc
 
 ### IDE ###
 .vscode/
