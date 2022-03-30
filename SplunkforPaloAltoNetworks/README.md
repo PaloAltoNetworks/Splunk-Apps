@@ -25,23 +25,13 @@ security resources to focus on critical, time-sensitive investigations.
 
 ### Documentation ###
 
-**Installation and Getting Started:** http://splunk.paloaltonetworks.com/
-**Release Notes:** http://splunk.paloaltonetworks.com/release-notes.html  
-**Support:** http://splunk.paloaltonetworks.com/support.html
+**Installation and Getting Started:** https://splunk.paloaltonetworks.com/  
+**Release Notes:** https://github.com/PaloAltoNetworks/Splunk-Apps/releases  
+**Support:** https://splunk.paloaltonetworks.com/support.html
 
-### Install from Git ###
-
-This app is available on [Splunkbase](http://splunkbase.splunk.com/app/491)
-and [Github](https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks).
-Optionally, you can clone the github repository to install the app.
-
-From the directory `$SPLUNK_HOME/etc/apps/`, type the following command:
-
-    git clone https://github.com/PaloAltoNetworks/SplunkforPaloAltoNetworks.git SplunkforPaloAltoNetworks
-    
 ### Libraries Included ###
 
 **Pan-Python:** [Github] (https://github.com/kevinsteves/pan-python)  
 **PanDevice:** [Github] (https://github.com/PaloAltoNetworks/pandevice)
 
-Copyright (C) 2012-2020 Palo Alto Networks Inc. All Rights Reserved.
+Copyright (C) 2012-2022 Palo Alto Networks Inc. All Rights Reserved.
