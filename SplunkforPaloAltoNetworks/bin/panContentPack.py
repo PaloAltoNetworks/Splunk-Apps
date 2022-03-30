@@ -166,7 +166,8 @@ def parse_threats(threats_xml):
             raise e
         # convert all out of unicode
         for key in a:
-            a[key] = string_types(a[key])
+            logger.debug(key + ': ' + a[key])
+            a[key] = str(a[key])
         csv_threats.append(a)
     logger.info("Found %s threats" % len(csv_threats))
     return csv_threats
