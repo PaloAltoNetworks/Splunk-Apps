@@ -24,7 +24,11 @@ Check for security vulnerabilities:
 
 Check code formatting:
 
-    $ make bandit
+    $ make check-format
+
+Format code:
+
+    $ make format
 
 See the help for more usage information:
 
