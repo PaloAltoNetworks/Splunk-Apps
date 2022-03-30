@@ -25,7 +25,7 @@ security resources to focus on critical, time-sensitive investigations.
 
 ### Documentation ###
 
-**Installation and Getting Started:** http://splunk.paloaltonetworks.com/getting_started.html  
+**Installation and Getting Started:** http://splunk.paloaltonetworks.com/
 **Release Notes:** http://splunk.paloaltonetworks.com/release-notes.html  
 **Support:** http://splunk.paloaltonetworks.com/support.html
 
