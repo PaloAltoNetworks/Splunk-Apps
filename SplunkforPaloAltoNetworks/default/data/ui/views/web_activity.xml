@@ -1,7 +1,7 @@
 <form version="1.1">
   <label>Web Activity</label>
   <search id="basesearch">
-    <query>| tstats  values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial$ $vsys$ $src_ip$ $dest_name$ "$user|s$" $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
+    <query>| tstats summariesonly=t values(log.flags) AS log.flags, count FROM datamodel=pan_firewall WHERE nodename="log.url" $serial$ $vsys$ $src_ip$ $dest_name$ "$user|s$" $app$ $content$ $category$ $action$ GROUPBY _time log.dest_name log.app:category log.app log.action log.content_type log.vendor_action | rename log.* AS * </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
@@ -307,7 +307,7 @@ file_name=$row.file_name|s$&amp;earliest=$time.earliest$&amp;latest=$time.latest
       <title>Decrypted Traffic</title>
       <table>
         <search>
-          <query>| tstats values(log.flags) AS log.flags, values(log.user) AS log.user, count FROM datamodel=pan_firewall WHERE nodename="log.url" GROUPBY _time log.src_ip log.dest_name log.category log.app log.action log.content_type log.vendor_action | rename log.* AS * | search flags="decrypted" | table _time src_ip user dest_name category app flags count</query>
+          <query>| tstats summariesonly=t values(log.flags) AS log.flags, values(log.user) AS log.user, count FROM datamodel=pan_firewall WHERE nodename="log.url" GROUPBY _time log.src_ip log.dest_name log.category log.app log.action log.content_type log.vendor_action | rename log.* AS * | search flags="decrypted" | table _time src_ip user dest_name category app flags count</query>
           <earliest>-60m</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
