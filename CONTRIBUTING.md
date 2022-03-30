@@ -128,7 +128,6 @@ sequenceDiagram
   %% See https://mermaid-js.github.io
 
   participant G as GitHub
-  note right of G: Push to any release branch triggers sequence
   participant A as GH Actions
   participant I as Splunk AppInspect
   participant S as SplunkBase
@@ -138,7 +137,7 @@ sequenceDiagram
   G-)+A: Push Triggers GitHub Action
 
   %% AppInspect
-  rect rgb(191,255,179,.2)
+  rect rgb(153,255,170,.2)
     note left of I: AppInspect
     A->>+I: Trigger AppInspect of App and Add-on
     I-->>-A: AppInspect completed
@@ -147,7 +146,7 @@ sequenceDiagram
   end
 
   %% Release
-  rect rgb(242,230,255,.2)
+  rect rgb(217,179,255,.2)
     note left of S: Release
     A->>A: Determines new version
     A->>G: Create GH Release w/ release note
@@ -164,7 +163,7 @@ sequenceDiagram
   end
   
   %% Demo server
-  rect rgb(255,247,230,.2)
+  rect rgb(255,221,153,.2)
     note right of C: Demo server
     loop weekly
       K->>+K: Cloud Scheduler triggers Cloud Function
