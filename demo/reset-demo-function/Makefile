@@ -19,11 +19,11 @@ bandit:
 	bandit main.py
 
 format:
-	isort --recursive --atomic reset_demo.py
+	isort --atomic main.py
 	black .
 
 check-format:
-	isort --recursive --atomic --check-only reset_demo.py
+	isort --atomic --check-only main.py
 	black --check .
 
 sync-deps:
@@ -31,8 +31,8 @@ sync-deps:
 
 deploy:
 	gcloud functions deploy reset-demo \
-	  --runtime python37 \
-	  --memory 128MB \
+	  --runtime python39 \
+	  --memory 256MB \
 	  --trigger-topic reset-demo \
 	  --env-vars-file ./config.yml \
 	  --entry-point reset_demo

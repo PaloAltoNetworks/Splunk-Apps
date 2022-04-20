@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "Splunk_TA_paloalto",
-      "version": "7.0.4"
+      "version": "0.0.0-develop"
     },
     "author": [
       {
@@ -22,7 +22,7 @@
         "IT Operations",
         "Security, Fraud & Compliance"
       ],
-      "developmentStatus": "Production/Stable"
+      "developmentStatus": "Alpha"
     },
     "commonInformationModels": {
       "Authentication":"4.19.0",

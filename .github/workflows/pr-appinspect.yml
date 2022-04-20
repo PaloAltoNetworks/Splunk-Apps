@@ -1,0 +1,97 @@
+name: PR App Inspect
+
+on:
+  pull_request_target:
+    branches:
+      - develop
+
+jobs:
+  appinspect-addon:
+    name: AppInspect (Add-on)
+    runs-on: ubuntu-18.04
+    # Remove write permissions
+    permissions:
+      contents: read
+    steps:
+      # Checkout unsafe code
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          persist-credentials: false
+      # Checkout safe code
+      - name: Checkout build scripts
+        uses: actions/checkout@v3
+        with:
+          path: tools
+      # Replace build script in unsafe code with scripts from safe code
+      - name: Setup build scripts
+        run: |
+          rm -rf pr/scripts
+          mv tools/scripts pr
+      - name: Build Add-on
+        id: build-addon
+        working-directory: pr
+        run: scripts/build.sh -a addon
+      - name: Save Add-on Build Artifact
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
+        with:
+          name: Splunk_TA_paloalto-${{ github.run_id }}
+          path: pr/${{ steps.build-addon.outputs.path }}
+      - name: AppInspect
+        working-directory: pr
+        run: scripts/appinspect.sh -a addon -r
+        env:
+          SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
+          SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
+      - name: Save report
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
+        with:
+          name: Report-Splunk_TA_paloalto-${{ github.run_id }}.html
+          path: pr/_build/Splunk_TA_paloalto-${{ github.run_id }}.html
+
+  appinspect-app:
+    name: AppInspect (App)
+    runs-on: ubuntu-18.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          persist-credentials: false
+      - name: Checkout build scripts
+        uses: actions/checkout@v3
+        with:
+          path: tools
+      - name: Setup build scripts
+        run: |
+          rm -rf pr/scripts
+          mv tools/scripts pr
+      - name: Build App
+        id: build-app
+        working-directory: pr
+        run: scripts/build.sh -a app
+      - name: Save App Build Artifact
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
+        with:
+          name: SplunkforPaloAltoNetworks-${{ github.run_id }}
+          path: pr/${{ steps.build-app.outputs.path }}
+      - name: AppInspect
+        working-directory: pr
+        run: scripts/appinspect.sh -a app -r
+        env:
+          SPLUNK_USER: ${{ secrets.SPLUNK_USER }}
+          SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
+      - name: Save report
+        uses: actions/upload-artifact@v1
+        if: '! cancelled()'
+        with:
+          name: Report-SplunkforPaloAltoNetworks-${{ github.run_id }}.html
+          path: pr/_build/SplunkforPaloAltoNetworks-${{ github.run_id }}.html

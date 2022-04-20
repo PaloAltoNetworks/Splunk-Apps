@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "SplunkforPaloAltoNetworks",
-      "version": "7.0.4"
+      "version": "0.0.0-develop"
     },
     "author": [
       {
@@ -19,7 +19,7 @@
     "classification": {
       "intendedAudience": null,
       "categories": [],
-      "developmentStatus": "Production/Stable"
+      "developmentStatus": "Alpha"
     },
     "commonInformationModels": null,
     "license": {

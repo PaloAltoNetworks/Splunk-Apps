@@ -91,24 +91,9 @@ var releaseConfig = {
       '@semantic-release/exec',
       {
         prepareCmd:
-          'LOG_LEVEL=DEBUG scripts/set-version.sh "${nextRelease.version}" "${nextRelease.channel}"',
+          'LOG_LEVEL=DEBUG scripts/build.sh -a app -v "${nextRelease.version}" -r "${nextRelease.channel}" && LOG_LEVEL=DEBUG scripts/build.sh -a addon -v "${nextRelease.version}" -r "${nextRelease.channel}"',
         publishCmd:
-          'scripts/build.sh -a app && scripts/build.sh -a addon && LOG_LEVEL=DEBUG scripts/publish.sh -a app && LOG_LEVEL=DEBUG scripts/publish.sh -a addon',
-      },
-    ],
-    [
-      '@semantic-release/git',
-      {
-        assets: [
-          'SplunkforPaloAltoNetworks/default/app.conf',
-          'SplunkforPaloAltoNetworks/app.manifest',
-          'SplunkforPaloAltoNetworks/README.md',
-          'Splunk_TA_paloalto/default/app.conf',
-          'Splunk_TA_paloalto/app.manifest',
-          'Splunk_TA_paloalto/README.md',
-        ],
-        message:
-          'chore(release): ${nextRelease.version}\n\n${nextRelease.notes}',
+          'LOG_LEVEL=DEBUG scripts/publish.sh -a app -v "${nextRelease.version}" && LOG_LEVEL=DEBUG scripts/publish.sh -a addon -v "${nextRelease.version}"',
       },
     ],
     [

@@ -20,3 +20,5 @@
     dest: /opt/splunk/etc/users/demo/
     owner: "{{ splunk.user }}"
     mode: preserve
+  notify:
+    - Restart the splunkd service

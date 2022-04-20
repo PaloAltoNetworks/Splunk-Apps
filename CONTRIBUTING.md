@@ -7,7 +7,7 @@
 - [Bug fixes and features](#bug-fixes-and-features)
 - [Test changes in your branch](#test-changes-in-your-branch)
 - [Publish a new release (for maintainers)](#publish-a-new-release-for-maintainers)
-- [CI/CD Sequence diagram](#cicd-sequence-diagram)
+- [CI/CD Release Process](#cicd-release-process)
 
 ## How to contribute
 
@@ -96,10 +96,9 @@ directories and reloads them in Splunk when a change is detected.
 
 ## Publish a new release (for maintainers)
 
-Requires node and semantic-release npm package
-
 ```
 # Test the release process on develop
+# (this requires node and semantic-release npm package)
 semantic-release --dry-run --no-ci --branches=develop
 
 # Verify in the output that the next version is set correctly
@@ -113,24 +112,63 @@ git push origin master
 # At this point, GitHub Actions is testing the release
 # then building it for publication
 
-# There is a manual step here. You'll have to get the build
-# from the GitHub Actions artifacts and publish it on SplunkBase
-# manually. We can automate this when the SplunkBase API is more mature.
-
 # Now, sync your local with the remote to pull the new
-# commits made by the release bot.
-git fetch --all --tags
-git pull origin master
+# tags created in the release process
+git fetch --tags
 git checkout develop
-git merge master
-git push origin develop
 
 # Now you're ready to branch again and work on the next feature.
 ```
 
-## CI/CD Sequence diagram
+## CI/CD Release Process
 
-![Sequence diagram](./.github/cicd-sequence-diagram.svg)
+```mermaid
+sequenceDiagram
+  %% This is a mermaid file
+  %% See https://mermaid-js.github.io
 
-- [Diagram source](./.github/cicd-sequence-diagram.mmd)
-- [CI/CD Workflow yaml](./.github/workflows/ci.yml)
+  participant G as GitHub
+  participant A as GH Actions
+  participant I as Splunk AppInspect
+  participant S as SplunkBase
+  participant C as GH Container Registry
+  participant K as GCP GKE
+  
+  G-)+A: Push Triggers GitHub Action
+
+  %% AppInspect
+  rect rgb(153,255,170,.2)
+    note left of I: AppInspect
+    A->>+I: Trigger AppInspect of App and Add-on
+    I-->>-A: AppInspect completed
+    A->>+I: Request HTML report
+    I-->>-A: Return HTML report
+  end
+
+  %% Release
+  rect rgb(217,179,255,.2)
+    note left of S: Release
+    A->>A: Determines new version
+    A->>G: Create GH Release w/ release note
+    A->>A: Build App & Add-on w/ incremented version
+    A->>S: Publish release
+    A->>S: Verify publish
+  end
+
+  %% Docker build
+  rect rgb(128,170,255,.2)
+    note left of C: Docker build
+    A->>A: Build docker image
+    A->>-C: Publish docker image
+  end
+  
+  %% Demo server
+  rect rgb(255,221,153,.2)
+    note right of C: Demo server
+    loop weekly
+      K->>+K: Cloud Scheduler triggers Cloud Function
+      K->>C: Pull latest docker demo
+      K->>-K: Restart Demo
+    end
+  end
+```

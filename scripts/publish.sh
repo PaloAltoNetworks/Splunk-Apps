@@ -32,9 +32,10 @@ print_usage () {
     echo ""
     echo "Usage:"
     echo ""
-    echo "publish.sh -a <APP NAME> [-f <FILENAME>]"
+    echo "publish.sh -a <APP NAME> [-v <version> | -f <FILENAME>]"
     echo ""
     echo "  -a What to inspect. Must be either 'app' or 'addon'."
+    echo "  -v Version of spl package to look for in _build directory"
     echo "  -f File to submit for publication"
     echo ""
 }
@@ -103,7 +104,7 @@ check_status () {
 APP=''
 APP_ID=''
 
-while getopts a:f:h FLAG; do
+while getopts a:fv:h FLAG; do
     case $FLAG in
         a)
         if [ "$OPTARG" == "app" ]; then
@@ -122,6 +123,9 @@ while getopts a:f:h FLAG; do
         ;;
         f)
         FILENAME="$OPTARG"
+        ;;
+        v)
+        VERSION="$OPTARG"
         ;;
         h)
         print_usage
@@ -145,7 +149,9 @@ CIM_SUPPORTED=$(get_cim_supported "$APP")
 
 # Determine the file to publish
 if [ -z "$FILENAME" ]; then
-    VERSION=$(get_version "$ROOT/$APP")
+    if [ -z "$VERSION" ]; then
+        VERSION=$(get_version "$ROOT/$APP")
+    fi
     FILENAME="${ROOT}/_build/$(get_build_filename "$APP" "$VERSION" "$BRANCH" "$BUILD")"
 fi 
 log_debug "File $FILENAME"
