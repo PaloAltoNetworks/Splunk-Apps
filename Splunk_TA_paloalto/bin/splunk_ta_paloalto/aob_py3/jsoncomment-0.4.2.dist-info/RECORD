@@ -1,0 +1,10 @@
+jsoncomment-0.4.2.dist-info/COPYING,sha256=gu53buiij96a9W1g0xORV4R6GmzPtu-xmZ4mfHOovYQ,1098
+jsoncomment-0.4.2.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+jsoncomment-0.4.2.dist-info/METADATA,sha256=PnNE_qsbM68g7oKDmvIXJA_Ll8ThUueWXI4zr64o_l0,3928
+jsoncomment-0.4.2.dist-info/RECORD,,
+jsoncomment-0.4.2.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+jsoncomment-0.4.2.dist-info/WHEEL,sha256=LRS-GSFNyYPLBJaJJ6kxdk4Urtb4kEVXWc5DpA8iv6o,97
+jsoncomment-0.4.2.dist-info/top_level.txt,sha256=WEsvmxL9rjjlfFf2HvGixakFO6QCKnDuIbeSPWDZU30,12
+jsoncomment/__init__.py,sha256=jd_wDTTiV7D6mGKxUEG7f2Ens0jRapHZpoEScFaT0mg,2102
+jsoncomment/comments.py,sha256=dvz1Zt5ObrwzIKeAL6GjYvPpnGwzQ7V-Nv9nUp4TiHw,5613
+jsoncomment/wrapper.py,sha256=_rWGLt8QRn19oy3WxqKpgOuEiMSZZnFPwtDhdv0TyfI,577

@@ -1,3 +1,18 @@
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 """UCC Config Module
 This is for load/save configuration in UCC server or TA.
 The load/save action is based on specified schema.
@@ -16,8 +31,8 @@ import traceback
 import time
 import six
 
-from ..splunktalib.rest import splunkd_request, code_to_msg
-from ..splunktalib.common import util as sc_util
+from splunktalib.rest import splunkd_request, code_to_msg
+from splunktalib.common import util as sc_util
 
 from .common import log as stulog
 from .common import UCCException
