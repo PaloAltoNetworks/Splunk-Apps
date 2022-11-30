@@ -1,56 +1,49 @@
-# Copyright 2016 Splunk, Inc.
 #
-# Licensed under the Apache License, Version 2.0 (the 'License'): you may
-# not use this file except in compliance with the License. You may obtain
-# a copy of the License at
+# Copyright 2021 Splunk Inc.
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an 'AS IS' BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations
-# under the License.
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-'''
-A simple thread safe timer queue implementation which has O(logn) time complexity.
-'''
-
-try:
-    import queue as Queue
-except ImportError:
-    import Queue
-
+"""A simple thread safe timer queue implementation which has O(logn) time
+complexity."""
 import logging
+import queue as Queue
 import threading
 import traceback
 from time import time
+from typing import Callable, List, Tuple
 
-from .packages import sortedcontainers as sc
+import sortedcontainers as sc
 
-__all__ = ['Timer',
-           'TimerQueueStruct',
-           'TimerQueue']
+__all__ = ["Timer", "TimerQueueStruct", "TimerQueue"]
 
 
-class Timer(object):
-    '''Timer wraps the callback and timestamp related attributes.
-
-    :param callback: Arbitrary callable object.
-    :type callback: ``callable object``
-    :param when: The first expiration time, seconds since epoch.
-    :type when: ``integer``
-    :param interval: Timer interval, if equals 0, one time timer, otherwise
-        the timer will be periodically executed
-    :type interval: ``integer``
-    :param ident: (optional) Timer identity.
-    :type ident:  ``integer``
-    '''
+class Timer:
+    """Timer wraps the callback and timestamp related attributes."""
 
     _ident = 0
     _lock = threading.Lock()
 
-    def __init__(self, callback, when, interval, ident=None):
+    def __init__(self, callback: Callable, when: int, interval: int, ident: int = None):
+        """Initializes Timer.
+
+        Arguments:
+            callback: Arbitrary callable object.
+            when: The first expiration time, seconds since epoch.
+            interval: Timer interval, if equals 0, one time timer, otherwise
+                the timer will be periodically executed.
+            ident: (optional) Timer identity.
+        """
         self._callback = callback
         self.when = when
         self.interval = interval
@@ -90,58 +83,56 @@ class Timer(object):
 TEARDOWN_SENTINEL = None
 
 
-class TimerQueueStruct(object):
-    '''
-    The underlying data structure for TimerQueue
-    '''
+class TimerQueueStruct:
+    """The underlying data structure for TimerQueue."""
 
     def __init__(self):
         self._timers = sc.SortedSet()
         self._cancelling_timers = {}
 
-    def add_timer(self, callback, when, interval, ident):
-        ''' Add timer to the data structure.
+    def add_timer(
+        self, callback: Callable, when: int, interval: int, ident: int
+    ) -> Timer:
+        """Add timer to the data structure.
 
-        :param callback: Arbitrary callable object.
-        :type callback: ``callable object``
-        :param when: The first expiration time, seconds since epoch.
-        :type when: ``integer``
-        :param interval: Timer interval, if equals 0, one time timer, otherwise
-            the timer will be periodically executed
-        :type interval: ``integer``
-        :param ident: (optional) Timer identity.
-        :type ident:  ``integer``
-        :returns: A timer object which should not be manipulated directly by
-            clients. Used to delete/update the timer
-        :rtype: ``solnlib.timer_queue.Timer``
-        '''
+        Arguments:
+            callback: Arbitrary callable object.
+            when: The first expiration time, seconds since epoch.
+            interval: Timer interval, if equals 0, one time timer, otherwise
+                the timer will be periodically executed
+            ident: (optional) Timer identity.
+
+        Returns:
+            A timer object which should not be manipulated directly by
+                clients. Used to delete/update the timer.
+        """
 
         timer = Timer(callback, when, interval, ident)
         self._timers.add(timer)
         return timer
 
-    def remove_timer(self, timer):
-        ''' Remove timer from data structure.
+    def remove_timer(self, timer: Timer):
+        """Remove timer from data structure.
 
-        :param timer: Timer object which is returned by ``TimerQueueStruct.add_timer``.
-        :type timer: ``Timer``
-        '''
+        Arguments:
+            timer: Timer object which is returned by ``TimerQueueStruct.add_timer``.
+        """
 
         try:
             self._timers.remove(timer)
         except ValueError:
-            logging.info('Timer=%s is not in queue, move it to cancelling '
-                         'list', timer.ident)
+            logging.info(
+                "Timer=%s is not in queue, move it to cancelling " "list", timer.ident
+            )
         else:
             self._cancelling_timers[timer.ident] = timer
 
-    def get_expired_timers(self):
-        ''' Get a list of expired timers.
+    def get_expired_timers(self) -> Tuple:
+        """Get a list of expired timers.
 
-        :returns: a list of ``Timer``, empty list if there is no expired
-            timers.
-        :rtype: ``list``
-        '''
+        Returns:
+            A tuple of ``Timer``, empty list if there is no expired timers.
+        """
 
         next_expired_time = 0
         now = time()
@@ -151,25 +142,27 @@ class TimerQueueStruct(object):
                 expired_timers.append(timer)
 
         if expired_timers:
-            del self._timers[:len(expired_timers)]
+            del self._timers[: len(expired_timers)]
 
         if self._timers:
             next_expired_time = self._timers[0].when
-        return (next_expired_time, expired_timers)
+        return next_expired_time, expired_timers
 
-    def reset_timers(self, expired_timers):
-        ''' Re-add the expired periodical timers to data structure for next
+    def reset_timers(self, expired_timers: List[Timer]) -> bool:
+        """Re-add the expired periodical timers to data structure for next
         round scheduling.
 
-        :returns: True if there are timers added, False otherwise.
-        :rtype: ``bool``
-        '''
+        Arguments:
+            expired_timers: List of expired timers.
+
+        Returns:
+            True if there are timers added, False otherwise.
+        """
 
         has_new_timer = False
         cancelling_timers = self._cancelling_timers
         for timer in expired_timers:
             if timer.ident in cancelling_timers:
-                logging.INFO('Timer=%s has been cancelled', timer.ident)
                 continue
             elif timer.interval:
                 # Repeated timer
@@ -179,12 +172,12 @@ class TimerQueueStruct(object):
         cancelling_timers.clear()
         return has_new_timer
 
-    def check_and_execute(self):
-        ''' Get expired timers and execute callbacks for the timers.
+    def check_and_execute(self) -> float:
+        """Get expired timers and execute callbacks for the timers.
 
-        :returns: duration of next expired timer.
-        :rtype: ``float``
-        '''
+        Returns:
+            Duration of next expired timer.
+        """
 
         (next_expired_time, expired_timers) = self.get_expired_timers()
         for timer in expired_timers:
@@ -197,8 +190,8 @@ class TimerQueueStruct(object):
         return _calc_sleep_time(next_expired_time)
 
 
-class TimerQueue(object):
-    '''A simple timer queue implementation.
+class TimerQueue:
+    r"""A simple timer queue implementation.
 
     It runs a separate thread to handle timers Note: to effectively use this
     timer queue, the timer callback should be short, otherwise it will cause
@@ -206,20 +199,21 @@ class TimerQueue(object):
     that the timers are just a simple functions which inject themselvies to
     a task queue and then they are picked up by a threading/process pool to
     execute, as shows below:
-    Timers --enqueue---> TimerQueue --------expiration-----------
-                                                                |
-                                                                |
-                                                               \|/
-    Threading/Process Pool <---- TaskQueue <--enqueue-- Timers' callback (nonblocking)
 
-    Usage::
-           >>> from solnlib import time_queue
-           >>> tq = time_queue.TimerQueue()
+        Timers --enqueue---> TimerQueue --------expiration-----------
+                                                                    |
+                                                                    |
+                                                                   \|/
+        Threading/Process Pool <---- TaskQueue <--enqueue-- Timers' callback (nonblocking)
+
+    Examples:
+           >>> from solnlib import timer_queue
+           >>> tq = timer_queue.TimerQueue()
            >>> tq.start()
            >>> t = tq.add_timer(my_func, time.time(), 10)
            >>> # do other stuff
            >>> tq.stop()
-    '''
+    """
 
     def __init__(self):
         self._timers = TimerQueueStruct()
@@ -230,19 +224,17 @@ class TimerQueue(object):
         self._started = False
 
     def start(self):
-        '''Start the timer queue.
-        '''
+        """Start the timer queue."""
 
         if self._started:
             return
         self._started = True
 
         self._thr.start()
-        logging.info('TimerQueue started.')
+        logging.info("TimerQueue started.")
 
     def stop(self):
-        '''Stop the timer queue.
-        '''
+        """Stop the timer queue."""
 
         if not self._started:
             return
@@ -251,33 +243,34 @@ class TimerQueue(object):
         self._wakeup(TEARDOWN_SENTINEL)
         self._thr.join()
 
-    def add_timer(self, callback, when, interval, ident=None):
-        ''' Add timer to the queue.
+    def add_timer(
+        self, callback: Callable, when: int, interval: int, ident: int = None
+    ) -> Timer:
+        """Add timer to the queue.
 
-        :param callback: Arbitrary callable object.
-        :type callback: ``callable object``
-        :param when: The first expiration time, seconds since epoch.
-        :type when: ``integer``
-        :param interval: Timer interval, if equals 0, one time timer, otherwise
-            the timer will be periodically executed
-        :type interval: ``integer``
-        :param ident: (optional) Timer identity.
-        :type ident:  ``integer``
-        :returns: A timer object which should not be manipulated directly by
-            clients. Used to delete/update the timer
-        '''
+        Arguments:
+            callback: Arbitrary callable object.
+            when: The first expiration time, seconds since epoch.
+            interval: Timer interval, if equals 0, one time timer, otherwise
+                the timer will be periodically executed
+            ident: (optional) Timer identity.
+
+        Returns:
+            A timer object which should not be manipulated directly by
+                clients. Used to delete/update the timer.
+        """
 
         with self._lock:
             timer = self._timers.add_timer(callback, when, interval, ident)
         self._wakeup()
         return timer
 
-    def remove_timer(self, timer):
-        ''' Remove timer from the queue.
+    def remove_timer(self, timer: Timer):
+        """Remove timer from the queue.
 
-        :param timer: Timer object which is returned by ``TimerQueue.add_timer``.
-        :type timer: ``Timer``
-        '''
+        Arguments:
+            timer: Timer object to remove.
+        """
 
         with self._lock:
             self._timers.remove_timer(timer)
@@ -302,7 +295,7 @@ class TimerQueue(object):
                     break
             except Queue.Empty:
                 pass
-        logging.info('TimerQueue stopped.')
+        logging.info("TimerQueue stopped.")
 
     def _get_expired_timers(self):
         with self._lock:
@@ -315,7 +308,7 @@ class TimerQueue(object):
         if has_new_timer:
             self._wakeup()
 
-    def _wakeup(self, something='not_None'):
+    def _wakeup(self, something="not_None"):
         self._wakeup_queue.put(something)
 
 

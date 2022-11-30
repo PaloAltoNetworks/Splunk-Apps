@@ -1,8 +1,12 @@
+"""
+The ``jsonschema`` command line.
+"""
 from __future__ import absolute_import
 import argparse
 import json
 import sys
 
+from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.validators import validator_for
 
@@ -27,7 +31,7 @@ parser.add_argument(
     dest="instances",
     type=_json_file,
     help=(
-        "a path to a JSON instance (i.e. filename.json)"
+        "a path to a JSON instance (i.e. filename.json) "
         "to validate (may be specified multiple times)"
     ),
 )
@@ -50,8 +54,13 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
+    "--version",
+    action="version",
+    version=__version__,
+)
+parser.add_argument(
     "schema",
-    help="the JSON Schema to validate with (i.e. filename.schema)",
+    help="the JSON Schema to validate with (i.e. schema.json)",
     type=_json_file,
 )
 

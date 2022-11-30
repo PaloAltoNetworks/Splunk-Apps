@@ -1,22 +1,33 @@
-from __future__ import absolute_import
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-from builtins import map
-from builtins import object
-from ..util import get_base_app_name
+
 from ..error import RestError
-
+from ..util import get_base_app_name
 
 __all__ = [
-    'RestModel',
-    'RestEndpoint',
-    'SingleModel',
-    'MultipleModel',
-    'DataInputModel',
+    "RestModel",
+    "RestEndpoint",
+    "SingleModel",
+    "MultipleModel",
+    "DataInputModel",
 ]
 
 
-class RestModel(object):
-
+class RestModel:
     def __init__(self, fields, name=None):
         """
         REST Model.
@@ -27,18 +38,12 @@ class RestModel(object):
         self.fields = fields
 
 
-class RestEndpoint(object):
+class RestEndpoint:
     """
     REST Endpoint.
     """
 
-    def __init__(
-            self,
-            user='nobody',
-            app=None,
-            *args,
-            **kwargs
-    ):
+    def __init__(self, user="nobody", app=None, *args, **kwargs):
         """
 
         :param user:
@@ -63,31 +68,27 @@ class RestEndpoint(object):
         """
         raise NotImplementedError()
 
-    def model(self, name, data):
+    def model(self, name):
         """
-        Real model for given name & data.
+        Real model for given name.
 
         :param name:
-        :param data:
         :return:
         """
         raise NotImplementedError()
 
     def _loop_fields(self, meth, name, data, *args, **kwargs):
-        model = self.model(name, data)
-        return list(map(
-            lambda f: getattr(f, meth)(data, *args, **kwargs),
-            model.fields,
-        ))
+        model = self.model(name)
+        return [getattr(f, meth)(data, *args, **kwargs) for f in model.fields]
 
     def validate(self, name, data, existing=None):
-        self._loop_fields('validate', name, data, existing=existing)
+        self._loop_fields("validate", name, data, existing=existing)
 
     def encode(self, name, data):
-        self._loop_fields('encode', name, data)
+        self._loop_fields("encode", name, data)
 
     def decode(self, name, data):
-        self._loop_fields('decode', name, data)
+        self._loop_fields("decode", name, data)
 
 
 class SingleModel(RestEndpoint):
@@ -96,15 +97,7 @@ class SingleModel(RestEndpoint):
     with same format  into one conf file.
     """
 
-    def __init__(
-            self,
-            conf_name,
-            model,
-            user='nobody',
-            app=None,
-            *args,
-            **kwargs
-    ):
+    def __init__(self, conf_name, model, user="nobody", app=None, *args, **kwargs):
         """
 
         :param conf_name: conf file name
@@ -113,18 +106,18 @@ class SingleModel(RestEndpoint):
         :param args:
         :param kwargs:
         """
-        super(SingleModel, self).__init__(
-            user=user, app=app, *args, **kwargs)
+        super().__init__(user=user, app=app, *args, **kwargs)
         self.need_reload = True
 
         self._model = model
         self.conf_name = conf_name
+        self.config_name = kwargs.get("config_name")
 
     @property
     def internal_endpoint(self):
-        return 'configs/conf-{}'.format(self.conf_name)
+        return f"configs/conf-{self.conf_name}"
 
-    def model(self, name, data):
+    def model(self, name):
         return self._model
 
 
@@ -134,26 +127,17 @@ class MultipleModel(RestEndpoint):
      stanzas with different formats into one conf file.
     """
 
-    def __init__(
-            self,
-            conf_name,
-            models,
-            user='nobody',
-            app=None,
-            *args,
-            **kwargs
-    ):
+    def __init__(self, conf_name, models, user="nobody", app=None, *args, **kwargs):
         """
 
         :param conf_name:
-        :type conf_name: basestring
+        :type conf_name: str
         :param models: list of RestModel
         :type models: list
         :param args:
         :param kwargs:
         """
-        super(MultipleModel, self).__init__(
-            user=user, app=app, *args, **kwargs)
+        super().__init__(user=user, app=app, *args, **kwargs)
         self.need_reload = True
 
         self.conf_name = conf_name
@@ -161,13 +145,13 @@ class MultipleModel(RestEndpoint):
 
     @property
     def internal_endpoint(self):
-        return 'configs/conf-{}'.format(self.conf_name)
+        return f"configs/conf-{self.conf_name}"
 
-    def model(self, name, data):
+    def model(self, name):
         try:
             return self.models[name]
         except KeyError:
-            raise RestError(404, 'name=%s' % name)
+            raise RestError(404, "name=%s" % name)
 
 
 class DataInputModel(RestEndpoint):
@@ -175,24 +159,15 @@ class DataInputModel(RestEndpoint):
     REST Model for Data Input.
     """
 
-    def __init__(
-            self,
-            input_type,
-            model,
-            user='nobody',
-            app=None,
-            *args,
-            **kwargs
-    ):
-        super(DataInputModel, self).__init__(
-            user=user, app=app, *args, **kwargs)
+    def __init__(self, input_type, model, user="nobody", app=None, *args, **kwargs):
+        super().__init__(user=user, app=app, *args, **kwargs)
 
         self.input_type = input_type
         self._model = model
 
     @property
     def internal_endpoint(self):
-        return 'data/inputs/{}'.format(self.input_type)
+        return f"data/inputs/{self.input_type}"
 
-    def model(self, name, data):
+    def model(self, name):
         return self._model

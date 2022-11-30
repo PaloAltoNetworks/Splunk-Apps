@@ -3,9 +3,8 @@
         "name": "Splunk_TA_paloalto",
         "displayName": "Palo Alto Networks Add-on",
         "version": "0.0.0-develop",
-        "apiVersion": "3.0.0",
         "restRoot": "Splunk_TA_paloalto",
-        "schemaVersion": "0.0.2"
+        "schemaVersion": "0.0.3"
     },
     "pages": {
         "configuration": {
