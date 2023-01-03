@@ -141,8 +141,8 @@ tar czf "${ROOT}/_build/${FILENAME}" "${APP}"
 # Set variables for GitHub Actions to pick up in subsequent steps
 if [ "$GITHUB_ACTIONS" == "true" ]; then
     log_debug "Setting GitHub Actions outputs"
-    echo ::set-output "name=path::_build/$FILENAME"
-    echo ::set-output "name=file::$FILENAME"
+    echo "path=_build/$FILENAME" >> $GITHUB_OUTPUT
+    echo "file=$FILENAME" >> $GITHUB_OUTPUT
 fi
 
 log_debug "path: _build/$FILENAME"
