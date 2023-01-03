@@ -15,6 +15,8 @@
 from __future__ import absolute_import
 import sys
 
+from io import TextIOWrapper, TextIOBase
+from splunklib.six import ensure_str
 from .event import ET
 
 try:
@@ -24,7 +26,6 @@ except ImportError:
 
 class EventWriter(object):
     """``EventWriter`` writes events and error messages to Splunk from a modular input.
-
     Its two important methods are ``writeEvent``, which takes an ``Event`` object,
     and ``log``, which takes a severity and an error message.
     """
@@ -55,7 +56,7 @@ class EventWriter(object):
         """
 
         if not self.header_written:
-            self._out.write(b"<stream>")
+            self._out.write("<stream>")
             self.header_written = True
 
         event.write_to(self._out)
@@ -68,7 +69,7 @@ class EventWriter(object):
         :param message: ``string``, message to log.
         """
 
-        self._err.write(("%s %s\n" % (severity, message)).encode('utf-8'))
+        self._err.write("%s %s\n" % (severity, message))
         self._err.flush()
 
     def write_xml_document(self, document):
@@ -77,9 +78,10 @@ class EventWriter(object):
 
         :param document: An ``ElementTree`` object.
         """
-        self._out.write(ET.tostring(document))
+        self._out.write(ensure_str(ET.tostring(document)))
         self._out.flush()
 
     def close(self):
         """Write the closing </stream> tag to make this XML well formed."""
-        self._out.write(b"</stream>")
+        self._out.write("</stream>")
+        self._out.flush()

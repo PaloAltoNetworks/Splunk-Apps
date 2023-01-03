@@ -3,13 +3,12 @@ import json
 import pkgutil
 import re
 
-from jsonschema.compat import str_types, MutableMapping, urlsplit
+from jsonschema.compat import MutableMapping, str_types, urlsplit
 
 
 class URIDict(MutableMapping):
     """
     Dictionary which uses normalized URIs as keys.
-
     """
 
     def normalize(self, uri):
@@ -41,7 +40,6 @@ class URIDict(MutableMapping):
 class Unset(object):
     """
     An as-of-yet unset attribute or unprovided default parameter.
-
     """
 
     def __repr__(self):
@@ -51,17 +49,15 @@ class Unset(object):
 def load_schema(name):
     """
     Load a schema from ./schemas/``name``.json and return it.
-
     """
 
-    data = pkgutil.get_data('jsonschema', "schemas/{0}.json".format(name))
+    data = pkgutil.get_data("jsonschema", "schemas/{0}.json".format(name))
     return json.loads(data.decode("utf-8"))
 
 
 def indent(string, times=1):
     """
-    A dumb version of :func:`textwrap.indent` from Python 3.3.
-
+    A dumb version of `textwrap.indent` from Python 3.3.
     """
 
     return "\n".join(" " * (4 * times) + line for line in string.splitlines())
@@ -78,7 +74,6 @@ def format_as_index(indices):
         indices (sequence):
 
             The indices to format.
-
     """
 
     if not indices:
@@ -94,7 +89,6 @@ def find_additional_properties(instance, schema):
     / or ``patternProperties``.
 
     Assumes ``instance`` is dict-like already.
-
     """
 
     properties = schema.get("properties", {})
@@ -109,7 +103,6 @@ def find_additional_properties(instance, schema):
 def extras_msg(extras):
     """
     Create an error message for extra items or properties.
-
     """
 
     if len(extras) == 1:
@@ -127,7 +120,6 @@ def types_msg(instance, types):
     be considered to be a description of that object and used as its type.
 
     Otherwise the message is simply the reprs of the given ``types``.
-
     """
 
     reprs = []
@@ -147,7 +139,6 @@ def flatten(suitable_for_isinstance):
         * an arbitrary nested tree of tuples
 
     Return a flattened tuple of the given argument.
-
     """
 
     types = set()
@@ -167,7 +158,6 @@ def ensure_list(thing):
     Wrap ``thing`` in a list if it's a single str.
 
     Otherwise, return it unchanged.
-
     """
 
     if isinstance(thing, str_types):
@@ -175,10 +165,16 @@ def ensure_list(thing):
     return thing
 
 
+def equal(one, two):
+    """
+    Check if two things are equal, but evade booleans and ints being equal.
+    """
+    return unbool(one) == unbool(two)
+
+
 def unbool(element, true=object(), false=object()):
     """
     A hack to make True and 1 and False and 0 unique for ``uniq``.
-
     """
 
     if element is True:
@@ -195,7 +191,6 @@ def uniq(container):
     Successively tries first to rely that the elements are hashable, then
     falls back on them being sortable, and finally falls back on brute
     force.
-
     """
 
     try:
