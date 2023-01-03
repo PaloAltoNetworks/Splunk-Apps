@@ -146,7 +146,7 @@ def save_to_kvstore(all_tags, skey, stats):
             _uri() + '/batch_save',
             data=json.dumps(all_tags[i:i+500]),
             headers=_headers(skey),
-            verify=False)
+            verify=True)
 
 
 def _uri():
