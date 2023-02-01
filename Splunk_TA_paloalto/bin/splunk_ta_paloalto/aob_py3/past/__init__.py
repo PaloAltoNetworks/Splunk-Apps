@@ -61,7 +61,7 @@ this::
 
     $ python3
 
-    >>> from past.translation import autotranslate
+    >>> from past import autotranslate
     >>> authotranslate('mypy2module')
     >>> import mypy2module
 
@@ -74,16 +74,18 @@ example::
 Credits
 -------
 
-:Author:  Ed Schofield, Jordan M. Adler, et al
+:Author:  Ed Schofield
 :Sponsor: Python Charmers Pty Ltd, Australia: http://pythoncharmers.com
 
 
 Licensing
 ---------
-Copyright 2013-2019 Python Charmers Pty Ltd, Australia.
+Copyright 2013-2018 Python Charmers Pty Ltd, Australia.
 The software is distributed under an MIT licence. See LICENSE.txt.
 """
 
+
+from past.translation import install_hooks as autotranslate
 from future import __version__, __copyright__, __license__
 
 __title__ = 'past'

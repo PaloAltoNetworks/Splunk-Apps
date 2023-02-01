@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
-"""The code for async support. Importing this patches Jinja on supported
-Python versions.
 """
+    jinja2.asyncsupport
+    ~~~~~~~~~~~~~~~~~~~
+
+    Has all the code for async support which is implemented as a patch
+    for supported Python versions.
+
+    :copyright: (c) 2017 by the Jinja Team.
+    :license: BSD, see LICENSE for more details.
+"""
+import sys
 import asyncio
 import inspect
 from functools import update_wrapper
 
-from markupsafe import Markup
-
-from .environment import TemplateModule
-from .runtime import LoopContext
-from .utils import concat
-from .utils import internalcode
-from .utils import missing
+from jinja2.utils import concat, internalcode, Markup
+from jinja2.environment import TemplateModule
+from jinja2.runtime import LoopContextBase, _last_iteration
 
 
 async def concat_async(async_gen):
     rv = []
-
     async def collect():
         async for event in async_gen:
             rv.append(event)
-
     await collect()
     return concat(rv)
 
@@ -32,7 +34,10 @@ async def generate_async(self, *args, **kwargs):
         async for event in self.root_render_func(self.new_context(vars)):
             yield event
     except Exception:
-        yield self.environment.handle_exception()
+        exc_info = sys.exc_info()
+    else:
+        return
+    yield self.environment.handle_exception(exc_info, True)
 
 
 def wrap_generate_func(original_generate):
@@ -43,18 +48,17 @@ def wrap_generate_func(original_generate):
                 yield loop.run_until_complete(async_gen.__anext__())
         except StopAsyncIteration:
             pass
-
     def generate(self, *args, **kwargs):
         if not self.environment.is_async:
             return original_generate(self, *args, **kwargs)
         return _convert_generator(self, asyncio.get_event_loop(), args, kwargs)
-
     return update_wrapper(generate, original_generate)
 
 
 async def render_async(self, *args, **kwargs):
     if not self.environment.is_async:
-        raise RuntimeError("The environment was not created with async mode enabled.")
+        raise RuntimeError('The environment was not created with async mode '
+                           'enabled.')
 
     vars = dict(*args, **kwargs)
     ctx = self.new_context(vars)
@@ -62,7 +66,8 @@ async def render_async(self, *args, **kwargs):
     try:
         return await concat_async(self.root_render_func(ctx))
     except Exception:
-        return self.environment.handle_exception()
+        exc_info = sys.exc_info()
+    return self.environment.handle_exception(exc_info, True)
 
 
 def wrap_render_func(original_render):
@@ -71,7 +76,6 @@ def wrap_render_func(original_render):
             return original_render(self, *args, **kwargs)
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self.render_async(*args, **kwargs))
-
     return update_wrapper(render, original_render)
 
 
@@ -105,7 +109,6 @@ def wrap_macro_invoke(original_invoke):
         if not self._environment.is_async:
             return original_invoke(self, arguments, autoescape)
         return async_invoke(self, arguments, autoescape)
-
     return update_wrapper(_invoke, original_invoke)
 
 
@@ -121,9 +124,9 @@ def wrap_default_module(original_default_module):
     @internalcode
     def _get_default_module(self):
         if self.environment.is_async:
-            raise RuntimeError("Template module attribute is unavailable in async mode")
+            raise RuntimeError('Template module attribute is unavailable '
+                               'in async mode')
         return original_default_module(self)
-
     return _get_default_module
 
 
@@ -136,30 +139,30 @@ async def make_module_async(self, vars=None, shared=False, locals=None):
 
 
 def patch_template():
-    from . import Template
-
+    from jinja2 import Template
     Template.generate = wrap_generate_func(Template.generate)
-    Template.generate_async = update_wrapper(generate_async, Template.generate_async)
-    Template.render_async = update_wrapper(render_async, Template.render_async)
+    Template.generate_async = update_wrapper(
+        generate_async, Template.generate_async)
+    Template.render_async = update_wrapper(
+        render_async, Template.render_async)
     Template.render = wrap_render_func(Template.render)
-    Template._get_default_module = wrap_default_module(Template._get_default_module)
+    Template._get_default_module = wrap_default_module(
+        Template._get_default_module)
     Template._get_default_module_async = get_default_module_async
     Template.make_module_async = update_wrapper(
-        make_module_async, Template.make_module_async
-    )
+        make_module_async, Template.make_module_async)
 
 
 def patch_runtime():
-    from .runtime import BlockReference, Macro
-
-    BlockReference.__call__ = wrap_block_reference_call(BlockReference.__call__)
+    from jinja2.runtime import BlockReference, Macro
+    BlockReference.__call__ = wrap_block_reference_call(
+        BlockReference.__call__)
     Macro._invoke = wrap_macro_invoke(Macro._invoke)
 
 
 def patch_filters():
-    from .filters import FILTERS
-    from .asyncfilters import ASYNC_FILTERS
-
+    from jinja2.filters import FILTERS
+    from jinja2.asyncfilters import ASYNC_FILTERS
     FILTERS.update(ASYNC_FILTERS)
 
 
@@ -176,7 +179,7 @@ async def auto_await(value):
 
 
 async def auto_aiter(iterable):
-    if hasattr(iterable, "__aiter__"):
+    if hasattr(iterable, '__aiter__'):
         async for item in iterable:
             yield item
         return
@@ -184,81 +187,70 @@ async def auto_aiter(iterable):
         yield item
 
 
-class AsyncLoopContext(LoopContext):
-    _to_iterator = staticmethod(auto_aiter)
+class AsyncLoopContext(LoopContextBase):
+
+    def __init__(self, async_iterator, undefined, after, length, recurse=None,
+                 depth0=0):
+        LoopContextBase.__init__(self, undefined, recurse, depth0)
+        self._async_iterator = async_iterator
+        self._after = after
+        self._length = length
 
     @property
-    async def length(self):
-        if self._length is not None:
-            return self._length
-
-        try:
-            self._length = len(self._iterable)
-        except TypeError:
-            iterable = [x async for x in self._iterator]
-            self._iterator = self._to_iterator(iterable)
-            self._length = len(iterable) + self.index + (self._after is not missing)
-
+    def length(self):
+        if self._length is None:
+            raise TypeError('Loop length for some iterators cannot be '
+                            'lazily calculated in async mode')
         return self._length
 
-    @property
-    async def revindex0(self):
-        return await self.length - self.index
+    def __aiter__(self):
+        return AsyncLoopContextIterator(self)
 
-    @property
-    async def revindex(self):
-        return await self.length - self.index0
 
-    async def _peek_next(self):
-        if self._after is not missing:
-            return self._after
+class AsyncLoopContextIterator(object):
+    __slots__ = ('context',)
 
-        try:
-            self._after = await self._iterator.__anext__()
-        except StopAsyncIteration:
-            self._after = missing
-
-        return self._after
-
-    @property
-    async def last(self):
-        return await self._peek_next() is missing
-
-    @property
-    async def nextitem(self):
-        rv = await self._peek_next()
-
-        if rv is missing:
-            return self._undefined("there is no next item")
-
-        return rv
+    def __init__(self, context):
+        self.context = context
 
     def __aiter__(self):
         return self
 
     async def __anext__(self):
-        if self._after is not missing:
-            rv = self._after
-            self._after = missing
-        else:
-            rv = await self._iterator.__anext__()
-
-        self.index0 += 1
-        self._before = self._current
-        self._current = rv
-        return rv, self
+        ctx = self.context
+        ctx.index0 += 1
+        if ctx._after is _last_iteration:
+            raise StopAsyncIteration()
+        ctx._before = ctx._current
+        ctx._current = ctx._after
+        try:
+            ctx._after = await ctx._async_iterator.__anext__()
+        except StopAsyncIteration:
+            ctx._after = _last_iteration
+        return ctx._current, ctx
 
 
 async def make_async_loop_context(iterable, undefined, recurse=None, depth0=0):
-    import warnings
-
-    warnings.warn(
-        "This template must be recompiled with at least Jinja 2.11, or"
-        " it will fail in 3.0.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return AsyncLoopContext(iterable, undefined, recurse, depth0)
-
-
-patch_all()
+    # Length is more complicated and less efficient in async mode.  The
+    # reason for this is that we cannot know if length will be used
+    # upfront but because length is a property we cannot lazily execute it
+    # later.  This means that we need to buffer it up and measure :(
+    #
+    # We however only do this for actual iterators, not for async
+    # iterators as blocking here does not seem like the best idea in the
+    # world.
+    try:
+        length = len(iterable)
+    except (TypeError, AttributeError):
+        if not hasattr(iterable, '__aiter__'):
+            iterable = tuple(iterable)
+            length = len(iterable)
+        else:
+            length = None
+    async_iterator = auto_aiter(iterable)
+    try:
+        after = await async_iterator.__anext__()
+    except StopAsyncIteration:
+        after = _last_iteration
+    return AsyncLoopContext(async_iterator, undefined, after, length, recurse,
+                            depth0)

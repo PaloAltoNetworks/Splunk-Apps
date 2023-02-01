@@ -1,35 +1,29 @@
 from __future__ import absolute_import
-
+from contextlib import contextmanager
+import zlib
 import io
 import logging
-import zlib
-from contextlib import contextmanager
-from socket import error as SocketError
 from socket import timeout as SocketTimeout
+from socket import error as SocketError
 
 try:
-    try:
-        import brotlicffi as brotli
-    except ImportError:
-        import brotli
+    import brotli
 except ImportError:
     brotli = None
 
 from ._collections import HTTPHeaderDict
-from .connection import BaseSSLError, HTTPException
 from .exceptions import (
     BodyNotHttplibCompatible,
-    DecodeError,
-    HTTPError,
-    IncompleteRead,
-    InvalidChunkLength,
-    InvalidHeader,
     ProtocolError,
+    DecodeError,
     ReadTimeoutError,
     ResponseNotChunked,
-    SSLError,
+    IncompleteRead,
+    InvalidHeader,
 )
-from .packages import six
+from .packages.six import string_types as basestring, PY3
+from .packages.six.moves import http_client as httplib
+from .connection import HTTPException, BaseSSLError
 from .util.response import is_fp_closed, is_response_to_head
 
 log = logging.getLogger(__name__)
@@ -112,10 +106,11 @@ if brotli is not None:
         # are for 'brotlipy' and bottom branches for 'Brotli'
         def __init__(self):
             self._obj = brotli.Decompressor()
+
+        def decompress(self, data):
             if hasattr(self._obj, "decompress"):
-                self.decompress = self._obj.decompress
-            else:
-                self.decompress = self._obj.process
+                return self._obj.decompress(data)
+            return self._obj.process(data)
 
         def flush(self):
             if hasattr(self._obj, "flush"):
@@ -161,13 +156,13 @@ class HTTPResponse(io.IOBase):
     """
     HTTP Response container.
 
-    Backwards-compatible with :class:`http.client.HTTPResponse` but the response ``body`` is
+    Backwards-compatible to httplib's HTTPResponse but the response ``body`` is
     loaded and decoded on-demand when the ``data`` property is accessed.  This
     class is also compatible with the Python standard library's :mod:`io`
     module, and can hence be treated as a readable object in the context of that
     framework.
 
-    Extra parameters for behaviour not present in :class:`http.client.HTTPResponse`:
+    Extra parameters for behaviour not present in httplib.HTTPResponse:
 
     :param preload_content:
         If True, the response's body will be preloaded during construction.
@@ -177,7 +172,7 @@ class HTTPResponse(io.IOBase):
         'content-encoding' header.
 
     :param original_response:
-        When this HTTPResponse wrapper is generated from an :class:`http.client.HTTPResponse`
+        When this HTTPResponse wrapper is generated from an httplib.HTTPResponse
         object, it's convenient to include the original for debug purposes. It's
         otherwise unused.
 
@@ -237,7 +232,7 @@ class HTTPResponse(io.IOBase):
         self.msg = msg
         self._request_url = request_url
 
-        if body and isinstance(body, (six.string_types, bytes)):
+        if body and isinstance(body, (basestring, bytes)):
             self._body = body
 
         self._pool = pool
@@ -282,20 +277,9 @@ class HTTPResponse(io.IOBase):
         self._pool._put_conn(self._connection)
         self._connection = None
 
-    def drain_conn(self):
-        """
-        Read and discard any remaining HTTP response data in the response connection.
-
-        Unread data in the HTTPResponse connection blocks the connection from being released back to the pool.
-        """
-        try:
-            self.read()
-        except (HTTPError, SocketError, BaseSSLError, HTTPException):
-            pass
-
     @property
     def data(self):
-        # For backwards-compat with earlier urllib3 0.4 and earlier.
+        # For backwords-compat with earlier urllib3 0.4 and earlier.
         if self._body:
             return self._body
 
@@ -312,8 +296,8 @@ class HTTPResponse(io.IOBase):
     def tell(self):
         """
         Obtain the number of bytes pulled over the wire so far. May differ from
-        the amount of content returned by :meth:``urllib3.response.HTTPResponse.read``
-        if bytes are encoded on the wire (e.g, compressed).
+        the amount of content returned by :meth:``HTTPResponse.read`` if bytes
+        are encoded on the wire (e.g, compressed).
         """
         return self._fp_bytes_read
 
@@ -447,9 +431,10 @@ class HTTPResponse(io.IOBase):
 
             except BaseSSLError as e:
                 # FIXME: Is there a better way to differentiate between SSLErrors?
-                if "read operation timed out" not in str(e):
-                    # SSL errors related to framing/MAC get wrapped and reraised here
-                    raise SSLError(e)
+                if "read operation timed out" not in str(e):  # Defensive:
+                    # This shouldn't happen but just in case we're missing an edge
+                    # case, let's avoid swallowing SSL errors.
+                    raise
 
                 raise ReadTimeoutError(self._pool, None, "Read timed out.")
 
@@ -483,7 +468,7 @@ class HTTPResponse(io.IOBase):
 
     def read(self, amt=None, decode_content=None, cache_content=False):
         """
-        Similar to :meth:`http.client.HTTPResponse.read`, but with two additional
+        Similar to :meth:`httplib.HTTPResponse.read`, but with two additional
         parameters: ``decode_content`` and ``cache_content``.
 
         :param amt:
@@ -584,7 +569,7 @@ class HTTPResponse(io.IOBase):
     @classmethod
     def from_httplib(ResponseCls, r, **response_kw):
         """
-        Given an :class:`http.client.HTTPResponse` instance ``r``, return a
+        Given an :class:`httplib.HTTPResponse` instance ``r``, return a
         corresponding :class:`urllib3.response.HTTPResponse` object.
 
         Remaining parameters are passed to the HTTPResponse constructor, along
@@ -593,11 +578,11 @@ class HTTPResponse(io.IOBase):
         headers = r.msg
 
         if not isinstance(headers, HTTPHeaderDict):
-            if six.PY2:
+            if PY3:
+                headers = HTTPHeaderDict(headers.items())
+            else:
                 # Python 2.7
                 headers = HTTPHeaderDict.from_httplib(headers)
-            else:
-                headers = HTTPHeaderDict(headers.items())
 
         # HTTPResponse objects in Python 3 don't have a .strict attribute
         strict = getattr(r, "strict", 0)
@@ -613,7 +598,7 @@ class HTTPResponse(io.IOBase):
         )
         return resp
 
-    # Backwards-compatibility methods for http.client.HTTPResponse
+    # Backwards-compatibility methods for httplib.HTTPResponse
     def getheaders(self):
         return self.headers
 
@@ -683,8 +668,8 @@ class HTTPResponse(io.IOBase):
     def supports_chunked_reads(self):
         """
         Checks if the underlying file-like object looks like a
-        :class:`http.client.HTTPResponse` object. We do this by testing for
-        the fp attribute. If it is present we assume it returns raw chunks as
+        httplib.HTTPResponse object. We do this by testing for the fp
+        attribute. If it is present we assume it returns raw chunks as
         processed by read_chunked().
         """
         return hasattr(self._fp, "fp")
@@ -701,7 +686,7 @@ class HTTPResponse(io.IOBase):
         except ValueError:
             # Invalid chunked protocol response, abort.
             self.close()
-            raise InvalidChunkLength(self, line)
+            raise httplib.IncompleteRead(line)
 
     def _handle_chunk(self, amt):
         returned_chunk = None
@@ -748,7 +733,7 @@ class HTTPResponse(io.IOBase):
             )
         if not self.supports_chunked_reads():
             raise BodyNotHttplibCompatible(
-                "Body should be http.client.HTTPResponse like. "
+                "Body should be httplib.HTTPResponse like. "
                 "It should have have an fp attribute which returns raw chunks."
             )
 
@@ -807,7 +792,7 @@ class HTTPResponse(io.IOBase):
             return self._request_url
 
     def __iter__(self):
-        buffer = []
+        buffer = [b""]
         for chunk in self.stream(decode_content=True):
             if b"\n" in chunk:
                 chunk = chunk.split(b"\n")

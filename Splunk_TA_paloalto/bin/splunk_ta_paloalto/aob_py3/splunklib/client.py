@@ -463,13 +463,6 @@ class Service(_BaseService):
         response = self.get("/services/server/info")
         return _filter_content(_load_atom(response, MATCH_ENTRY_CONTENT))
 
-    def input(self, path, kind=None):
-        """Retrieves an input by path, and optionally kind.
-
-        :return: A :class:`Input` object.
-        """
-        return Input(self, path, kind=kind).refresh()
-
     @property
     def inputs(self):
         """Returns the collection of inputs configured on this Splunk instance.
@@ -1207,7 +1200,7 @@ class ReadOnlyCollection(Endpoint):
         :raises ValueError: Raised if no namespace is specified and *key*
                             does not refer to a unique name.
 
-        **Example**::
+        *Example*::
 
             s = client.connect(...)
             saved_searches = s.saved_searches
@@ -1643,9 +1636,9 @@ class Collection(ReadOnlyCollection):
         :rtype: ``dict`` with keys ``body``, ``headers``, ``reason``,
                 and ``status``
 
-        **Example**::
+        Example:
 
-            import splunklib.client
+        import splunklib.client
             s = client.service(...)
             saved_searches = s.saved_searches
             saved_searches.get("my/saved/search") == \\
@@ -1872,7 +1865,7 @@ class StoragePasswords(Collection):
             name = UrlEncoded(realm, encode_slash=True) + ":" + UrlEncoded(username, encode_slash=True)
 
         # Append the : expected at the end of the name
-        if name[-1] != ":":
+        if name[-1] is not ":":
             name = name + ":"
         return Collection.delete(self, name)
 
@@ -3576,7 +3569,7 @@ class KVStoreCollection(Entity):
     def data(self):
         """Returns data object for this Collection.
 
-        :rtype: :class:`KVStoreCollectionData`
+        :rtype: :class:`KVStoreData`
         """
         return KVStoreCollectionData(self)
 

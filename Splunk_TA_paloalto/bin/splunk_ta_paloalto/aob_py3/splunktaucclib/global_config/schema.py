@@ -1,19 +1,5 @@
-#
-# Copyright 2021 Splunk Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 
+from __future__ import absolute_import
 
 import traceback
 
@@ -21,6 +7,7 @@ from ..rest_handler.schema import RestSchema, RestSchemaError
 
 
 class GlobalConfigSchema(RestSchema):
+
     def __init__(self, content, *args, **kwargs):
         """
 
@@ -28,7 +15,7 @@ class GlobalConfigSchema(RestSchema):
         :param args:
         :param kwargs:
         """
-        super().__init__(*args, **kwargs)
+        super(GlobalConfigSchema, self).__init__(*args, **kwargs)
         self._content = content
         self._inputs = []
         self._configs = []
@@ -38,20 +25,24 @@ class GlobalConfigSchema(RestSchema):
             self._parse()
         except Exception:
             raise RestSchemaError(
-                "Invalid Global Config Schema: %s" % traceback.format_exc(),
+                'Invalid Global Config Schema: %s' % traceback.format_exc(),
             )
 
     @property
     def product(self):
-        return self._meta["name"]
+        return self._meta['name']
 
     @property
     def namespace(self):
-        return self._meta["restRoot"]
+        return self._meta['restRoot']
 
     @property
     def admin_match(self):
-        return ""
+        return ''
+
+    @property
+    def version(self):
+        return self._meta['apiVersion']
 
     @property
     def inputs(self):
@@ -66,21 +57,21 @@ class GlobalConfigSchema(RestSchema):
         return self._settings
 
     def _parse(self):
-        self._meta = self._content["meta"]
-        pages = self._content["pages"]
-        self._parse_configuration(pages.get("configuration"))
-        self._parse_inputs(pages.get("inputs"))
+        self._meta = self._content['meta']
+        pages = self._content['pages']
+        self._parse_configuration(pages.get('configuration'))
+        self._parse_inputs(pages.get('inputs'))
 
     def _parse_configuration(self, configurations):
-        if not configurations or "tabs" not in configurations:
+        if not configurations or 'tabs' not in configurations:
             return
-        for configuration in configurations["tabs"]:
-            if "table" in configuration:
+        for configuration in configurations['tabs']:
+            if 'table' in configuration:
                 self._configs.append(configuration)
             else:
                 self._settings.append(configuration)
 
     def _parse_inputs(self, inputs):
-        if not inputs or "services" not in inputs:
+        if not inputs or 'services' not in inputs:
             return
-        self._inputs = inputs["services"]
+        self._inputs = inputs['services']
