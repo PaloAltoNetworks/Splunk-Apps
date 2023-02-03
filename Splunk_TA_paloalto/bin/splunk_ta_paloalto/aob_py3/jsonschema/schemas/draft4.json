@@ -111,7 +111,9 @@
             "type": "string"
         },
         "enum": {
-            "type": "array"
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
         },
         "exclusiveMaximum": {
             "default": false,

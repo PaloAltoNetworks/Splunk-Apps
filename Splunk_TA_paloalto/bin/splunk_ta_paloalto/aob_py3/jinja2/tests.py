@@ -1,17 +1,24 @@
 # -*- coding: utf-8 -*-
-"""Built-in template tests used with the ``is`` operator."""
-import decimal
+"""
+    jinja2.tests
+    ~~~~~~~~~~~~
+
+    Jinja test functions. Used with the "is" operator.
+
+    :copyright: (c) 2017 by the Jinja Team.
+    :license: BSD, see LICENSE for more details.
+"""
 import operator
 import re
+from collections import Mapping
+from jinja2.runtime import Undefined
+from jinja2._compat import text_type, string_types, integer_types
+import decimal
 
-from ._compat import abc
-from ._compat import integer_types
-from ._compat import string_types
-from ._compat import text_type
-from .runtime import Undefined
-
-number_re = re.compile(r"^-?\d+(\.\d+)?$")
+number_re = re.compile(r'^-?\d+(\.\d+)?$')
 regex_type = type(number_re)
+
+
 test_callable = callable
 
 
@@ -57,48 +64,6 @@ def test_none(value):
     return value is None
 
 
-def test_boolean(value):
-    """Return true if the object is a boolean value.
-
-    .. versionadded:: 2.11
-    """
-    return value is True or value is False
-
-
-def test_false(value):
-    """Return true if the object is False.
-
-    .. versionadded:: 2.11
-    """
-    return value is False
-
-
-def test_true(value):
-    """Return true if the object is True.
-
-    .. versionadded:: 2.11
-    """
-    return value is True
-
-
-# NOTE: The existing 'number' test matches booleans and floats
-def test_integer(value):
-    """Return true if the object is an integer.
-
-    .. versionadded:: 2.11
-    """
-    return isinstance(value, integer_types) and value is not True and value is not False
-
-
-# NOTE: The existing 'number' test matches booleans and integers
-def test_float(value):
-    """Return true if the object is a float.
-
-    .. versionadded:: 2.11
-    """
-    return isinstance(value, float)
-
-
 def test_lower(value):
     """Return true if the variable is lowercased."""
     return text_type(value).islower()
@@ -119,7 +84,7 @@ def test_mapping(value):
 
     .. versionadded:: 2.6
     """
-    return isinstance(value, abc.Mapping)
+    return isinstance(value, Mapping)
 
 
 def test_number(value):
@@ -134,7 +99,7 @@ def test_sequence(value):
     try:
         len(value)
         value.__getitem__
-    except Exception:
+    except:
         return False
     return True
 
@@ -163,7 +128,7 @@ def test_iterable(value):
 
 def test_escaped(value):
     """Check if the value is escaped."""
-    return hasattr(value, "__html__")
+    return hasattr(value, '__html__')
 
 
 def test_in(value, seq):
@@ -175,41 +140,36 @@ def test_in(value, seq):
 
 
 TESTS = {
-    "odd": test_odd,
-    "even": test_even,
-    "divisibleby": test_divisibleby,
-    "defined": test_defined,
-    "undefined": test_undefined,
-    "none": test_none,
-    "boolean": test_boolean,
-    "false": test_false,
-    "true": test_true,
-    "integer": test_integer,
-    "float": test_float,
-    "lower": test_lower,
-    "upper": test_upper,
-    "string": test_string,
-    "mapping": test_mapping,
-    "number": test_number,
-    "sequence": test_sequence,
-    "iterable": test_iterable,
-    "callable": test_callable,
-    "sameas": test_sameas,
-    "escaped": test_escaped,
-    "in": test_in,
-    "==": operator.eq,
-    "eq": operator.eq,
-    "equalto": operator.eq,
-    "!=": operator.ne,
-    "ne": operator.ne,
-    ">": operator.gt,
-    "gt": operator.gt,
-    "greaterthan": operator.gt,
-    "ge": operator.ge,
-    ">=": operator.ge,
-    "<": operator.lt,
-    "lt": operator.lt,
-    "lessthan": operator.lt,
-    "<=": operator.le,
-    "le": operator.le,
+    'odd':              test_odd,
+    'even':             test_even,
+    'divisibleby':      test_divisibleby,
+    'defined':          test_defined,
+    'undefined':        test_undefined,
+    'none':             test_none,
+    'lower':            test_lower,
+    'upper':            test_upper,
+    'string':           test_string,
+    'mapping':          test_mapping,
+    'number':           test_number,
+    'sequence':         test_sequence,
+    'iterable':         test_iterable,
+    'callable':         test_callable,
+    'sameas':           test_sameas,
+    'escaped':          test_escaped,
+    'in':               test_in,
+    '==':               operator.eq,
+    'eq':               operator.eq,
+    'equalto':          operator.eq,
+    '!=':               operator.ne,
+    'ne':               operator.ne,
+    '>':                operator.gt,
+    'gt':               operator.gt,
+    'greaterthan':      operator.gt,
+    'ge':               operator.ge,
+    '>=':               operator.ge,
+    '<':                operator.lt,
+    'lt':               operator.lt,
+    'lessthan':         operator.lt,
+    '<=':               operator.le,
+    'le':               operator.le,
 }
