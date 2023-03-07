@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: munch
+Version: 2.3.2
+Summary: A dot-accessible dictionary (a la JavaScript objects).
+Home-page: http://github.com/Infinidat/munch
+Author: Rotem Yaari
+Author-email: vmalloc@gmail.com
+License: MIT
+Keywords: munch,dict,mapping,container,collection
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Utilities
+Classifier: License :: OSI Approved :: MIT License
+License-File: LICENSE.txt
+Requires-Dist: six
+
+UNKNOWN
+

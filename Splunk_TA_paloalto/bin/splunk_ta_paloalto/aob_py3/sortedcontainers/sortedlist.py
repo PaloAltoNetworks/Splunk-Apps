@@ -16,6 +16,9 @@ Sorted list implementations:
 # pylint: disable=too-many-lines
 from __future__ import print_function
 
+import sys
+import traceback
+
 from bisect import bisect_left, bisect_right, insort
 from itertools import chain, repeat, starmap
 from math import log
@@ -336,7 +339,8 @@ class SortedList(MutableSequence):
 
         if _maxes:
             if len(values) * 4 >= self._len:
-                values.extend(chain.from_iterable(_lists))
+                _lists.append(values)
+                values = reduce(iadd, _lists, [])
                 values.sort()
                 self._clear()
             else:
@@ -837,19 +841,27 @@ class SortedList(MutableSequence):
             start, stop, step = index.indices(self._len)
 
             if step == 1 and start < stop:
+                # Whole slice optimization: start to stop slices the whole
+                # sorted list.
+
                 if start == 0 and stop == self._len:
                     return reduce(iadd, self._lists, [])
 
                 start_pos, start_idx = self._pos(start)
+                start_list = _lists[start_pos]
+                stop_idx = start_idx + stop - start
+
+                # Small slice optimization: start index and stop index are
+                # within the start list.
+
+                if len(start_list) >= stop_idx:
+                    return start_list[start_idx:stop_idx]
 
                 if stop == self._len:
                     stop_pos = len(_lists) - 1
                     stop_idx = len(_lists[stop_pos])
                 else:
                     stop_pos, stop_idx = self._pos(stop)
-
-                if start_pos == stop_pos:
-                    return _lists[start_pos][start_idx:stop_idx]
 
                 prefix = _lists[start_pos][start_idx:]
                 middle = _lists[(start_pos + 1):stop_pos]
@@ -1187,7 +1199,7 @@ class SortedList(MutableSequence):
         """Return an index to insert `value` in the sorted list.
 
         Similar to `bisect_left`, but if `value` is already present, the
-        insertion point with be after (to the right of) any existing values.
+        insertion point will be after (to the right of) any existing values.
 
         Similar to the `bisect` module in the standard library.
 
@@ -1580,6 +1592,11 @@ class SortedList(MutableSequence):
     __make_cmp = staticmethod(__make_cmp)
 
 
+    def __reduce__(self):
+        values = reduce(iadd, self._lists, [])
+        return (type(self), (values,))
+
+
     @recursive_repr()
     def __repr__(self):
         """Return string representation of sorted list.
@@ -1653,8 +1670,6 @@ class SortedList(MutableSequence):
                         child_sum = self._index[child] + self._index[child + 1]
                         assert child_sum == self._index[pos]
         except:
-            import sys
-            import traceback
             traceback.print_exc(file=sys.stdout)
             print('len', self._len)
             print('load', self._load)
@@ -1864,7 +1879,8 @@ class SortedKeyList(SortedList):
 
         if _maxes:
             if len(values) * 4 >= self._len:
-                values.extend(chain.from_iterable(_lists))
+                _lists.append(values)
+                values = reduce(iadd, _lists, [])
                 values.sort(key=self._key)
                 self._clear()
             else:
@@ -2243,7 +2259,7 @@ class SortedKeyList(SortedList):
         """Return an index to insert `value` in the sorted-key list.
 
         Similar to `bisect_left`, but if `value` is already present, the
-        insertion point with be after (to the right of) any existing values.
+        insertion point will be after (to the right of) any existing values.
 
         Similar to the `bisect` module in the standard library.
 
@@ -2303,7 +2319,7 @@ class SortedKeyList(SortedList):
         """Return an index to insert `key` in the sorted-key list.
 
         Similar to `bisect_key_left`, but if `key` is already present, the
-        insertion point with be after (to the right of) any existing keys.
+        insertion point will be after (to the right of) any existing keys.
 
         Similar to the `bisect` module in the standard library.
 
@@ -2526,6 +2542,11 @@ class SortedKeyList(SortedList):
         return self.__class__(values, key=self._key)
 
 
+    def __reduce__(self):
+        values = reduce(iadd, self._lists, [])
+        return (type(self), (values, self.key))
+
+
     @recursive_repr()
     def __repr__(self):
         """Return string representation of sorted-key list.
@@ -2607,8 +2628,6 @@ class SortedKeyList(SortedList):
                         child_sum = self._index[child] + self._index[child + 1]
                         assert child_sum == self._index[pos]
         except:
-            import sys
-            import traceback
             traceback.print_exc(file=sys.stdout)
             print('len', self._len)
             print('load', self._load)
