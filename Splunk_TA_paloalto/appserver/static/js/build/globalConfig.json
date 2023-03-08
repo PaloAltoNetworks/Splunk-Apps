@@ -429,10 +429,9 @@
                             "type": "text",
                             "validators": [
                                 {
-                                    "type": "string",
-                                    "minLength": 0,
-                                    "maxLength": 8192,
-                                    "errorMsg": "Max length of text input is 8192"
+                                    "type": "regex",
+                                    "pattern": "^[^https://][a-zA-Z0-9.:/]*$",
+                                    "errorMsg": "Remove feed URL protocal(http(s)://). Invalid Feed URL."
                                 }
                             ]
                         },
