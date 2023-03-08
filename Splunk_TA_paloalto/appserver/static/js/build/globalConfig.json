@@ -424,7 +424,7 @@
                         {
                             "field": "feed_url",
                             "label": "  Output Node Feed URL",
-                            "help": "",
+                            "help": "https://<feed_url>",
                             "required": true,
                             "type": "text",
                             "validators": [
