@@ -30,7 +30,7 @@
         field-name    = ( "_" / alpha ) *( alpha / digit / "_" / "." / "-" )
 
      It does not show that :code:`field-name` values may be comma-separated. This is because Splunk strips commas from
-    the command line. A search command will never see them.
+     the command line. A search command will never see them.
 
   2. Search commands targeting versions of Splunk prior to 6.3 must be statically configured as follows:
 
@@ -134,9 +134,13 @@
 
 .. topic:: References
 
-  1. `Search command style guide <http://docs.splunk.com/Documentation/Splunk/6.0/Search/Searchcommandstyleguide>`_
+  1. `Custom Search Command manual: <https://dev.splunk.com/enterprise/docs/devtools/customsearchcommands>`__
 
-  2. `Commands.conf.spec <http://docs.splunk.com/Documentation/Splunk/5.0.5/Admin/Commandsconf>`_
+  2. `Create Custom Search Commands with commands.conf.spec <http://docs.splunk.com/Documentation/Splunk/latest/Admin/Commandsconf>`_
+
+  3. `Configure seach assistant with searchbnf.conf <https://docs.splunk.com/Documentation/Splunk/latest/Admin/Searchbnfconf>`_
+  
+  4. `Control search distribution with distsearch.conf <https://docs.splunk.com/Documentation/Splunk/latest/Admin/Distsearchconf>`_
 
 """
 

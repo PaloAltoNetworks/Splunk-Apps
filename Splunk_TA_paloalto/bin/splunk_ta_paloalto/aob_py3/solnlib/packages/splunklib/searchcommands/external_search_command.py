@@ -20,7 +20,7 @@ from logging import getLogger
 import os
 import sys
 import traceback
-from .. import six
+from splunklib import six
 
 if sys.platform == 'win32':
     from signal import signal, CTRL_BREAK_EVENT, SIGBREAK, SIGINT, SIGTERM
@@ -105,13 +105,13 @@ class ExternalSearchCommand(object):
 
             :param argv: Argument list.
             :type argv: list or tuple
-            The arguments to the child process should start with the name of the command being run, but this is not
-            enforced. A value of :const:`None` specifies that the base name of path name :param:`path` should be used.
+                The arguments to the child process should start with the name of the command being run, but this is not
+                enforced. A value of :const:`None` specifies that the base name of path name :param:`path` should be used.
 
             :param environ: A mapping which is used to define the environment variables for the new process.
             :type environ: dict or None.
-            This mapping is used instead of the current process’s environment. A value of :const:`None` specifies that
-            the :data:`os.environ` mapping should be used.
+                This mapping is used instead of the current process’s environment. A value of :const:`None` specifies that
+                the :data:`os.environ` mapping should be used.
 
             :return: None
 

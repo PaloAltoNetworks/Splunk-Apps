@@ -19,7 +19,7 @@ format, which is the format used by most of the REST API.
 from __future__ import absolute_import
 import sys
 from xml.etree.ElementTree import XML
-from . import six
+from splunklib import six
 
 __all__ = ["load"]
 
@@ -161,8 +161,8 @@ def load_value(element, nametable=None):
         text = element.text
         if text is None: 
             return None
-        text = text.strip()
-        if len(text) == 0: 
+
+        if len(text.strip()) == 0:
             return None
         return text
 
