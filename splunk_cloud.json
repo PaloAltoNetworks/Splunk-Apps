@@ -1,0 +1,20 @@
+{
+  "time": 1437522387,
+  "host": "stream-logfwd20",
+  "source": "Palo Alto Networks FLS LF",
+  "event": {
+    "LogType": "THREAT",
+    "Severity": "Critical",
+    ...
+  }
+}
+{
+  "time": 1437522387,
+  "host": "stream-logfwd20",
+  "source": "Palo Alto Networks FLS LF",
+  "event": {
+    "LogType": "THREAT",
+    "Severity": "Info",
+    ...
+  }
+e
