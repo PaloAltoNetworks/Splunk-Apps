@@ -1,17 +1,31 @@
-from builtins import object
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 import threading
 
+from ..common.log import get_cc_logger
 from . import defaults
 from .exceptions import HTTPError, StopCCEIteration
 from .http import HttpClient
-from ..common.log import get_cc_logger
 
 _logger = get_cc_logger()
 
 
-class CloudConnectEngine(object):
+class CloudConnectEngine:
     """The cloud connect engine to process request instantiated
-     from user options."""
+    from user options."""
 
     def __init__(self):
         self._stopped = False
@@ -23,17 +37,17 @@ class CloudConnectEngine(object):
 
     def start(self, context, config, checkpoint_mgr):
         """Start current client instance to execute each request parsed
-         from config.
+        from config.
         """
         if not config:
-            raise ValueError('Config must not be empty')
+            raise ValueError("Config must not be empty")
 
         context = context or {}
         global_setting = config.global_settings
 
         CloudConnectEngine._set_logging(global_setting.logging)
 
-        _logger.info('Start to execute requests jobs.')
+        _logger.info("Start to execute requests jobs.")
         processed = 0
 
         for request in config.requests:
@@ -47,34 +61,33 @@ class CloudConnectEngine(object):
             job.run()
 
             processed += 1
-            _logger.info('%s job(s) process finished', processed)
+            _logger.info("%s job(s) process finished", processed)
 
             if self._stopped:
-                _logger.info(
-                    'Engine has been stopped, stopping to execute jobs.')
+                _logger.info("Engine has been stopped, stopping to execute jobs.")
                 break
 
         self._stopped = True
-        _logger.info('Engine executing finished')
+        _logger.info("Engine executing finished")
 
     def stop(self):
         """Stops engine and running job. Do nothing if engine already
         been stopped."""
         if self._stopped:
-            _logger.info('Engine already stopped, do nothing.')
+            _logger.info("Engine already stopped, do nothing.")
             return
 
-        _logger.info('Stopping engine')
+        _logger.info("Stopping engine")
 
         if self._running_job:
-            _logger.info('Attempting to stop the running job.')
+            _logger.info("Attempting to stop the running job.")
             self._running_job.terminate()
-            _logger.info('Stopping job finished.')
+            _logger.info("Stopping job finished.")
 
         self._stopped = True
 
 
-class Job(object):
+class Job:
     """Job class represents a single request to send HTTP request until
     reached it's stop condition.
     """
@@ -106,27 +119,30 @@ class Job(object):
     def _get_max_iteration_count(self):
         mode_max_count = self._iteration_mode.iteration_count
         default_max_count = defaults.max_iteration_count
-        return min(default_max_count, mode_max_count) \
-            if mode_max_count > 0 else default_max_count
+        return (
+            min(default_max_count, mode_max_count)
+            if mode_max_count > 0
+            else default_max_count
+        )
 
     def terminate(self, block=True, timeout=30):
         """Terminate this job, the current thread will blocked util
-        the job is terminate finished if block is True """
+        the job is terminate finished if block is True"""
         if self.is_stopped():
-            _logger.info('Job already been stopped.')
+            _logger.info("Job already been stopped.")
             return
 
         if self._running_thread == threading.current_thread():
-            _logger.warning('Job cannot terminate itself.')
+            _logger.warning("Job cannot terminate itself.")
             return
 
-        _logger.info('Stopping job')
+        _logger.info("Stopping job")
         self._should_stop = True
 
         if not block:
             return
         if not self._terminated.wait(timeout):
-            _logger.warning('Terminating job timeout.')
+            _logger.warning("Terminating job timeout.")
 
     def _set_context(self, key, value):
         self._context[key] = value
@@ -146,12 +162,11 @@ class Job(object):
         pre_processor = self._request.pre_process
 
         if pre_processor.should_skipped(self._context):
-            _logger.info('Skip pre process condition satisfied, do nothing')
+            _logger.info("Skip pre process condition satisfied, do nothing")
             return
 
         tasks = pre_processor.pipeline
-        _logger.debug(
-            'Got %s tasks need be executed before process', len(tasks))
+        _logger.debug("Got %s tasks need be executed before process", len(tasks))
         self._execute_tasks(tasks)
 
     def _on_post_process(self):
@@ -161,21 +176,18 @@ class Job(object):
         post_processor = self._request.post_process
 
         if post_processor.should_skipped(self._context):
-            _logger.info('Skip post process condition satisfied, '
-                         'do nothing')
+            _logger.info("Skip post process condition satisfied, " "do nothing")
             return
 
         tasks = post_processor.pipeline
-        _logger.debug(
-            'Got %s tasks need to be executed after process', len(tasks)
-        )
+        _logger.debug("Got %s tasks need to be executed after process", len(tasks))
         self._execute_tasks(tasks)
 
     def _update_checkpoint(self):
         """Updates checkpoint based on checkpoint namespace and content."""
         checkpoint = self._request.checkpoint
         if not checkpoint:
-            _logger.info('Checkpoint not specified, do not update it.')
+            _logger.info("Checkpoint not specified, do not update it.")
             return
 
         self._checkpoint_mgr.update_ckpt(
@@ -186,7 +198,7 @@ class Job(object):
     def _get_checkpoint(self):
         checkpoint = self._request.checkpoint
         if not checkpoint:
-            _logger.info('Checkpoint not specified, do not read it.')
+            _logger.info("Checkpoint not specified, do not read it.")
             return
 
         namespaces = checkpoint.normalize_namespace(self._context)
@@ -198,14 +210,15 @@ class Job(object):
         """Check if repeat mode conditions satisfied."""
         if self._request_iterated_count >= self._max_iteration_count:
             _logger.info(
-                'Job iteration count is %s, current request count is %s,'
-                ' stop condition satisfied.',
-                self._max_iteration_count, self._request_iterated_count
+                "Job iteration count is %s, current request count is %s,"
+                " stop condition satisfied.",
+                self._max_iteration_count,
+                self._request_iterated_count,
             )
             return True
 
         if self._iteration_mode.passed(self._context):
-            _logger.info('Job stop condition satisfied.')
+            _logger.info("Job stop condition satisfied.")
             return True
 
         return False
@@ -215,25 +228,25 @@ class Job(object):
         return self._stopped
 
     def run(self):
-        """Start job and exit util meet stop condition. """
-        _logger.info('Start to process job')
+        """Start job and exit util meet stop condition."""
+        _logger.info("Start to process job")
 
         self._stopped = False
         try:
             self._running_thread = threading.current_thread()
             self._run()
         except Exception:
-            _logger.exception('Error encountered while running job.')
+            _logger.exception("Error encountered while running job.")
             raise
         finally:
             self._terminated.set()
             self._stopped = True
 
-        _logger.info('Job processing finished')
+        _logger.info("Job processing finished")
 
     def _check_should_stop(self):
         if self._should_stop:
-            _logger.info('Job should been stopped.')
+            _logger.info("Job should been stopped.")
         return self._should_stop
 
     def _run(self):
@@ -248,7 +261,9 @@ class Job(object):
             try:
                 self._on_pre_process()
             except StopCCEIteration:
-                _logger.info('Stop iteration command in pre process is received, exit job now.')
+                _logger.info(
+                    "Stop iteration command in pre process is received, exit job now."
+                )
                 return
 
             r = request.render(self._context)
@@ -262,18 +277,20 @@ class Job(object):
             response, need_terminate = self._send_request(r)
 
             if need_terminate:
-                _logger.info('This job need to be terminated.')
+                _logger.info("This job need to be terminated.")
                 break
 
             self._request_iterated_count += 1
-            self._set_context('__response__', response)
+            self._set_context("__response__", response)
             if self._check_should_stop():
                 return
 
             try:
                 self._on_post_process()
             except StopCCEIteration:
-                _logger.info('Stop iteration command in post process is received, exit job now.')
+                _logger.info(
+                    "Stop iteration command in post process is received, exit job now."
+                )
                 return
 
             if self._check_should_stop():
@@ -281,7 +298,7 @@ class Job(object):
             self._update_checkpoint()
 
             if self._is_stoppable():
-                _logger.info('Stop condition reached, exit job now')
+                _logger.info("Stop condition reached, exit job now")
                 break
 
     def _send_request(self, request):
@@ -291,26 +308,30 @@ class Job(object):
             response = self._client.send(request)
         except HTTPError as error:
             _logger.exception(
-                'HTTPError reason=%s when sending request to '
-                'url=%s method=%s', error.reason, request.url, request.method)
+                "HTTPError reason=%s when sending request to " "url=%s method=%s",
+                error.reason,
+                request.url,
+                request.method,
+            )
             return None, True
 
         status = response.status_code
 
         if status in defaults.success_statuses:
-            if not (response.body or '').strip():
+            if not (response.body or "").strip():
                 _logger.info(
-                    'The response body of request which url=%s and'
-                    ' method=%s is empty, status=%s.',
-                    request.url, request.method, status
+                    "The response body of request which url=%s and"
+                    " method=%s is empty, status=%s.",
+                    request.url,
+                    request.method,
+                    status,
                 )
                 return None, True
             return response, False
 
-        error_log = ('The response status=%s for request which url=%s and'
-                     ' method=%s.') % (
-                        status, request.url, request.method
-                    )
+        error_log = (
+            "The response status=%s for request which url=%s and" " method=%s."
+        ) % (status, request.url, request.method)
 
         if status in defaults.warning_statuses:
             _logger.warning(error_log)

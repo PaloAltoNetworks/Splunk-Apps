@@ -17,7 +17,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from splunklib import six
 
-from collections import OrderedDict  # must be python 2.7
+try:
+    from collections import OrderedDict  # must be python 2.7
+except ImportError:
+    from ..ordereddict import OrderedDict
 
 from inspect import getmembers, isclass, isfunction
 from splunklib.six.moves import map as imap

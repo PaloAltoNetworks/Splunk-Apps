@@ -1,24 +1,44 @@
-from builtins import object
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 import concurrent.futures as cf
 import threading
 from collections import Iterable
-from ..common.log import get_cc_logger
 from os import path as op
+
+from ..common.log import get_cc_logger
 from .plugin import init_pipeline_plugins
+
 logger = get_cc_logger()
 
 
-class CloudConnectEngine(object):
-
-    def __init__(self, max_workers=4):
+class CloudConnectEngine:
+    def __init__(self, max_workers=4, plugin_dir=""):
+        """
+        Initialize CloudConnectEngine object
+        :param max_workers: maximum number of Threads to execute the given calls
+        :param plugin_dir: Absolute path of directory containing cce_plugin_*.py
+        """
         self._executor = cf.ThreadPoolExecutor(max_workers)
         self._pending_job_results = set()
         self._shutdown = False
         self._pending_jobs = []
         self._counter = 0
         self._lock = threading.RLock()
-        init_pipeline_plugins(
-            op.join(op.dirname(op.dirname(__file__)), "plugin"))
+        plugin_dir = plugin_dir or op.join(op.dirname(op.dirname(__file__)), "plugin")
+        init_pipeline_plugins(plugin_dir)
 
     def start(self, jobs=None):
         """
@@ -39,8 +59,9 @@ class CloudConnectEngine(object):
                     break
                 # check the intermediate results to find the done jobs and not
                 # done jobs
-                done_and_not_done_jobs = cf.wait(self._pending_job_results,
-                                                 return_when=cf.FIRST_COMPLETED)
+                done_and_not_done_jobs = cf.wait(
+                    self._pending_job_results, return_when=cf.FIRST_COMPLETED
+                )
                 self._pending_job_results = done_and_not_done_jobs.not_done
                 done_job_results = done_and_not_done_jobs.done
                 for future in done_job_results:
@@ -53,7 +74,7 @@ class CloudConnectEngine(object):
                                 self._add_job(temp)
                         else:
                             self._add_job(result)
-        except:
+        except Exception:
             logger.exception("CloudConnectEngine encountered exception")
         finally:
             self._teardown()
@@ -71,8 +92,7 @@ class CloudConnectEngine(object):
         result = self._executor.submit(self._invoke_job, job)
         self._pending_job_results.add(result)
         self._counter += 1
-        logger.debug("%s job(s) have been added to the engine now",
-                     self._counter)
+        logger.debug("%s job(s) have been added to the engine now", self._counter)
         return True
 
     def _invoke_job(self, job):
@@ -87,7 +107,7 @@ class CloudConnectEngine(object):
                 return None
             invoke_result = job.run()
             return invoke_result
-        except:
+        except Exception:
             logger.exception("job %s is invoked with exception", job)
             return None
         finally:

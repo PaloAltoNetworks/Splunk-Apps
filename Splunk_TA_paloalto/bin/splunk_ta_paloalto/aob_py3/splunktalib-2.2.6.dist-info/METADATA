@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: splunktalib
+Version: 2.2.6
+Summary: Supporting library for Splunk Add-ons
+Home-page: https://github.com/splunk/addonfactory-ta-library-python
+License: Apache-2.0
+Author: rfaircloth-splunk
+Author-email: rfaircloth@splunk.com
+Requires-Python: >=3.7,<4.0
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: defusedxml (>=0,<1)
+Requires-Dist: httplib2 (>=0,<1)
+Requires-Dist: sortedcontainers (>=2,<3)
+Project-URL: Repository, https://github.com/splunk/addonfactory-ta-library-python
