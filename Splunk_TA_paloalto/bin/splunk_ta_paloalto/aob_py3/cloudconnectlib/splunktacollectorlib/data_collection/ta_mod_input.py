@@ -1,27 +1,41 @@
 #!/usr/bin/python
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 """
 This is the main entry point for My TA
 """
-from __future__ import print_function
-
-from builtins import str
 import os.path as op
 import platform
 import sys
 import time
 
+from solnlib import file_monitor as fm
+from solnlib import orphan_process_monitor as opm
+from solnlib import utils
+from splunktalib import modinput
+from splunktalib.common import util as sc_util
+
+from ...common.lib_util import get_app_root_dir, get_mod_input_script_name
+from ..common import load_schema_file as ld
+from ..common import log as stulog
 from . import ta_checkpoint_manager as cpmgr
 from . import ta_config as tc
 from . import ta_data_client as tdc
 from . import ta_data_loader as dl
-from ..common import load_schema_file as ld
-from ..common import log as stulog
-from ...common.lib_util import get_app_root_dir, get_mod_input_script_name
-from ...splunktalib import file_monitor as fm
-from ...splunktalib import modinput
-from ...splunktalib import orphan_process_monitor as opm
-from ...splunktalib.common import util as utils
 
 utils.remove_http_proxy_env_vars()
 
@@ -29,17 +43,22 @@ __CHECKPOINT_DIR_MAX_LEN__ = 180
 
 
 def do_scheme(
-        mod_input_name,
-        schema_para_list=None,
-        single_instance=True,
+    mod_input_name,
+    schema_para_list=None,
+    single_instance=True,
 ):
     """
     Feed splunkd the TA's scheme
 
     """
     builtin_names = {
-        "name", "index", "sourcetype", "host", "source",
-        "disabled", "interval"
+        "name",
+        "index",
+        "sourcetype",
+        "host",
+        "source",
+        "disabled",
+        "interval",
     }
 
     param_string_list = []
@@ -57,13 +76,18 @@ def do_scheme(
           <required_on_create>0</required_on_create>
           <required_on_edit>0</required_on_edit>
         </arg>
-        """.format(param=param)
+        """.format(
+                param=param
+            )
         )
 
-    description = ("Go to the add-on's configuration UI and configure"
-                   " modular inputs under the Inputs menu.")
+    description = (
+        "Go to the add-on's configuration UI and configure"
+        " modular inputs under the Inputs menu."
+    )
 
-    print("""
+    print(
+        """
     <scheme>
     <title>{data_input_title}</title>
     <description>{description}</description>
@@ -80,11 +104,12 @@ def do_scheme(
     </endpoint>
     </scheme>
     """.format(
-        single_instance=(str(single_instance)).lower(),
-        data_input_title=mod_input_name,
-        param_str=''.join(param_string_list),
-        description=description,
-    ))
+            single_instance=(str(single_instance)).lower(),
+            data_input_title=mod_input_name,
+            param_str="".join(param_string_list),
+            description=description,
+        )
+    )
 
 
 def _setup_signal_handler(data_loader, ta_short_name):
@@ -94,11 +119,11 @@ def _setup_signal_handler(data_loader, ta_short_name):
     """
 
     def _handle_exit(signum, frame):
-        stulog.logger.info("{} receives exit signal".format(ta_short_name))
+        stulog.logger.info(f"{ta_short_name} receives exit signal")
         if data_loader is not None:
             data_loader.tear_down()
 
-    utils.handle_tear_down_signals(_handle_exit)
+    utils.handle_teardown_signals(_handle_exit)
 
 
 def _handle_file_changes(data_loader):
@@ -107,8 +132,7 @@ def _handle_file_changes(data_loader):
     """
 
     def _handle_refresh(changed_files):
-        stulog.logger.info("Detect {} changed, reboot itself".format(
-            changed_files))
+        stulog.logger.info(f"Detect {changed_files} changed, reboot itself")
         data_loader.tear_down()
 
     return _handle_refresh
@@ -127,18 +151,25 @@ def _get_conf_files(settings):
     return [op.join(ta_dir, "local", f) for f in file_list]
 
 
-def run(collector_cls, settings, checkpoint_cls=None, config_cls=None,
-        log_suffix=None, single_instance=True, cc_json_file=None):
+def run(
+    collector_cls,
+    settings,
+    checkpoint_cls=None,
+    config_cls=None,
+    log_suffix=None,
+    single_instance=True,
+    cc_json_file=None,
+):
     """
     Main loop. Run this TA forever
     """
     ta_short_name = settings["meta"]["name"].lower()
 
     # This is for stdout flush
-    utils.disable_stdout_buffer()
+    sc_util.disable_stdout_buffer()
 
     # http://bugs.python.org/issue7980
-    time.strptime('2016-01-01', '%Y-%m-%d')
+    time.strptime("2016-01-01", "%Y-%m-%d")
 
     loader = dl.create_data_loader()
 
@@ -147,8 +178,9 @@ def run(collector_cls, settings, checkpoint_cls=None, config_cls=None,
 
     # monitor files to reboot
     try:
-        monitor = fm.FileMonitor(_handle_file_changes(loader),
-                                 _get_conf_files(settings))
+        monitor = fm.FileMonitor(
+            _handle_file_changes(loader), _get_conf_files(settings)
+        )
         loader.add_timer(monitor.check_changes, time.time(), 10)
     except Exception:
         stulog.logger.exception("Fail to add files for monitoring")
@@ -157,8 +189,9 @@ def run(collector_cls, settings, checkpoint_cls=None, config_cls=None,
     orphan_checker = opm.OrphanProcessChecker(loader.tear_down)
     loader.add_timer(orphan_checker.check_orphan, time.time(), 1)
 
-    tconfig = tc.create_ta_config(settings, config_cls or tc.TaConfig,
-                                  log_suffix, single_instance=single_instance)
+    tconfig = tc.create_ta_config(
+        settings, config_cls or tc.TaConfig, log_suffix, single_instance=single_instance
+    )
     task_configs = tconfig.get_task_configs()
 
     if not task_configs:
@@ -169,17 +202,19 @@ def run(collector_cls, settings, checkpoint_cls=None, config_cls=None,
 
     if tconfig.is_shc_member():
         # Don't support SHC env
-        stulog.logger.error("This host is in search head cluster environment , "
-                            "will exit.")
+        stulog.logger.error(
+            "This host is in search head cluster environment , " "will exit."
+        )
         return
 
     # In this case, use file for checkpoint
-    if _is_checkpoint_dir_length_exceed_limit(tconfig,
-                                              meta_config["checkpoint_dir"]):
-        stulog.logger.error("The length of the checkpoint directory path: '{}' "
-                            "is too long. The max length we support is {}",
-                            meta_config["checkpoint_dir"],
-                            __CHECKPOINT_DIR_MAX_LEN__)
+    if _is_checkpoint_dir_length_exceed_limit(tconfig, meta_config["checkpoint_dir"]):
+        stulog.logger.error(
+            "The length of the checkpoint directory path: '{}' "
+            "is too long. The max length we support is {}",
+            meta_config["checkpoint_dir"],
+            __CHECKPOINT_DIR_MAX_LEN__,
+        )
         return
 
     jobs = [
@@ -189,18 +224,20 @@ def run(collector_cls, settings, checkpoint_cls=None, config_cls=None,
             meta_config,
             task_config,
             collector_cls,
-            checkpoint_cls=checkpoint_cls or cpmgr.TACheckPointMgr
+            checkpoint_cls=checkpoint_cls or cpmgr.TACheckPointMgr,
         )
         for task_config in task_configs
-        ]
+    ]
 
     loader.run(jobs)
 
 
 def _is_checkpoint_dir_length_exceed_limit(config, checkpoint_dir):
-    return platform.system() == 'Windows' \
-           and not config.is_search_head() \
-           and len(checkpoint_dir) >= __CHECKPOINT_DIR_MAX_LEN__
+    return (
+        platform.system() == "Windows"
+        and not config.is_search_head()
+        and len(checkpoint_dir) >= __CHECKPOINT_DIR_MAX_LEN__
+    )
 
 
 def validate_config():
@@ -223,14 +260,14 @@ def usage():
 
 
 def main(
-        collector_cls,
-        schema_file_path,
-        log_suffix="modinput",
-        checkpoint_cls=None,
-        config_cls=None,
-        cc_json_file=None,
-        schema_para_list=None,
-        single_instance=True
+    collector_cls,
+    schema_file_path,
+    log_suffix="modinput",
+    checkpoint_cls=None,
+    config_cls=None,
+    cc_json_file=None,
+    schema_para_list=None,
+    single_instance=True,
 ):
     """
     Main entry point
@@ -248,7 +285,7 @@ def main(
             do_scheme(
                 mod_input_name=mod_input_name,
                 schema_para_list=schema_para_list,
-                single_instance=single_instance
+                single_instance=single_instance,
             )
         elif args[1] == "--validate-arguments":
             sys.exit(validate_config())
@@ -265,10 +302,9 @@ def main(
                 config_cls=config_cls,
                 log_suffix=log_suffix,
                 single_instance=single_instance,
-                cc_json_file=cc_json_file
+                cc_json_file=cc_json_file,
             )
         except Exception:
-            stulog.logger.exception(
-                "{} task encounter exception".format(mod_input_name))
-        stulog.logger.info("End {} task".format(mod_input_name))
+            stulog.logger.exception(f"{mod_input_name} task encounter exception")
+        stulog.logger.info(f"End {mod_input_name} task")
     sys.exit(0)

@@ -1,26 +1,35 @@
-import six
-from builtins import object
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 import hashlib
 import json
 import os.path as op
 import re
 from calendar import timegm
 from datetime import datetime
+from functools import lru_cache
 
-import sys
-if sys.version_info[0] >= 3:
-   from functools import lru_cache
-else:
-   from functools32 import lru_cache
-
+from splunktalib.common import util
 from splunktaucclib.global_config import GlobalConfig, GlobalConfigSchema
-from . import ta_consts as c
+
 from ...splunktacollectorlib import config as sc
-from ...splunktalib.common import util
+from . import ta_consts as c
 
 
 def utc2timestamp(human_time):
-    regex1 = "\d{4}-\d{2}-\d{2}.\d{2}:\d{2}:\d{2}"
+    regex1 = r"\d{4}-\d{2}-\d{2}.\d{2}:\d{2}:\d{2}"
     match = re.search(regex1, human_time)
     if match:
         formated = match.group()
@@ -30,7 +39,7 @@ def utc2timestamp(human_time):
     strped_time = datetime.strptime(formated, c.time_fmt)
     timestamp = timegm(strped_time.utctimetuple())
 
-    regex2 = "\d{4}-\d{2}-\d{2}.\d{2}:\d{2}:\d{2}(\.\d+)"
+    regex2 = r"\d{4}-\d{2}-\d{2}.\d{2}:\d{2}:\d{2}(\.\d+)"
     match = re.search(regex2, human_time)
     if match:
         timestamp += float(match.group(1))
@@ -46,17 +55,15 @@ def get_md5(data):
     :return:
     """
     assert data is not None, "The input cannot be None"
-    if isinstance(data, six.string_types):
-        return hashlib.sha256(data.encode('utf-8')).hexdigest()
+    if isinstance(data, str):
+        return hashlib.sha256(data.encode("utf-8")).hexdigest()
     elif isinstance(data, (list, tuple, dict)):
-        return hashlib.sha256(json.dumps(data).encode('utf-8')).hexdigest()
+        return hashlib.sha256(json.dumps(data).encode("utf-8")).hexdigest()
 
 
 def get_all_conf_contents(server_uri, sessionkey, settings, input_type=None):
     schema = GlobalConfigSchema(settings)
-    global_config = GlobalConfig(
-        server_uri, sessionkey, schema
-    )
+    global_config = GlobalConfig(server_uri, sessionkey, schema)
     inputs = global_config.inputs.load(input_type=input_type)
     configs = global_config.configs.load()
     settings = global_config.settings.load()
@@ -65,10 +72,10 @@ def get_all_conf_contents(server_uri, sessionkey, settings, input_type=None):
 
 @lru_cache(maxsize=64)
 def format_name_for_file(name):
-    return hashlib.sha256(name.encode('utf-8')).hexdigest()
+    return hashlib.sha256(name.encode("utf-8")).hexdigest()
 
 
-class ConfigSchemaHandler(object):
+class ConfigSchemaHandler:
     _app_name = util.get_appname_from_path(op.abspath(__file__))
     # Division schema keys.
     TYPE = "type"
@@ -79,12 +86,13 @@ class ConfigSchemaHandler(object):
     SEPARATOR = "separator"
 
     def __init__(self, meta_configs, client_schema):
-        self._config = sc.Config(splunkd_uri=meta_configs[c.server_uri],
-                                 session_key=meta_configs[c.session_key],
-                                 schema=json.dumps(client_schema[
-                                                       c.config]),
-                                 user="nobody",
-                                 app=ConfigSchemaHandler._app_name)
+        self._config = sc.Config(
+            splunkd_uri=meta_configs[c.server_uri],
+            session_key=meta_configs[c.session_key],
+            schema=json.dumps(client_schema[c.config]),
+            user="nobody",
+            app=ConfigSchemaHandler._app_name,
+        )
         self._client_schema = client_schema
         self._all_conf_contents = {}
         self._load_conf_contents()
@@ -107,7 +115,8 @@ class ConfigSchemaHandler(object):
         division_settings = dict()
         for division_endpoint, division_contents in division_schema.items():
             division_settings[division_endpoint] = self._process_division(
-                division_endpoint, division_contents)
+                division_endpoint, division_contents
+            )
         return division_settings
 
     def _load_conf_contents(self):
@@ -118,26 +127,32 @@ class ConfigSchemaHandler(object):
         assert isinstance(division_contents, dict)
         for division_key, division_value in division_contents.items():
             try:
-                assert self.TYPE in division_value and \
-                       division_value[self.TYPE] in \
-                       [self.TYPE_SINGLE, self.TYPE_MULTI] and \
-                       self.SEPARATOR in division_value if \
-                    division_value[self.TYPE] == self.TYPE_MULTI else True
+                assert (
+                    self.TYPE in division_value
+                    and division_value[self.TYPE] in [self.TYPE_SINGLE, self.TYPE_MULTI]
+                    and self.SEPARATOR in division_value
+                    if division_value[self.TYPE] == self.TYPE_MULTI
+                    else True
+                )
             except Exception:
                 raise Exception("Invalid division schema")
-            division_metrics.append(DivisionRule(division_endpoint,
-                                                 division_key,
-                                                 division_value[self.TYPE],
-                                                 division_value.get(
-                                                     self.SEPARATOR,
-                                                 ),
-                                                 division_value.get(
-                                                     self.REFER,
-                                                 )))
+            division_metrics.append(
+                DivisionRule(
+                    division_endpoint,
+                    division_key,
+                    division_value[self.TYPE],
+                    division_value.get(
+                        self.SEPARATOR,
+                    ),
+                    division_value.get(
+                        self.REFER,
+                    ),
+                )
+            )
         return division_metrics
 
 
-class DivisionRule(object):
+class DivisionRule:
     def __init__(self, endpoint, metric, type, separator, refer):
         self._endpoint = endpoint
         self._metric = metric

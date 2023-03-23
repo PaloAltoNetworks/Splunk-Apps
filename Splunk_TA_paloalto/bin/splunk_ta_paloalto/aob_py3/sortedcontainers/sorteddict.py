@@ -19,6 +19,8 @@ Sorted dict implementations:
 import sys
 import warnings
 
+from itertools import chain
+
 from .sortedlist import SortedList, recursive_repr
 from .sortedset import SortedSet
 
@@ -27,9 +29,11 @@ from .sortedset import SortedSet
 ###############################################################################
 
 try:
-    from collections.abc import ItemsView, KeysView, ValuesView, Sequence
+    from collections.abc import (
+        ItemsView, KeysView, Mapping, ValuesView, Sequence
+    )
 except ImportError:
-    from collections import ItemsView, KeysView, ValuesView, Sequence
+    from collections import ItemsView, KeysView, Mapping, ValuesView, Sequence
 
 ###############################################################################
 # END Python 2/3 Shims
@@ -151,17 +155,6 @@ class SortedDict(dict):
 
         self._list = SortedList(key=_key)
 
-        # Calls to super() are expensive so cache references to dict methods on
-        # sorted dict instances.
-
-        _dict = super(SortedDict, self)
-        self._dict_clear = _dict.clear
-        self._dict_delitem = _dict.__delitem__
-        self._dict_iter = _dict.__iter__
-        self._dict_pop = _dict.pop
-        self._dict_setitem = _dict.__setitem__
-        self._dict_update = _dict.update
-
         # Reaching through ``self._list`` repeatedly adds unnecessary overhead
         # so cache references to sorted list methods.
 
@@ -232,7 +225,7 @@ class SortedDict(dict):
         Runtime complexity: `O(n)`
 
         """
-        self._dict_clear()
+        dict.clear(self)
         self._list_clear()
 
 
@@ -256,7 +249,7 @@ class SortedDict(dict):
         :raises KeyError: if key not found
 
         """
-        self._dict_delitem(key)
+        dict.__delitem__(self, key)
         self._list_remove(key)
 
 
@@ -304,9 +297,28 @@ class SortedDict(dict):
         """
         if key not in self:
             self._list_add(key)
-        self._dict_setitem(key, value)
+        dict.__setitem__(self, key, value)
 
     _setitem = __setitem__
+
+
+    def __or__(self, other):
+        if not isinstance(other, Mapping):
+            return NotImplemented
+        items = chain(self.items(), other.items())
+        return self.__class__(self._key, items)
+
+
+    def __ror__(self, other):
+        if not isinstance(other, Mapping):
+            return NotImplemented
+        items = chain(other.items(), self.items())
+        return self.__class__(self._key, items)
+
+
+    def __ior__(self, other):
+        self._update(other)
+        return self
 
 
     def copy(self):
@@ -380,7 +392,7 @@ class SortedDict(dict):
             def method(self):
                 # pylint: disable=missing-docstring,unused-argument
                 raise AttributeError(message)
-            method.__name__ = original
+            method.__name__ = original  # pylint: disable=non-str-assignment-to-dunder-name
             method.__doc__ = message
             return property(method)
 
@@ -425,12 +437,11 @@ class SortedDict(dict):
         """
         if key in self:
             self._list_remove(key)
-            return self._dict_pop(key)
+            return dict.pop(self, key)
         else:
             if default is self.__not_given:
                 raise KeyError(key)
-            else:
-                return default
+            return default
 
 
     def popitem(self, index=-1):
@@ -465,7 +476,7 @@ class SortedDict(dict):
             raise KeyError('popitem(): dictionary is empty')
 
         key = self._list_pop(index)
-        value = self._dict_pop(key)
+        value = dict.pop(self, key)
         return (key, value)
 
 
@@ -526,7 +537,7 @@ class SortedDict(dict):
         """
         if key in self:
             return self[key]
-        self._dict_setitem(key, default)
+        dict.__setitem__(self, key, default)
         self._list_add(key)
         return default
 
@@ -545,8 +556,8 @@ class SortedDict(dict):
 
         """
         if not self:
-            self._dict_update(*args, **kwargs)
-            self._list_update(self._dict_iter())
+            dict.update(self, *args, **kwargs)
+            self._list_update(dict.__iter__(self))
             return
 
         if not kwargs and len(args) == 1 and isinstance(args[0], dict):
@@ -555,9 +566,9 @@ class SortedDict(dict):
             pairs = dict(*args, **kwargs)
 
         if (10 * len(pairs)) > len(self):
-            self._dict_update(pairs)
+            dict.update(self, pairs)
             self._list_clear()
-            self._list_update(self._dict_iter())
+            self._list_update(dict.__iter__(self))
         else:
             for key in pairs:
                 self._setitem(key, pairs[key])
@@ -572,7 +583,8 @@ class SortedDict(dict):
         :func:`SortedDict.__init__` confuse pickle so customize the reducer.
 
         """
-        return (self.__class__, (self._key, list(self.items())))
+        items = dict.copy(self)
+        return (type(self), (self._key, items))
 
 
     @recursive_repr()
@@ -631,15 +643,15 @@ def _view_delitem(self, index):
     """
     _mapping = self._mapping
     _list = _mapping._list
-    _dict_delitem = _mapping._dict_delitem
+    dict_delitem = dict.__delitem__
     if isinstance(index, slice):
         keys = _list[index]
         del _list[index]
         for key in keys:
-            _dict_delitem(key)
+            dict_delitem(_mapping, key)
     else:
         key = _list.pop(index)
-        _dict_delitem(key)
+        dict_delitem(_mapping, key)
 
 
 class SortedKeysView(KeysView, Sequence):

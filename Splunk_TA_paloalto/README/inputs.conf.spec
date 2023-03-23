@@ -9,8 +9,8 @@ region =
 python.version = python3
 
 [minemeld_feed://<name>]
-feed_url = 
-indicator_timeout =
+feed_url = https://<feed_url>
+indicator_timeout = How long to retain indicators (in hours)
 credentials =
 python.version = python3
 

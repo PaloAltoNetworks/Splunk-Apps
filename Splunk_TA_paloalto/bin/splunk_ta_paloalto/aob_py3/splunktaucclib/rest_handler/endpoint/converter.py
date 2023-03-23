@@ -1,34 +1,48 @@
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 """
 Converters for Splunk configuration.
 """
 
-from __future__ import absolute_import
 
-from past.builtins import basestring
-from builtins import object
 import base64
 import json
 
 __all__ = [
-    'Converter',
-    'Normaliser',
-    'ChainOf',
-    'UserDefined',
-    'Unifier',
-    'Boolean',
-    'Lower',
-    'Upper',
-    'Mapping',
-    'Base64',
-    'JSON',
+    "Converter",
+    "Normaliser",
+    "ChainOf",
+    "UserDefined",
+    "Unifier",
+    "Boolean",
+    "Lower",
+    "Upper",
+    "Mapping",
+    "Base64",
+    "JSON",
 ]
 
 
-class Converter(object):
+class Converter:
     """
     Converting data: encode for in-coming request
         and decode for out-coming response.
     """
+
     def encode(self, value, request):
         """
         Encode data from client for request.
@@ -83,7 +97,7 @@ class ChainOf(Converter):
 
         :param converters: a list of converters
         """
-        super(ChainOf, self).__init__()
+        super().__init__()
         self._converters = converters
 
     def encode(self, value, request):
@@ -93,6 +107,7 @@ class ChainOf(Converter):
 
     def decode(self, value, response):
         import copy
+
         converters = copy.copy(self._converters)
         converters.reverse()
         for converter in converters:
@@ -127,27 +142,17 @@ class UserDefined(Converter):
         :param args:
         :param kwargs:
         """
-        super(UserDefined, self).__init__()
+        super().__init__()
         self._encoder = encoder
         self._decoder = decoder or self._encoder
         self._args = args
         self._kwargs = kwargs
 
     def encode(self, value, request):
-        return self._encoder(
-            value,
-            request,
-            *self._args,
-            **self._kwargs
-        )
+        return self._encoder(value, request, *self._args, **self._kwargs)
 
     def decode(self, value, response):
-        return self._decoder(
-            value,
-            response,
-            *self._args,
-            **self._kwargs
-        )
+        return self._decoder(value, response, *self._args, **self._kwargs)
 
 
 class Lower(Normaliser):
@@ -163,6 +168,7 @@ class Upper(Normaliser):
     """
     Normalize a string to all upper cases.
     """
+
     def normalize(self, value, data):
         return value.strip().upper()
 
@@ -173,10 +179,10 @@ class Unifier(Normaliser):
     """
 
     def __init__(
-            self,
-            value_map,
-            default=None,
-            case_sensitive=False,
+        self,
+        value_map,
+        default=None,
+        case_sensitive=False,
     ):
         """
 
@@ -186,20 +192,21 @@ class Unifier(Normaliser):
         :param case_sensitive: if it is False,
             it will return lower case
         """
-        super(Unifier, self).__init__()
+        super().__init__()
         self._case_sensitive = case_sensitive
         self._default = default
         self._value_map = {}
-        for val_new, val_old_list in list(value_map.items()):
+        for val_new, val_old_list in value_map.items():
             for val_old in val_old_list:
                 val_old = val_old if case_sensitive else val_old.lower()
-                assert val_old not in self._value_map, \
-                    'Normaliser "Unifier" only supports Many-to-one mapping: %s' % val_old
+                assert val_old not in self._value_map, (
+                    'Normaliser "Unifier" only supports Many-to-one mapping: %s'
+                    % val_old
+                )
                 self._value_map[val_old] = val_new
 
     def normalize(self, value, data):
-        need_lower = not self._case_sensitive and \
-                     isinstance(value, basestring)
+        need_lower = not self._case_sensitive and isinstance(value, str)
         val_old = value.lower() if need_lower else value
         val_default = self._default or value
         return self._value_map.get(val_old, val_default)
@@ -215,20 +222,20 @@ class Boolean(Unifier):
     it returns default value.
     """
 
-    VALUES_TRUE = {'true', 't', '1', 'yes', 'y'}
-    VALUES_FALSE = {'false', 'f', '0', 'no', 'n'}
+    VALUES_TRUE = {"true", "t", "1", "yes", "y"}
+    VALUES_FALSE = {"false", "f", "0", "no", "n"}
 
     def __init__(self, default=True):
         """
 
         :param default: default for unrecognizable input of boolean.
         """
-        super(Boolean, self).__init__(
+        super().__init__(
             value_map={
-                '1': Boolean.VALUES_TRUE,
-                '0': Boolean.VALUES_FALSE,
+                "1": Boolean.VALUES_TRUE,
+                "0": Boolean.VALUES_FALSE,
             },
-            default='1' if default else '0',
+            default="1" if default else "0",
             case_sensitive=False,
         )
 
@@ -247,20 +254,22 @@ class Mapping(Converter):
         :param case_sensitive: if it is False,
             it will return lower case
         """
-        super(Mapping, self).__init__()
+        super().__init__()
         self._case_sensitive = case_sensitive
         self._map_interface, self._map_storage = {}, {}
-        for interface, storage in list(value_map.items()):
+        for interface, storage in value_map.items():
             self._check_and_set(interface, storage)
 
     def _check_and_set(self, interface, storage):
         if not self._case_sensitive:
             interface = interface.lower()
             storage = storage.lower()
-        assert interface not in self._map_interface, \
+        assert interface not in self._map_interface, (
             'Converter "Mapping" only supports one-to-one mapping: "%s"' % interface
-        assert storage not in self._map_storage, \
+        )
+        assert storage not in self._map_storage, (
             'Converter "Mapping" only supports one-to-one mapping: "%s"' % storage
+        )
         self._map_interface[interface] = storage
         self._map_storage[storage] = interface
 

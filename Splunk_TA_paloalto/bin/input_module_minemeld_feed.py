@@ -133,7 +133,7 @@ def pull_from_kvstore(helper, name, start, stats):
 @timer('retrieve_indicators')
 def get_feed_entries(helper, name, start, stats):
     """Pulls the indicators from the minemeld feed."""
-    feed_url = helper.get_arg('feed_url')
+    feed_url = 'https://{0}'.format(helper.get_arg('feed_url'))
     feed_creds = helper.get_arg('credentials')
     feed_headers = {}
     # If auth is specified, add it as a header.

@@ -1,37 +1,42 @@
+#
+# Copyright 2021 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 """
 Global Config Module
 """
 
-from __future__ import absolute_import
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import object
-from urllib.parse import urlparse
+import urllib.parse
+
 from solnlib.splunk_rest_client import SplunkRestClient
 
-from .configuration import (
-    Inputs,
-    Configs,
-    Settings,
-    GlobalConfigError,
-    Configuration
-)
+from .configuration import Configs, Configuration, GlobalConfigError, Inputs, Settings
 from .schema import GlobalConfigSchema
 
-
 __all__ = [
-    'GlobalConfigError',
-    'GlobalConfigSchema',
-    'GlobalConfig',
-    'Inputs',
-    'Configs',
-    'Settings',
+    "GlobalConfigError",
+    "GlobalConfigSchema",
+    "GlobalConfig",
+    "Inputs",
+    "Configs",
+    "Settings",
 ]
 
 
-class GlobalConfig(object):
-
+class GlobalConfig:
     def __init__(self, splunkd_uri, session_key, schema):
         """
         Global Config.
@@ -45,7 +50,7 @@ class GlobalConfig(object):
         self._session_key = session_key
         self._schema = schema
 
-        splunkd_info = urlparse(self._splunkd_uri)
+        splunkd_info = urllib.parse.urlparse(self._splunkd_uri)
         self._client = SplunkRestClient(
             self._session_key,
             self._schema.product,
