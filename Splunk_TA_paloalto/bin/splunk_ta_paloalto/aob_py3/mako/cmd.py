@@ -1,5 +1,5 @@
 # mako/cmd.py
-# Copyright 2006-2019 the Mako authors and contributors <see AUTHORS file>
+# Copyright 2006-2022 the Mako authors and contributors <see AUTHORS file>
 #
 # This module is part of Mako and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -46,11 +46,17 @@ def cmdline(argv=None):
     parser.add_argument(
         "--output-encoding", default=None, help="force output encoding"
     )
+    parser.add_argument(
+        "--output-file",
+        default=None,
+        help="Write to file upon successful render instead of stdout",
+    )
     parser.add_argument("input", nargs="?", default="-")
 
     options = parser.parse_args(argv)
 
     output_encoding = options.output_encoding
+    output_file = options.output_file
 
     if options.input == "-":
         lookup_dirs = options.template_dir or ["."]
@@ -78,11 +84,16 @@ def cmdline(argv=None):
         except:
             _exit()
 
-    kw = dict([varsplit(var) for var in options.var])
+    kw = dict(varsplit(var) for var in options.var)
     try:
-        sys.stdout.write(template.render(**kw))
+        rendered = template.render(**kw)
     except:
         _exit()
+    else:
+        if output_file:
+            open(output_file, "wt", encoding=output_encoding).write(rendered)
+        else:
+            sys.stdout.write(rendered)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,30 @@
+[console_scripts]
+json = jsonspec.cli:main
+
+[jsonspec.cli.commands]
+add = jsonspec.cli:AddCommand
+check = jsonspec.cli:CheckCommand
+copy = jsonspec.cli:CopyCommand
+extract = jsonspec.cli:ExtractCommand
+move = jsonspec.cli:MoveCommand
+remove = jsonspec.cli:RemoveCommand
+replace = jsonspec.cli:ReplaceCommand
+validate = jsonspec.cli:ValidateCommand
+
+[jsonspec.reference.contributions]
+spec = jsonspec.reference.providers:SpecProvider
+
+[jsonspec.validators.formats]
+css.color = jsonspec.validators.util:validate_css_color
+email = jsonspec.validators.util:validate_email
+hostname = jsonspec.validators.util:validate_hostname
+ipv4 = jsonspec.validators.util:validate_ipv4 [ip]
+ipv6 = jsonspec.validators.util:validate_ipv6 [ip]
+regex = jsonspec.validators.util:validate_regex
+rfc3339.datetime = jsonspec.validators.util:validate_rfc3339_datetime
+uri = jsonspec.validators.util:validate_uri
+utc.date = jsonspec.validators.util:validate_utc_date
+utc.datetime = jsonspec.validators.util:validate_utc_datetime
+utc.millisec = jsonspec.validators.util:validate_utc_millisec
+utc.time = jsonspec.validators.util:validate_utc_time
+

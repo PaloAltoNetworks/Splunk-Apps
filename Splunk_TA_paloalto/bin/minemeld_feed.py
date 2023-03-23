@@ -7,7 +7,7 @@ import datetime
 import json
 
 import modinput_wrapper.base_modinput
-from solnlib.packages.splunklib import modularinput as smi
+from splunklib import modularinput as smi
 
 
 
@@ -27,7 +27,7 @@ class ModInputminemeld_feed(modinput_wrapper.base_modinput.BaseModInput):
             use_single_instance = input_module.use_single_instance_mode()
         else:
             use_single_instance = False
-        super(ModInputminemeld_feed, self).__init__("Splunk_TA_paloalto", "minemeld_feed", use_single_instance)
+        super(ModInputminemeld_feed, self).__init__("splunk_ta_paloalto", "minemeld_feed", use_single_instance)
         self.global_checkbox_fields = None
 
     def get_scheme(self):
@@ -46,12 +46,12 @@ class ModInputminemeld_feed(modinput_wrapper.base_modinput.BaseModInput):
         For customized inputs, hard code the arguments here to hide argument detail from users.
         For other input types, arguments should be get from input_module. Defining new input types could be easier.
         """
-        scheme.add_argument(smi.Argument("indicator_timeout", title="The Timeout For Indicators",
-                                         description="How long to retain indicators (in hours)",
-                                         required_on_create=False,
+        scheme.add_argument(smi.Argument("feed_url", title="  Output Node Feed URL",
+                                         description="https://<feed_url>",
+                                         required_on_create=True,
                                          required_on_edit=False))
-        scheme.add_argument(smi.Argument("feed_url", title="Output Node Feed URL",
-                                         description="",
+        scheme.add_argument(smi.Argument("indicator_timeout", title="Indicator Timeout",
+                                         description="How long to retain indicators (in hours)",
                                          required_on_create=True,
                                          required_on_edit=False))
         scheme.add_argument(smi.Argument("credentials", title="Feed Credentials",

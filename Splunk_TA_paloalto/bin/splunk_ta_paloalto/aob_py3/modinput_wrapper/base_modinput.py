@@ -7,7 +7,7 @@ import sys
 import json
 import tempfile
 
-from solnlib.packages.splunklib import modularinput as smi
+from splunklib import modularinput as smi
 from solnlib.log import Logs
 from solnlib.modular_input import checkpointer
 from solnlib import utils as sutils
