@@ -1,4 +1,3 @@
-
 # encoding = utf-8
 
 import json
@@ -33,6 +32,7 @@ def validate_input(helper, definition):
     api_key_id = definition.parameters.get('xdr_key_id', None)
     api_key = definition.parameters.get('xdr_key', None)
     pass
+
 
 def get_mod_time(helper):
     latest_modification_time = helper.get_check_point("latest_incident_modified")
@@ -78,7 +78,7 @@ def fetch_xdr_incidents(helper, client, mod_time):
         filters=filters,
     )
     return incidents
-
+'''
 def fetch_incident_details(helper, client, incident):
     try:
         helper.log_debug('GET DETAILS PLEASE')
@@ -92,6 +92,7 @@ def fetch_incident_details(helper, client, incident):
         )
     helper.log_debug(incident_details)
     return incident_details
+'''
 
 def handle_incidents(helper, ew, incidents, get_details, base_url):
     # Save modification time to KVStore
@@ -102,33 +103,49 @@ def handle_incidents(helper, ew, incidents, get_details, base_url):
         "latest_incident_modified", latest_modification_time
     )
     # Send each incident to Splunk
-    for incident in incidents:
-        if get_details:
-            incident_details = fetch_incident_details(helper, client, incident) 
-            event = helper.new_event(
-                host=base_url,
-                source=helper.get_input_stanza_names(),
-                index=helper.get_output_index(),
-                sourcetype='pan:xdr_incident',
-                data=json.dumps(incident_details))
-            ew.write_event(event)
-        else:
-            event = helper.new_event(
-                host=base_url,
-                source=helper.get_input_stanza_names(),
-                index=helper.get_output_index(),
-                sourcetype='pan:xdr_incident',
-                data=json.dumps(incident))
-            ew.write_event(event)
-    helper.log_debug(f"Got {len(incidents)} results")
-    helper.log_debug(
-        "Got the following incident IDs: "
-        + " ".join([str(y) for y in incidents])
-    )
-    helper.log_debug(
-        f"latest_modification_time: {ts_to_string(latest_modification_time)}"
-    )
-    helper.log_debug(f"latest_incident_id: {latest_incident_id}")
+    #incident_details = fetch_incident_details(helper, client, incident)
+    def fetch_incident_details(helper, client, incident):
+        try:
+            helper.log_debug('GET DETAILS PLEASE')
+            incident_details = client.get_incident_extra_data(
+                incident_id=int(incident["incident_id"])
+            )
+            helper.log_debug('FINISH DETAILS')
+        except KeyError as ex:
+            helper.log_debug(
+                f"Skipping incident as incident_id is not found: {str(ex)}"
+            )
+        helper.log_debug(incident_details)
+        return incident_details
+        for incident in incidents:
+            if get_details:
+            
+            
+                incident_details = fetch_incident_details(helper, client, incident) 
+                event = helper.new_event(
+                    host=base_url,
+                    source=helper.get_input_stanza_names(),
+                    index=helper.get_output_index(),
+                    sourcetype='pan:xdr_incident',
+                    data=json.dumps(incident_details))
+                ew.write_event(event)
+            else:
+                event = helper.new_event(
+                    host=base_url,
+                    source=helper.get_input_stanza_names(),
+                    index=helper.get_output_index(),
+                    sourcetype='pan:xdr_incident',
+                    data=json.dumps(incident))
+                ew.write_event(event)
+        helper.log_debug(f"Got {len(incidents)} results")
+        helper.log_debug(
+            "Got the following incident IDs: "
+            + " ".join([str(y) for y in incidents])
+            )
+        helper.log_debug(
+            f"latest_modification_time: {ts_to_string(latest_modification_time)}"
+            )
+        helper.log_debug(f"latest_incident_id: {latest_incident_id}")
 
 
 def collect_events(helper, ew):
@@ -179,4 +196,3 @@ def collect_events(helper, ew):
         handle_incidents(helper, ew, incidents, get_details, base_url)
     else:
         helper.log_debug("No Incidents")
-        
