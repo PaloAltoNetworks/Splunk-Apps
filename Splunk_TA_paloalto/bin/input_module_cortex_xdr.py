@@ -70,14 +70,19 @@ def fetch_xdr_incidents(helper, client, mod_time):
             "value": mod_time,
         }
     )
+    try:
+        incidents = client.get_incidents(
+                limit=50,
+                sort_field="modification_time",
+                sort_order="asc",
+                filters=filters,
+            )
+        helper.log_info("Message: XDR API Returned Successfully")
+        return incidents
+    except Exception as e:
+        message = "Message: %s"%e
+        helper.log_error(message)
 
-    incidents = client.get_incidents(
-        limit=50,
-        sort_field="modification_time",
-        sort_order="asc",
-        filters=filters,
-    )
-    return incidents
 
 def fetch_incident_details(helper, client, incident):
     try:
@@ -120,7 +125,7 @@ def handle_incidents(helper, ew, incidents, get_details, base_url):
                 sourcetype='pan:xdr_incident',
                 data=json.dumps(incident))
             ew.write_event(event)
-    helper.log_debug(f"Got {len(incidents)} results")
+    helper.log_info(f"Got {len(incidents)} results")
     helper.log_debug(
         "Got the following incident IDs: "
         + " ".join([str(y) for y in incidents])
@@ -178,5 +183,5 @@ def collect_events(helper, ew):
     if incidents:
         handle_incidents(helper, ew, incidents, get_details, base_url)
     else:
-        helper.log_debug("No Incidents")
+        helper.log_info("No Incidents")
         

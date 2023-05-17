@@ -57,7 +57,7 @@ After installation, the server is running.
 
 ## License
 
-You can run the demo unlicnesed or with a license.
+You can run the demo unlicensed or with a license.
 
 **Unlicensed**
 

@@ -1,0 +1,345 @@
+<form version="1.1">
+  <label>Health</label>
+  <search id="basesearch">
+    <query>
+      index="_internal" source="/opt/splunk/var/log/splunk/splunk_ta_paloalto_cortex_xdr.log" earliest=-2m 
+      | search _raw="*XDR API Returned Successfully*" OR _raw="*401 Client Error:*" 
+      | head 1 
+      | rex field=_raw "Message: (?&lt;message&gt;.*)" 
+      | eval severity_level=if(like(message, "401 Client Error%"),"3","0") 
+      | eval Results=case(severity_level=="3", "❗Invalid Cortex XDR API Key or ID", severity_level=="0","✅ This health check item was successful.", false(), "⏹️ ️This health check item is not applicable.") 
+      | eval Check="Cortex XDR API Validation" 
+      | eval "Learn More"="Open Documentation" 
+      | append 
+          [| search sourcetype="pan:*" earliest=-24h 
+          | dedup sourcetype 
+          | fields host sourcetype splunk_server 
+          | stats list(sourcetype) as sourcetypes by splunk_server 
+          | eval invalid_sourcetypes=mvfilter(sourcetypes=="pan:log" OR sourcetypes=="pan:firewall") 
+          | eval severity_level=if(isnull(invalid_sourcetypes), "0", "3") 
+          | eval Check="Valid Palo Alto Networks Sourcetypes" 
+          | eval doc_url="https://pan.dev/splunk/docs/health-checks/#valid-palo-alto-networks-sourcetypes"
+          | eval "Learn More"="Open Documentation" 
+          | eval Results=case(severity_level=="3", "❗Invalid sourcetypes detected.",severity_level=="0","✅ This health check item was successful.",false(),"⏹️ This health check item is not applicable.") ]
+      | append 
+          [| search sourcetype=pan:* sourcetype!="pan:iot_*" sourcetype!="pan:xdr_incident" sourcetype!="pan:aperture" sourcetype!="pan:firewall_cloud" 
+          | dedup sourcetype 
+          | rex field=_raw "^(?:[^,]*,){6}(?&lt;time_field&gt;[^,]*)" 
+          | eval valid_time=strptime(time_field, "%Y/%m/%d %H:%M:%S") 
+          | eval severity_level=if(isnull(valid_time), 3, 0) 
+          | eval Check=sourcetype." Timestamp Compatibility" 
+          | eval doc_url="https://pan.dev/splunk/docs/health-checks/#timestamp-compatibility"
+          | eval "Learn More"="Open Documentation" 
+          | eval Results=case(severity_level=="3", "❗Timestamp format is incorrect. Make sure logs from Firewall or Panorama is sent via syslog BSD with default formatting.",severity_level=="0","✅ This health check item was successful.",false(),"⏹️ This health check item is not applicable.") ]
+      | append 
+          [| search sourcetype="pan:*" latest=+1mon earliest=now 
+          | stats count 
+          | eval severity_level = case(count &gt; "0", 3, count=="0", 0, false(), 1) 
+          | eval Check="Timestamp Validation" 
+          | eval doc_url="https://pan.dev/splunk/docs/health-checks/#timestamp-validation"
+          | eval "Learn More"="Open Documentation" 
+          | eval Results=case(severity_level=="3", "❗Log sourcetypes with timestamps detected in the future.",severity_level=="0","✅ This health check item was successful.",false(),"⏹️ This health check item is not applicable.") ]
+      | append 
+          [| search index="_internal" source="/opt/splunk/var/log/python_upgrade_readiness_app/scan_summary/scan_summary.json" 
+          | head 1 
+          | spath output=name {}.name 
+          | spath output=scanType {}.scanType 
+          | spath output=details {}.details 
+          | spath output=status {}.status 
+          | eval combined=mvzip(mvzip('name', 'details',"|"), mvzip('scanType', 'status', "|"), "|") 
+          | fields combined, host 
+          | mvexpand combined 
+          | makemv delim="|", combined 
+          | eval name=mvindex(combined, 0) 
+          | eval details=mvindex(combined,1) 
+          | eval scanType=mvindex(combined, 2) 
+          | eval status=mvindex(combined, 3) 
+          | eval severity_level=case(status=="BLOCKER","3",status=="PASSED", "0") 
+          | search scanType="appPythonUpradeReadinessScanDetails" AND (name="Splunk_TA_paloalto" OR name="SplunkforPaloAltoNetworks") 
+          | eval Check=name." Python 2 Artifacts" 
+          | eval doc_url="https://pan.dev/splunk/docs/health-checks/#unsupported-code"
+          | eval "Learn More"="Open Documentation" 
+          | eval Results=case(severity_level=="3", "❗ ".name." is not compatible with Python 3.",severity_level=="0","✅ This health check item was successful.",false(),"⏹️ This health check item is not applicable.") ]
+      | append 
+          [| search index="_internal" source="/opt/splunk/var/log/python_upgrade_readiness_app/scan_summary/scan_summary.json" 
+          | head 1 
+          | spath output=name {}.name 
+          | spath output=scanType {}.scanType 
+          | spath output=details {}.details 
+          | spath output=status {}.status 
+          | eval combined=mvzip(mvzip('name', 'details',"|"), mvzip('scanType', 'status', "|"), "|") 
+          | fields combined, host 
+          | mvexpand combined 
+          | makemv delim="|", combined 
+          | eval name=mvindex(combined, 0) 
+          | eval details=mvindex(combined,1) 
+          | eval scanType=mvindex(combined, 2) 
+          | eval status=mvindex(combined, 3) 
+          | eval severity_level=case(status=="BLOCKER","3",status=="PASSED", "0") 
+          | search scanType="appJqueryUpradeReadinessScanDetails" AND (name="Splunk_TA_paloalto" OR name="SplunkforPaloAltoNetworks") 
+          | eval Check=name." jQuery Artifacts" 
+          | eval doc_url="https://pan.dev/splunk/docs/health-checks/#unsupported-code"
+          | eval "Learn More"="Open Documentation" 
+          | eval Results=case(severity_level=="3", "❗ ".name." is not compatible with jQuery.",severity_level=="0","✅ This health check item was successful.",false(),"⏹️ This health check item is not applicable.") ]
+      | append 
+          [| search sourcetype="pan:firewall_cloud" earliest=-15m 
+          | eval isJSON = if(json_valid(_raw), 0, 1) 
+          | stats count by isJSON 
+          | eval severity_level=case(isJSON==0 AND count&gt;0, 0, isJSON==1 and count &gt; 0, 3) 
+          | eval Check="Cortex Log Format" 
+          | eval doc_url="https://pan.dev/splunk/docs/health-checks/#cortex-log-format"
+          | eval "Learn More"="Open Documentation" 
+          | eval Results = case(severity_level=3, "❗ Invalid JSON detected for Cortex Logs", severity_level=="0","✅ This health check item was successful.",false(),"⏹️ This health check item is not applicable.") ]
+      | append 
+          [| search rest /servicesNS/nobody/SplunkforPaloAltoNetworks/admin/summarization by_tstats=t splunk_server=local count=0 
+          | search eai:acl.app=SplunkforPaloAltoNetworks 
+          | eval datamodel=replace('summary.id',"DM_".'eai:acl.app'."_","") 
+          | stats list(datamodel) as datamodels by splunk_server 
+          | eval total_count = mvcount(datamodels) 
+          | eval severity_level=case(total_count="2", 0, total_count="0", 3, total_count="1",2) 
+          | eval Check="Datamodel Acceleration" 
+          | eval doc_url="https://pan.dev/splunk/docs/health-checks/#datamodel-acceleration"
+          | eval "Learn More"="Open Documentation" 
+          | eval Results=case(severity_level=="3", "❗Datamodels are not enabled. ", severity_level="2", "⚠️ One or more datamodels are not enabled. ", severity_level=="0","✅ This health check item was successful.",false(),"⏹️ This health check item is not applicable.")]
+          | sort Results desc
+    </query>
+  </search>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="time" searchWhenChanged="true" token="time">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search base="basesearch">
+          <query>| stats count</query>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Total Checks</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| stats count(eval(severity_level==0)) as count</query>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Pass</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| stats count(eval(severity_level==2)) as count</query>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xf8be34","0xf8be34"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Warning</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <search base="basesearch">
+          <query>| stats count(eval(severity_level==3)) as count</query>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0xdc4e41","0xdc4e41"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Fail</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Health Checks</title>
+      <table>
+        <search base="basesearch"></search>
+        <option name="count">15</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <fields>["Check", "Results", "Learn More"]</fields>
+        <!-- <fields>["ID","Severity","Score","Incident Description","Hosts","Status","Assigned To","Incident Sources","XDR Link"]</fields> -->
+        <drilldown>
+          <condition field="Learn More">
+            <set token="inc-doc_url">$row.doc_url$</set>
+            <link target="_blank">
+              <![CDATA[$row.doc_url|n$]]>
+            </link>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>sourcetype="pan:*" | stats dc(sourcetype)</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Sourcetypes</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search>
+          <query>index="_internal" log_level="ERROR" pan | stats dc(event_message)</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="colorBy">trend</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">large</option>
+        <option name="trendColorInterpretation">inverse</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Internal Error Messages</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Sourcetypes Detected</title>
+      <table>
+        <search>
+          <query>sourcetype="pan:*" | stats latest(_time) as Time, count by sourcetype | eval Last Seen=strftime(Time,"%Y-%m-%d %H:%M:%S") | table sourcetype, count, "Last Seen" | sort by count desc</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Internal Log Error Messages</title>
+      <table>
+        <search>
+          <query>index="_internal" log_level="ERROR" pan | stats count by event_message, source</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| rest /services/apps/local/SplunkforPaloAltoNetworks | fields version</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="underLabel">App Version</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search>
+          <query>| rest /services/apps/local/Splunk_TA_paloalto | fields version</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="underLabel">Add-on Version</option>
+      </single>
+    </panel>
+  </row>
+</form>
