@@ -8,7 +8,7 @@ on:
 jobs:
   appinspect-addon:
     name: AppInspect (Add-on)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04 
     # Remove write permissions
     permissions:
       contents: read
@@ -55,7 +55,7 @@ jobs:
 
   appinspect-app:
     name: AppInspect (App)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04 
     permissions:
       contents: read
     steps:
