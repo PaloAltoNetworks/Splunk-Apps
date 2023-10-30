@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "1.0.0",
   "info": {
     "title": "Palo Alto Networks Add-on for Splunk",
     "id": {
