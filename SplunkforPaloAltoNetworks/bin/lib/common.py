@@ -71,8 +71,10 @@ APPNAME = 'Splunk_TA_paloalto'
 class NoCredentialsFound(Exception):
     pass
 
+password = ''
 
 def get_firewall_credentials(session_key):
+    global password
     """Given a splunk session_key returns a clear text user name
     and password from a splunk password container"""
     try:
@@ -94,7 +96,7 @@ def get_firewall_credentials(session_key):
             username = accounts[i]['username']
 
     for i, c in list(entities.items()):
-        if c['username'] == 'Firewall``splunk_cred_sep``1':
+        if c['username'] == 'firewall``splunk_cred_sep``1':
             logger.debug('Match found for firewall credentials')
             clear_password = json.loads(c['clear_password'])
             password = clear_password['password']
