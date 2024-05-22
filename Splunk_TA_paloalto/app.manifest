@@ -1,78 +1,56 @@
 {
-  "schemaVersion": "2.0.0",
-  "info": {
-    "title": "Palo Alto Networks Add-on for Splunk",
-    "id": {
-      "group": null,
-      "name": "Splunk_TA_paloalto",
-      "version": "0.0.0-develop"
+    "schemaVersion": "2.0.0",
+    "info": {
+        "title": "Palo Alto Networks Add-on for Splunk",
+        "id": {
+            "group": null,
+            "name": "Splunk_TA_paloalto",
+            "version": "0.0.0.develop"
+        },
+        "author": [
+            {
+                "name": "Palo Alto Networks",
+                "email": null,
+                "company": null
+            }
+        ],
+        "releaseDate": null,
+        "description": "",
+        "classification": {
+            "intendedAudience": null,
+            "categories": [],
+            "developmentStatus": null
+        },
+        "commonInformationModels": null,
+        "license": {
+            "name": null,
+            "text": null,
+            "uri": null
+        },
+        "privacyPolicy": {
+            "name": null,
+            "text": null,
+            "uri": null
+        },
+        "releaseNotes": {
+            "name": null,
+            "text": null,
+            "uri": null
+        }
     },
-    "author": [
-      {
-        "name": "Palo Alto Networks",
-        "email": "splunkapp@paloaltonetworks.com",
-        "company": "Palo Alto Networks"
-      }
+    "dependencies": {},
+    "tasks": [],
+    "inputGroups": {},
+    "incompatibleApps": {},
+    "platformRequirements": {
+        "splunk": {
+            "Enterprise": "*"
+        }
+    },
+    "supportedDeployments": [
+        "*"
     ],
-    "releaseDate": null,
-    "description": "The Palo Alto Networks Add-on allows a Splunk Enterprise administrator to collect data from Palo Alto Networks Next-Generation Firewall devices, Panorama, Advanced Endpoint Protection, Aperture SaaS Security, AutoFocus Threat Intelligence, and MineMeld.",
-    "classification": {
-      "intendedAudience": "IT Professionals",
-      "categories": [
-        "IT Operations",
-        "Security, Fraud & Compliance"
-      ],
-      "developmentStatus": "Alpha"
-    },
-    "commonInformationModels": {
-      "Authentication":"4.19.0",
-      "Alert":"4.19.0",
-      "Change":"4.19.0",
-      "Endpoint":"4.19.0",
-      "Network Traffic":"4.19.0",
-      "Malware":"4.19.0",
-      "Intrusion Detection":"4.19.0",
-      "Network Sessions":"4.19.0",
-      "Web":"4.19.0"
-    },
-    "license": {
-      "name": null,
-      "text": null,
-      "uri": null
-    },
-    "privacyPolicy": {
-      "name": null,
-      "text": null,
-      "uri": null
-    },
-    "releaseNotes": {
-      "name": null,
-      "text": "./README.md",
-      "uri": null
-    }
-  },
-  "dependencies": {},
-  "tasks": [
-    "autofocus_export",
-    "aperture",
-    "minemeld_feed",
-    "iot_security"
-  ],
-  "inputGroups": {},
-  "incompatibleApps": {},
-  "platformRequirements": {
-    "splunk": {
-      "Enterprise": "*"
-    }
-  },
-  "supportedDeployments": [
-    "_standalone",
-    "_distributed",
-    "_search_head_clustering"
-  ],
-  "targetWorkloads": [
-    "_search_heads",
-    "_indexers",
-    "_forwarders"
-  ]
+    "targetWorkloads": [
+        "*"
+    ]
 }

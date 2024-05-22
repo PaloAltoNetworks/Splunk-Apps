@@ -1,6 +1,6 @@
 <nav search_view="search" color="#FFFFFF">
-  <view name="inputs" default="true" />
-  <view name="configuration"/>
-  <view name="health"/>
-  <view name="search" label="Search"/>
+<view name="inputs" default="true" />
+<view name="configuration"/>
+<view name="health"/>
+<view name="search" label="Search"/>
 </nav>
