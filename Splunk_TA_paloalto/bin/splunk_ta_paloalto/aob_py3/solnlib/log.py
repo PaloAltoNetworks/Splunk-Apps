@@ -1,11 +1,11 @@
 #
-# Copyright 2021 Splunk Inc.
+# Copyright 2024 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,9 @@
 import logging
 import logging.handlers
 import os.path as op
+import traceback
 from threading import Lock
+from typing import Dict, Any
 
 from .pattern import Singleton
 from .splunkenv import make_splunkhome_path
@@ -64,7 +66,7 @@ class Logs(metaclass=Singleton):
     """A singleton class that manage all kinds of logger.
 
     Examples:
-      >>> from solnlib.import log
+      >>> from solnlib import log
       >>> log.Logs.set_context(directory='/var/log/test',
                                namespace='test')
       >>> logger = log.Logs().get_logger('mymodule')
@@ -217,3 +219,70 @@ class Logs(metaclass=Singleton):
                 for logger in list(self._loggers.values()):
                     logger.setLevel(level)
                 logging.getLogger().setLevel(level)
+
+
+def log_event(
+    logger: logging.Logger, key_values: Dict[str, Any], log_level: int = logging.INFO
+):
+    """General function to log any event in key-value format."""
+    message = " ".join([f"{k}={v}" for k, v in key_values.items()])
+    logger.log(log_level, message)
+
+
+def modular_input_start(logger: logging.Logger, modular_input_name: str):
+    """Specific function to log the start of the modular input."""
+    log_event(
+        logger,
+        {
+            "action": "started",
+            "modular_input_name": modular_input_name,
+        },
+    )
+
+
+def modular_input_end(logger: logging.Logger, modular_input_name: str):
+    """Specific function to log the end of the modular input."""
+    log_event(
+        logger,
+        {
+            "action": "ended",
+            "modular_input_name": modular_input_name,
+        },
+    )
+
+
+def events_ingested(
+    logger: logging.Logger, modular_input_name: str, sourcetype: str, n_events: int
+):
+    """Specific function to log the number of events ingested."""
+    log_event(
+        logger,
+        {
+            "action": "events_ingested",
+            "modular_input_name": modular_input_name,
+            "sourcetype_ingested": sourcetype,
+            "n_events": n_events,
+        },
+    )
+
+
+def log_exception(
+    logger: logging.Logger,
+    e: Exception,
+    full_msg: bool = True,
+    msg_before: str = None,
+    msg_after: str = None,
+    log_level: int = logging.ERROR,
+):
+    """General function to log exceptions."""
+    exc_type, exc_value, exc_traceback = type(e), e, e.__traceback__
+    if full_msg:
+        error = traceback.format_exception(exc_type, exc_value, exc_traceback)
+    else:
+        error = traceback.format_exception_only(exc_type, exc_value)
+
+    msg_start = msg_before if msg_before is not None else ""
+    msg_mid = "".join(error)
+    msg_end = msg_after if msg_after is not None else ""
+    msg = f"{msg_start}\n{msg_mid}\n{msg_end}"
+    logger.log(log_level, msg)

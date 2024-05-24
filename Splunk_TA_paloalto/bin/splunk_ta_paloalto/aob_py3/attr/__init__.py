@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: MIT
 
-import sys
-import warnings
+"""
+Classes Without Boilerplate
+"""
 
 from functools import partial
+from typing import Callable
 
 from . import converters, exceptions, filters, setters, validators
 from ._cmp import cmp_using
+from ._compat import Protocol
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
@@ -24,36 +27,12 @@ from ._next_gen import define, field, frozen, mutable
 from ._version_info import VersionInfo
 
 
-if sys.version_info < (3, 7):  # pragma: no cover
-    warnings.warn(
-        "Running attrs on Python 3.6 is deprecated & we intend to drop "
-        "support soon. If that's a problem for you, please let us know why & "
-        "we MAY re-evaluate: <https://github.com/python-attrs/attrs/pull/993>",
-        DeprecationWarning,
-    )
-
-__version__ = "22.2.0"
-__version_info__ = VersionInfo._from_version_string(__version__)
-
-__title__ = "attrs"
-__description__ = "Classes Without Boilerplate"
-__url__ = "https://www.attrs.org/"
-__uri__ = __url__
-__doc__ = __description__ + " <" + __uri__ + ">"
-
-__author__ = "Hynek Schlawack"
-__email__ = "hs@ox.cx"
-
-__license__ = "MIT"
-__copyright__ = "Copyright (c) 2015 Hynek Schlawack"
-
-
 s = attributes = attrs
 ib = attr = attrib
 dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
 
-class AttrsInstance:
+class AttrsInstance(Protocol):
     pass
 
 
@@ -91,3 +70,65 @@ __all__ = [
     "validate",
     "validators",
 ]
+
+
+def _make_getattr(mod_name: str) -> Callable:
+    """
+    Create a metadata proxy for packaging information that uses *mod_name* in
+    its warnings and errors.
+    """
+
+    def __getattr__(name: str) -> str:
+        dunder_to_metadata = {
+            "__title__": "Name",
+            "__copyright__": "",
+            "__version__": "version",
+            "__version_info__": "version",
+            "__description__": "summary",
+            "__uri__": "",
+            "__url__": "",
+            "__author__": "",
+            "__email__": "",
+            "__license__": "license",
+        }
+        if name not in dunder_to_metadata:
+            msg = f"module {mod_name} has no attribute {name}"
+            raise AttributeError(msg)
+
+        import sys
+        import warnings
+
+        if sys.version_info < (3, 8):
+            from importlib_metadata import metadata
+        else:
+            from importlib.metadata import metadata
+
+        if name not in ("__version__", "__version_info__"):
+            warnings.warn(
+                f"Accessing {mod_name}.{name} is deprecated and will be "
+                "removed in a future release. Use importlib.metadata directly "
+                "to query for attrs's packaging metadata.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        meta = metadata("attrs")
+        if name == "__license__":
+            return "MIT"
+        if name == "__copyright__":
+            return "Copyright (c) 2015 Hynek Schlawack"
+        if name in ("__uri__", "__url__"):
+            return meta["Project-URL"].split(" ", 1)[-1]
+        if name == "__version_info__":
+            return VersionInfo._from_version_string(meta["version"])
+        if name == "__author__":
+            return meta["Author-email"].rsplit(" ", 1)[0]
+        if name == "__email__":
+            return meta["Author-email"].rsplit("<", 1)[1][:-1]
+
+        return meta[dunder_to_metadata[name]]
+
+    return __getattr__
+
+
+__getattr__ = _make_getattr(__name__)

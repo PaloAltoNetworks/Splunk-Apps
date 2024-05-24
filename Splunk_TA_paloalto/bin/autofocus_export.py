@@ -7,8 +7,7 @@ import datetime
 import json
 
 import modinput_wrapper.base_modinput
-from solnlib.packages.splunklib import modularinput as smi
-
+from splunklib import modularinput as smi
 
 
 import input_module_autofocus_export as input_module
