@@ -2,13 +2,14 @@
   <h1 align="center">Deprecated: Splunk App and Add-on</h1>
 </p>
 
-⚠️ **Important Notice**: This TA and App is now deprecated and will no longer receive updates or support. For continued support and future updates, please switch to the new app supported by Splunk.
-
-Please follow the [documentation](https://splunk.github.io/splunk-app-for-palo-alto-networks/Installationoverview/) for a migration path to use the Splunk supported
+> [!IMPORTANT]
+>  
+>This TA and App is now deprecated and will no longer receive updates or support. For continued support and future updates, please switch to the new app supported by Splunk.
+> 
+>Please follow the [documentation](https://splunk.github.io/splunk-app-for-palo-alto-networks/Installationoverview/) for a migration path to use the Splunk supported
 [Splunk App for Palo Alto Networks](https://splunkbase.splunk.com/app/7505).
-
-Please follow the [documentation](https://splunk.github.io/splunk-add-on-for-palo-alto-networks/MigrationPaths/) for a migration path to use the Splunk supported [Splunk Add-on for Palo Alto Networks](https://splunkbase.splunk.com/app/7523).
-
+> 
+>Please follow the [documentation](https://splunk.github.io/splunk-add-on-for-palo-alto-networks/MigrationPaths/) for a migration path to use the Splunk supported [Splunk Add-on for Palo Alto Networks](https://splunkbase.splunk.com/app/7523).
 ___
 >This monorepo contains both the App and Add-on for Splunk, including tests, release scripts, and CI/CD configuration
 
